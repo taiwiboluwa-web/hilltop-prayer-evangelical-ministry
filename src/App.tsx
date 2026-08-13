@@ -176,7 +176,7 @@ function AnimatedText({ children, style, className, tag = 'div' }: { children: R
       } else {
         clearInterval(timer)
       }
-    }, 18)
+    }, 40)
     return () => clearInterval(timer)
   }, [isVisible, fullText])
 
@@ -977,15 +977,7 @@ export function App() {
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--ivory)' }}>
       <Nav activePage={activePage} setActivePage={setActivePage} />
-      {activePage === 'Home' && (
-        <>
-          <Hero setActivePage={setActivePage} />
-          <AboutPage />
-          <Sermons />
-          <Events />
-          <MinistersSection />
-        </>
-      )}
+      {activePage === 'Home' && <Hero setActivePage={setActivePage} />}
       {activePage === 'About' && <AboutPage />}
       {activePage === 'Sermons' && <Sermons />}
       {activePage === 'Events' && <Events />}
