@@ -139,7 +139,7 @@ function useScrolled(px = 60) {
   return on
 }
 
-function AnimatedText({ children, style, className, tag = 'div' }: { children: React.ReactNode; style?: React.CSSProperties; className?: string; tag?: keyof JSX.IntrinsicElements }) {
+function AnimatedText({ children, style, className, tag = 'div' }: { children: React.ReactNode; style?: React.CSSProperties; className?: string; tag?: keyof React.JSX.IntrinsicElements }) {
   const [displayedText, setDisplayedText] = useState('')
   const [isVisible, setIsVisible] = useState(false)
   const elementRef = useRef<HTMLElement>(null)
@@ -1157,3 +1157,4 @@ export default function App() {
     </>
   )
 }
+```[cite: 3]
