@@ -41,7 +41,11 @@ interface GalleryItem {
   created_at?: string;
 }
 
-export function AdminPortal() {
+interface AdminPortalProps {
+  onBack: () => void;
+}
+
+export function AdminPortal({ onBack }: AdminPortalProps) {
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [authError, setAuthError] = useState<string>('');
@@ -418,7 +422,12 @@ export function AdminPortal() {
     return (
       <div style={{ minHeight: '100vh', backgroundColor: '#08080e', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', fontFamily: 'Outfit, sans-serif' }}>
         <div style={{ width: '100%', maxWidth: '400px', backgroundColor: '#0e0e17', border: '1px solid rgba(201,168,76,0.2)', borderRadius: '16px', padding: '32px' }}>
-          <h2 style={{ color: '#f2ede4', textAlign: 'center', fontSize: '24px', fontWeight: 'bold', marginBottom: '24px' }}>Admin Portal</h2>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+            <h2 style={{ color: '#f2ede4', textAlign: 'center', fontSize: '24px', fontWeight: 'bold', margin: 0 }}>Admin Portal</h2>
+            <button onClick={onBack} style={{ backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(242,237,228,0.7)', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', fontSize: '12px' }}>
+              ← Back
+            </button>
+          </div>
           
           {authError && (
             <div style={{ backgroundColor: 'rgba(239,68,68,0.1)', border: '1px solid #ef4444', color: '#f87171', padding: '12px', borderRadius: '8px', fontSize: '13px', marginBottom: '16px', textAlign: 'center' }}>
@@ -487,9 +496,26 @@ export function AdminPortal() {
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(201,168,76,0.15)', paddingBottom: '20px', marginBottom: '28px' }}>
           <div>
-            <h1 style={{ fontSize: '26px', fontWeight: '800', margin: 0, color: '#f2ede4', letterSpacing: '0.02em' }}>
-              Ministry Content Manager
-            </h1>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '6px' }}>
+              <button
+                onClick={onBack}
+                style={{
+                  backgroundColor: 'rgba(201,168,76,0.1)',
+                  border: '1px solid rgba(201,168,76,0.3)',
+                  color: '#e4c76b',
+                  padding: '6px 12px',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontWeight: '600',
+                  fontSize: '12px',
+                }}
+              >
+                ← Back to Home
+              </button>
+              <h1 style={{ fontSize: '26px', fontWeight: '800', margin: 0, color: '#f2ede4', letterSpacing: '0.02em' }}>
+                Ministry Content Manager
+              </h1>
+            </div>
             <p style={{ color: 'rgba(242,237,228,0.5)', fontSize: '13px', margin: '4px 0 0 0' }}>
               Manage ministers, fellowship gallery photos, video sermons, live broadcasts, and audio tracks
             </p>
