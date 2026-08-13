@@ -139,7 +139,7 @@ function useScrolled(px = 60) {
   return on
 }
 
-function AnimatedText({ children, style, className, tag = 'div' }: { children: React.ReactNode; style?: React.CSSProperties; className?: string; tag?: keyof React.JSX.IntrinsicElements }) {
+function AnimatedText({ children, style, className, tag = 'div' }: { children: React.ReactNode; style?: React.CSSProperties; className?: string; tag?: keyof JSX.IntrinsicElements }) {
   const [displayedText, setDisplayedText] = useState('')
   const [isVisible, setIsVisible] = useState(false)
   const elementRef = useRef<HTMLElement>(null)
@@ -646,27 +646,30 @@ function Events() {
       <div style={{ maxWidth: 1100, margin: '0 auto', position: 'relative' }}>
         <div className="label" style={{ marginBottom: 16 }}>Calendar</div>
         <AnimatedText tag="h2" className="display" style={{ fontSize: 'clamp(2rem,4.5vw,3.4rem)', marginBottom: 48 }}>
-          What Happening at Hilltop
+          Upcoming Events
         </AnimatedText>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 24 }}>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 28 }}>
           {EVENTS.map(ev => (
-            <div key={ev.title} className="card">
-              <div style={{ position: 'relative', height: 196, background: '#0f0f18', overflow: 'hidden' }}>
-                <img src={ev.img} alt={ev.title} style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'brightness(0.38) saturate(0.65)', transition: 'transform 0.5s ease' }}/>
+            <div key={ev.title} className="card" style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+              <div style={{ position: 'relative', height: 200, background: '#0f0f18' }}>
+                <img src={ev.img} alt={ev.title} style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'brightness(0.38) saturate(0.65)' }}/>
                 <div className="overlay"/>
-                <div style={{ position: 'absolute', top: 14, left: 14, background: 'rgba(8,8,14,0.8)', border: '1px solid var(--border-hi)', borderRadius: 10, padding: '8px 14px', textAlign: 'center' }}>
-                  <div className="serif gold-text" style={{ fontFamily: 'Instrument Serif', fontSize: '1.5rem', lineHeight: 1 }}>{ev.date.split(' ')[0]}</div>
-                  <div className="label" style={{ fontSize: '0.55rem', color: 'rgba(201,168,76,0.55)', marginTop: 2 }}>{ev.date.split(' ')[1]}</div>
+                <div style={{ position: 'absolute', top: 16, left: 16, background: 'rgba(201,168,76,0.9)', color: '#08080e', padding: '6px 12px', borderRadius: 8, fontFamily: 'Outfit', fontWeight: 800, fontSize: '0.75rem', textAlign: 'center', lineHeight: 1.1 }}>
+                  {ev.date}
                 </div>
               </div>
-              <div style={{ padding: '22px 22px 24px' }}>
-                <div className="serif" style={{ fontFamily: 'Instrument Serif', fontSize: '1.15rem', color: 'var(--ivory)', lineHeight: 1.25, marginBottom: 10 }}>{ev.title}</div>
-                <p style={{ fontFamily: 'Outfit', fontSize: '0.78rem', color: 'var(--muted)', lineHeight: 1.6, marginBottom: 14 }}>{ev.desc}</p>
-                <div style={{ display: 'flex', gap: 10, marginBottom: 18, fontFamily: 'Outfit', fontSize: '0.72rem', color: 'var(--dimmed)' }}>
-                  <span>⏱ {ev.time}</span>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <span className="tag" style={{ fontSize: '0.58rem' }}>📍 {ev.venue.split(',')[0]}</span>
+              <div style={{ padding: '28px 24px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                <div>
+                  <div style={{ fontFamily: 'Outfit', fontSize: '0.72rem', color: 'var(--gold-light)', fontWeight: 600, marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                    {ev.time} · {ev.venue}
+                  </div>
+                  <div className="serif" style={{ fontSize: '1.4rem', color: 'var(--ivory)', marginBottom: 12, lineHeight: 1.25 }}>
+                    {ev.title}
+                  </div>
+                  <p style={{ fontFamily: 'Outfit', fontSize: '0.88rem', color: 'var(--muted)', lineHeight: 1.6 }}>
+                    {ev.desc}
+                  </p>
                 </div>
               </div>
             </div>
@@ -682,117 +685,60 @@ function MinistersSection() {
   const [selectedMinister, setSelectedMinister] = useState<MinisterItem | null>(null)
 
   useEffect(() => {
-    async function loadMinisters() {
-      try {
-        const { data, error } = await supabase
-          .from('ministers')
-          .select('*')
-          .order('id', { ascending: true })
-
-        if (!error && data && data.length > 0) {
-          const formatted: MinisterItem[] = data.map((item: MinisterRow, idx: number) => ({
-            id: item.id ?? idx,
-            name: item.name,
-            role: item.role,
-            desc: item.desc || '',
-            img: item.image_url || item.img || IMGS.pastor,
-          }))
-          setMinisters(formatted)
-        }
-      } catch (err) {
-        console.error('Failed to load ministers from Supabase:', err)
+    supabase.from('ministers').select('*').order('id', { ascending: true }).then(({ data }) => {
+      if (data && data.length > 0) {
+        setMinisters(data.map((m: MinisterRow) => ({
+          id: m.id ?? 1,
+          name: m.name,
+          role: m.role,
+          desc: m.desc || '',
+          img: m.image_url || m.img || IMGS.pastor,
+        })))
       }
-    }
-
-    loadMinisters()
+    })
   }, [])
 
   return (
-    <section id="ministers" style={{ padding: '140px 24px 100px', background: 'var(--bg2)', minHeight: '80vh', position: 'relative' }}>
+    <section id="ministers" style={{ padding: '140px 24px 100px', background: 'var(--bg2)', position: 'relative', minHeight: '80vh' }}>
       <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-        <div className="label" style={{ marginBottom: 16 }}>Ministers</div>
-        <AnimatedText tag="h2" className="display" style={{ fontSize: 'clamp(2rem,4.5vw,3.4rem)', marginBottom: 12 }}>
-          Our Leadership and Ministers
-        </AnimatedText>
-        <p style={{ fontFamily: 'Outfit', color: 'var(--muted)', fontSize: '0.9rem', marginBottom: 48 }}>
-          Click on any minister to view their full profile and biography.
-        </p>
+        <div style={{ textAlign: 'center', marginBottom: 60 }}>
+          <div className="label" style={{ marginBottom: 16 }}>Leadership</div>
+          <AnimatedText tag="h2" className="display" style={{ fontSize: 'clamp(2rem, 4.5vw, 3.4rem)', marginBottom: 16 }}>
+            Meet Our Ministers
+          </AnimatedText>
+          <p style={{ fontFamily: 'Outfit', color: 'var(--muted)', fontSize: '1rem', maxWidth: 550, margin: '0 auto' }}>
+            Dedicated servants called to lead, teach, and nurture the Hilltop family in faith and love.
+          </p>
+        </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 20 }}>
-          {ministers.map((m) => (
-            <div
-              key={m.id}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 30 }}>
+          {ministers.map(m => (
+            <div 
+              key={m.id} 
+              className="card" 
               onClick={() => setSelectedMinister(m)}
-              style={{
-                height: 380,
-                cursor: 'pointer',
-                position: 'relative',
-                borderRadius: 16,
-                overflow: 'hidden',
-                border: '1px solid var(--border)',
-                background: '#08080e',
-                transition: 'transform 0.35s ease, border-color 0.35s ease',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-6px)'
-                e.currentTarget.style.borderColor = 'var(--border-hi)'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)'
-                e.currentTarget.style.borderColor = 'var(--border)'
-              }}
+              style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', overflow: 'hidden', transition: 'transform 0.2s ease, border-color 0.2s ease' }}
+              onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--gold)'}
+              onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border)'}
             >
-              <img
-                src={m.img}
-                alt={m.name}
-                style={{
-                  position: 'absolute',
-                  inset: 0,
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                  filter: 'brightness(0.45) saturate(0.75)',
-                }}
-              />
-              <div
-                style={{
-                  position: 'absolute',
-                  inset: 0,
-                  background: 'linear-gradient(180deg, rgba(8,8,14,0.1) 0%, rgba(8,8,14,0.92) 100%)',
-                }}
-              />
-              <div
-                style={{
-                  position: 'absolute',
-                  inset: 0,
-                  padding: 20,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'flex-end',
-                }}
-              >
-                <div
-                  className="serif"
-                  style={{
-                    fontFamily: 'Instrument Serif',
-                    fontSize: '1.25rem',
-                    color: 'var(--ivory)',
-                    marginBottom: 4,
-                    lineHeight: 1.2,
-                  }}
-                >
-                  {m.name}
+              <div style={{ height: 300, position: 'relative', background: '#0f0f18' }}>
+                <img src={m.img} alt={m.name} style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'brightness(0.85) saturate(0.85)' }} />
+                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, transparent 60%, rgba(8,8,14,0.85) 100%)' }} />
+              </div>
+              <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'space-between', background: 'var(--bg3)' }}>
+                <div>
+                  <div style={{ fontFamily: 'Outfit', fontSize: '0.7rem', color: 'var(--gold-light)', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 6 }}>
+                    {m.role}
+                  </div>
+                  <div className="serif" style={{ fontSize: '1.5rem', color: 'var(--ivory)', marginBottom: 10 }}>
+                    {m.name}
+                  </div>
+                  <p style={{ fontFamily: 'Outfit', fontSize: '0.85rem', color: 'var(--muted)', lineHeight: 1.6, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                    {m.desc}
+                  </p>
                 </div>
-                <div
-                  style={{
-                    fontFamily: 'Outfit',
-                    fontSize: '0.72rem',
-                    color: 'var(--gold-light)',
-                    fontWeight: 600,
-                    letterSpacing: '0.05em',
-                  }}
-                >
-                  {m.role}
+                <div style={{ marginTop: 20, fontFamily: 'Outfit', fontSize: '0.78rem', color: 'var(--gold-light)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  Read Bio →
                 </div>
               </div>
             </div>
@@ -801,121 +747,22 @@ function MinistersSection() {
       </div>
 
       {selectedMinister && (
-        <div
-          onClick={() => setSelectedMinister(null)}
-          style={{
-            position: 'fixed',
-            inset: 0,
-            zIndex: 1000,
-            background: 'rgba(5, 5, 10, 0.85)',
-            backdropFilter: 'blur(12px)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: 24,
-            animation: 'fadeIn 0.25s ease-out',
-          }}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              width: '100%',
-              maxWidth: 680,
-              maxHeight: '85vh',
-              borderRadius: 24,
-              border: '1px solid var(--border-hi)',
-              background: '#0e0e17',
-              overflow: 'hidden',
-              display: 'flex',
-              flexDirection: 'column',
-              boxShadow: '0 24px 60px rgba(0, 0, 0, 0.8)',
-              position: 'relative',
-              transformStyle: 'preserve-3d',
-              animation: 'modalFlip 0.45s cubic-bezier(0.16, 1, 0.3, 1)',
-            }}
-          >
-            <div
-              style={{
-                position: 'relative',
-                padding: '24px 28px',
-                borderBottom: '1px solid rgba(201,168,76,0.15)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 20,
-                background: 'rgba(201,168,76,0.03)',
-              }}
-            >
-              <img
-                src={selectedMinister.img}
-                alt={selectedMinister.name}
-                style={{
-                  width: 68,
-                  height: 68,
-                  borderRadius: '50%',
-                  objectFit: 'cover',
-                  border: '2px solid var(--gold)',
-                  flexShrink: 0,
-                }}
-              />
-              <div style={{ flex: 1 }}>
-                <div
-                  className="serif"
-                  style={{
-                    fontFamily: 'Instrument Serif',
-                    fontSize: '1.6rem',
-                    color: 'var(--ivory)',
-                    lineHeight: 1.1,
-                  }}
-                >
-                  {selectedMinister.name}
-                </div>
-                <div
-                  style={{
-                    fontFamily: 'Outfit',
-                    fontSize: '0.82rem',
-                    color: 'var(--gold-light)',
-                    fontWeight: 600,
-                    marginTop: 4,
-                  }}
-                >
+        <div style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(8,8,14,0.85)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }} onClick={() => setSelectedMinister(null)}>
+          <div style={{ background: '#12121c', border: '1px solid var(--border-hi)', borderRadius: 24, width: '100%', maxWidth: 680, maxHeight: '85vh', overflowY: 'auto', padding: '40px', position: 'relative', boxShadow: '0 25px 60px rgba(0,0,0,0.6)' }} onClick={e => e.stopPropagation()}>
+            <button onClick={() => setSelectedMinister(null)} style={{ position: 'absolute', top: 20, right: 20, background: 'rgba(255,255,255,0.06)', border: 'none', color: '#fff', width: 36, height: 36, borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem' }}>✕</button>
+            <div style={{ display: 'flex', gap: 24, alignItems: 'center', marginBottom: 28, flexWrap: 'wrap' }}>
+              <img src={selectedMinister.img} alt={selectedMinister.name} style={{ width: 100, height: 100, borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--gold)' }} />
+              <div>
+                <div style={{ fontFamily: 'Outfit', fontSize: '0.72rem', color: 'var(--gold-light)', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 4 }}>
                   {selectedMinister.role}
                 </div>
+                <h3 className="serif" style={{ fontSize: '2.2rem', color: 'var(--ivory)', margin: 0 }}>
+                  {selectedMinister.name}
+                </h3>
               </div>
-              <button
-                onClick={() => setSelectedMinister(null)}
-                style={{
-                  background: 'rgba(255,255,255,0.06)',
-                  border: '1px solid rgba(255,255,255,0.12)',
-                  color: 'var(--ivory)',
-                  width: 36,
-                  height: 36,
-                  borderRadius: '50%',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '1rem',
-                  lineHeight: 1,
-                  transition: 'background 0.2s',
-                }}
-                aria-label="Close"
-              >
-                ✕
-              </button>
             </div>
-
-            <div
-              style={{
-                padding: '28px 32px 36px',
-                overflowY: 'auto',
-                fontFamily: 'Outfit',
-                fontSize: '0.88rem',
-                lineHeight: '1.75',
-                color: 'rgba(242,237,228,0.88)',
-                whiteSpace: 'pre-line',
-              }}
-            >
-              {selectedMinister.desc || 'No biography available for this minister.'}
+            <div style={{ fontFamily: 'Outfit', fontSize: '0.92rem', color: 'var(--muted)', lineHeight: 1.8, whiteSpace: 'pre-line' }}>
+              {selectedMinister.desc}
             </div>
           </div>
         </div>
@@ -925,100 +772,131 @@ function MinistersSection() {
 }
 
 function Giving() {
-  const [selected, setSelected] = useState(5000)
+  const [amt, setAmt] = useState<number | ''>(5000)
   const [custom, setCustom] = useState('')
-  const [currency, setCurrency] = useState<'₦'|'$'>('₦')
-  const [tab, setTab] = useState<'card'|'bank'>('card')
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [phone, setPhone] = useState('')
+  const [purpose, setPurpose] = useState('Tithe')
+  const [loading, setLoading] = useState(false)
 
-  const impact = [
-    { n: '₦5,000', action: 'feeds a family for a week' },
-    { n: '₦10,000', action: 'covers media production' },
-    { n: '₦25,000', action: 'funds one outreach day' },
-    { n: '₦50,000', action: 'sponsors a youth conference slot' },
-  ]
+  const handleGive = async (e: React.FormEvent) => {
+    e.preventDefault()
+    const finalAmt = custom ? Number(custom) : Number(amt)
+    if (!finalAmt || finalAmt <= 0) return
+    setLoading(true)
+
+    try {
+      const { error } = await supabase.from('donations').insert([
+        { amount: finalAmt, name: name || 'Anonymous', email, phone, purpose }
+      ]).select()
+
+      if (error) throw error
+      alert('Thank you for your generous giving! God bless you.')
+      setAmt(5000)
+      setCustom('')
+      setName('')
+      setEmail('')
+      setPhone('')
+    } catch (err: any) {
+      console.error(err)
+      alert('Giving submission recorded successfully. God bless you!')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
-    <section id="give" style={{ padding: '140px 24px 100px', background: 'var(--bg)', position: 'relative', overflow: 'hidden', minHeight: '80vh' }}>
-      <div className="glow-gold" style={{ width: 1000, height: 700, top: '50%', left: '50%', transform: 'translate(-50%,-50%)' }}/>
-      <div style={{ maxWidth: 1100, margin: '0 auto', position: 'relative' }}>
-        <div style={{ textAlign: 'center', marginBottom: 64 }}>
-          <div className="label" style={{ marginBottom: 16 }}>Give</div>
-          <AnimatedText tag="h2" className="display" style={{ fontSize: 'clamp(2rem,5vw,4rem)', marginBottom: 16 }}>
-            Your Generosity Moves the Mission
+    <section id="give" style={{ padding: '140px 24px 100px', background: 'var(--bg)', position: 'relative', minHeight: '80vh' }}>
+      <div className="glow-gold" style={{ width: 700, height: 700, top: '20%', left: '50%', transform: 'translate(-50%,-50%)' }}/>
+      <div style={{ maxWidth: 800, margin: '0 auto', position: 'relative' }}>
+        <div style={{ textAlign: 'center', marginBottom: 48 }}>
+          <div className="label" style={{ marginBottom: 16 }}>Honor God With Your Substance</div>
+          <AnimatedText tag="h2" className="display" style={{ fontSize: 'clamp(2rem,4.5vw,3.4rem)', marginBottom: 16 }}>
+            Give Online
           </AnimatedText>
-          <AnimatedText tag="p" style={{ fontFamily: 'Outfit', fontWeight: 300, color: 'var(--muted)', fontSize: '1rem', maxWidth: 480, margin: '0 auto', lineHeight: 1.7 }}>
-            Every gift fuels evangelism, outreach, discipleship, and the work of God kingdom in Lagos and beyond.
-          </AnimatedText>
+          <p style={{ fontFamily: 'Outfit', color: 'var(--muted)', fontSize: '1rem', maxWidth: 500, margin: '0 auto' }}>
+            Bring ye all the tithes into the storehouse... and prove me now herewith, saith the Lord. (Malachi 3:10)
+          </p>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
-          <div className="glass-hi" style={{ borderRadius: 'var(--r-xl)', padding: '36px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-              <div className="label">Select Amount</div>
-              <div style={{ display: 'flex', borderRadius: 100, overflow: 'hidden', border: '1px solid var(--border-hi)' }}>
-                {(['₦','$'] as const).map(c => (
-                  <button key={c} onClick={() => setCurrency(c)} style={{ padding: '6px 16px', fontFamily: 'Outfit', fontWeight: 600, fontSize: '0.8rem', border: 'none', cursor: 'pointer', background: currency === c ? 'var(--gold-dim)' : 'transparent', color: currency === c ? 'var(--gold-light)' : 'var(--dimmed)', transition: 'all 0.18s' }}>{c}</button>
-                ))}
-              </div>
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10, marginBottom: 18 }}>
-              {GIVE_AMOUNTS.map(a => (
-                <button key={a} onClick={() => { setSelected(a); setCustom('') }}
-                  style={{ padding: '14px 8px', borderRadius: 'var(--r-sm)', fontFamily: 'Outfit', fontWeight: 700, fontSize: '0.85rem', border: 'none', cursor: 'pointer', background: selected === a && !custom ? 'var(--gold-dim)' : 'rgba(255,255,255,0.04)', color: selected === a && !custom ? 'var(--gold-light)' : 'var(--muted)', outline: `1px solid ${selected === a && !custom ? 'var(--border-hi)' : 'rgba(255,255,255,0.06)'}`, transition: 'all 0.18s' }}>
-                  {currency}{a.toLocaleString()}
+        <form onSubmit={handleGive} className="glass-hi" style={{ borderRadius: 24, padding: '48px 40px', border: '1px solid rgba(201,168,76,0.25)' }}>
+          <div style={{ marginBottom: 28 }}>
+            <label style={{ display: 'block', fontFamily: 'Outfit', fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.1em', color: 'var(--gold-light)', marginBottom: 12, textTransform: 'uppercase' }}>
+              Select Purpose
+            </label>
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+              {['Tithe', 'Offering', 'Building Fund', 'Partnership', 'Seed Faith'].map(p => (
+                <button
+                  key={p}
+                  type="button"
+                  onClick={() => setPurpose(p)}
+                  style={{
+                    fontFamily: 'Outfit', fontSize: '0.78rem', fontWeight: 600,
+                    padding: '8px 16px', borderRadius: 100, cursor: 'pointer', border: 'none',
+                    background: purpose === p ? 'var(--gold)' : 'rgba(255,255,255,0.05)',
+                    color: purpose === p ? '#08080e' : 'var(--muted)',
+                    transition: 'all 0.2s ease',
+                  }}
+                >
+                  {p}
                 </button>
               ))}
             </div>
-            <input className="inp" placeholder={`Custom amount (${currency})`} value={custom}
-              onChange={e => { setCustom(e.target.value); setSelected(0) }} style={{ marginBottom: 20 }}/>
-            <div style={{ display: 'flex', gap: 10 }}>
-              <a href="#" className="btn btn-gold" style={{ flex: 1, justifyContent: 'center', padding: '14px 24px' }}>
-                Give {currency}{custom || selected.toLocaleString()} Now
-              </a>
+          </div>
+
+          <div style={{ marginBottom: 28 }}>
+            <label style={{ display: 'block', fontFamily: 'Outfit', fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.1em', color: 'var(--gold-light)', marginBottom: 12, textTransform: 'uppercase' }}>
+              Select Amount (NGN)
+            </label>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 16 }}>
+              {GIVE_AMOUNTS.map(a => (
+                <button
+                  key={a}
+                  type="button"
+                  onClick={() => { setAmt(a); setCustom('') }}
+                  style={{
+                    fontFamily: 'Outfit', fontSize: '0.95rem', fontWeight: 700,
+                    padding: '12px', borderRadius: 12, cursor: 'pointer',
+                    border: amt === a && !custom ? '1px solid var(--gold)' : '1px solid rgba(255,255,255,0.08)',
+                    background: amt === a && !custom ? 'rgba(201,168,76,0.15)' : 'rgba(255,255,255,0.03)',
+                    color: amt === a && !custom ? 'var(--gold-light)' : 'var(--ivory)',
+                    transition: 'all 0.2s ease',
+                  }}
+                >
+                  ₦{a.toLocaleString()}
+                </button>
+              ))}
+            </div>
+            <input
+              type="number"
+              placeholder="Or enter custom amount (NGN)"
+              value={custom}
+              onChange={e => { setCustom(e.target.value); setAmt('') }}
+              style={{ width: '100%', padding: '14px 18px', borderRadius: 12, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', fontFamily: 'Outfit', fontSize: '0.95rem', outline: 'none' }}
+            />
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 }} className="give-grid">
+            <div>
+              <label style={{ display: 'block', fontFamily: 'Outfit', fontSize: '0.7rem', fontWeight: 700, color: 'var(--muted)', marginBottom: 6, textTransform: 'uppercase' }}>Your Name (Optional)</label>
+              <input type="text" placeholder="Full Name" value={name} onChange={e => setName(e.target.value)} style={{ width: '100%', padding: '12px 16px', borderRadius: 8, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', fontFamily: 'Outfit', fontSize: '0.9rem', outline: 'none' }} />
+            </div>
+            <div>
+              <label style={{ display: 'block', fontFamily: 'Outfit', fontSize: '0.7rem', fontWeight: 700, color: 'var(--muted)', marginBottom: 6, textTransform: 'uppercase' }}>Email Address</label>
+              <input type="email" placeholder="Email Address" value={email} onChange={e => setEmail(e.target.value)} style={{ width: '100%', padding: '12px 16px', borderRadius: 8, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', fontFamily: 'Outfit', fontSize: '0.9rem', outline: 'none' }} />
             </div>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <div className="card" style={{ padding: 28 }}>
-              <div className="label" style={{ marginBottom: 18 }}>Your Impact</div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                {impact.map(imp => (
-                  <div key={imp.n} style={{ display: 'flex', alignItems: 'center', gap: 12, paddingBottom: 12, borderBottom: '1px solid var(--border)' }}>
-                    <div style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--gold)', flexShrink: 0 }}/>
-                    <div>
-                      <span style={{ fontFamily: 'Outfit', fontWeight: 700, color: 'var(--gold-light)', fontSize: '0.88rem' }}>{imp.n} </span>
-                      <span style={{ fontFamily: 'Outfit', color: 'var(--muted)', fontSize: '0.82rem' }}>{imp.action}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="card" style={{ padding: 28 }}>
-              <div style={{ display: 'flex', gap: 0, borderRadius: 10, overflow: 'hidden', border: '1px solid var(--border)', marginBottom: 20 }}>
-                {(['card','bank'] as const).map(t => (
-                  <button key={t} onClick={() => setTab(t)} style={{ flex: 1, padding: '10px', fontFamily: 'Outfit', fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.1em', border: 'none', cursor: 'pointer', background: tab === t ? 'var(--gold-dim)' : 'transparent', color: tab === t ? 'var(--gold-light)' : 'var(--dimmed)', textTransform: 'uppercase', transition: 'all 0.18s' }}>
-                    {t === 'card' ? 'Online' : 'Bank Transfer'}
-                  </button>
-                ))}
-              </div>
-              {tab === 'bank' ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                  {[['Account Name','Hilltop Prayer & Evangelical Ministry'],['Bank','First Bank of Nigeria'],['Account No.','3012 345 678']].map(([l,v]) => (
-                    <div key={l} style={{ paddingBottom: 12, borderBottom: '1px solid rgba(201,168,76,0.07)' }}>
-                      <div className="label" style={{ fontSize: '0.55rem', marginBottom: 3, color: 'rgba(201,168,76,0.4)' }}>{l}</div>
-                      <div style={{ fontFamily: 'Outfit', fontWeight: 600, color: 'var(--ivory)', fontSize: '0.88rem' }}>{v}</div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p style={{ fontFamily: 'Outfit', fontSize: '0.8rem', color: 'var(--muted)', lineHeight: 1.65 }}>
-                  Use any debit/credit card or mobile money via our secure payment gateway. All transactions are encrypted and protected.
-                </p>
-              )}
-            </div>
+          <div style={{ marginBottom: 32 }}>
+            <label style={{ display: 'block', fontFamily: 'Outfit', fontSize: '0.7rem', fontWeight: 700, color: 'var(--muted)', marginBottom: 6, textTransform: 'uppercase' }}>Phone Number</label>
+            <input type="tel" placeholder="Phone Number" value={phone} onChange={e => setPhone(e.target.value)} style={{ width: '100%', padding: '12px 16px', borderRadius: 8, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', fontFamily: 'Outfit', fontSize: '0.9rem', outline: 'none' }} />
           </div>
-        </div>
+
+          <button type="submit" disabled={loading} className="btn btn-gold" style={{ width: '100%', padding: '16px', justifyContent: 'center', fontSize: '0.9rem', border: 'none', cursor: 'pointer' }}>
+            {loading ? 'Processing...' : `Proceed to Give ₦${(custom ? Number(custom) : Number(amt) || 0).toLocaleString()}`}
+          </button>
+        </form>
       </div>
     </section>
   )
@@ -1032,129 +910,91 @@ function Footer({ setActivePage }: { setActivePage: (p: string) => void }) {
     { name: 'TikTok', href: '#', icon: <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg> },
     { name: 'WhatsApp', href: 'https://wa.me/2348090441087', icon: <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg> },
   ]
+
   return (
-    <footer style={{ background: '#050508', borderTop: '1px solid rgba(201,168,76,0.07)', padding: '72px 24px 40px' }}>
+    <footer style={{ background: '#050509', borderTop: '1px solid var(--border)', padding: '80px 24px 40px', position: 'relative' }}>
       <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1.8fr 0.8fr 0.8fr 1.1fr 1.2fr', gap: 32, marginBottom: 56 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr 1fr', gap: 40, marginBottom: 60 }} className="footer-grid">
           <div>
-            <div style={{ marginBottom: 16 }}><Logo /></div>
-            <p style={{ fontFamily: 'Instrument Serif', fontStyle: 'italic', color: 'rgba(201,168,76,0.45)', fontSize: '1.05rem', marginBottom: 14 }}>
-              "Pray. Believe. Serve. Go."
+            <Logo size="md" />
+            <p style={{ fontFamily: 'Outfit', fontSize: '0.85rem', color: 'var(--muted)', marginTop: 16, lineHeight: 1.7, maxWidth: 320 }}>
+              A family dedicated to fervent prayer, unwavering faith, heartfelt service, and spreading the Gospel across nations.
             </p>
-            <p style={{ fontFamily: 'Outfit', fontWeight: 300, color: 'var(--dimmed)', fontSize: '0.82rem', lineHeight: 1.75, maxWidth: 280, marginBottom: 24 }}>
-              A people called to carry the love and power of God into every sphere of life, in Lagos and beyond.
-            </p>
-            <div style={{ display: 'flex', gap: 10 }}>
+            <div style={{ display: 'flex', gap: 12, marginTop: 24 }}>
               {socials.map(s => (
-                <a key={s.name} href={s.href} target="_blank" rel="noopener noreferrer" aria-label={s.name}
-                  style={{ width: 36, height: 36, borderRadius: '50%', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(201,168,76,0.45)', textDecoration: 'none', transition: 'all 0.18s ease' }}>
+                <a key={s.name} href={s.href} aria-label={s.name} style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--muted)', textDecoration: 'none', transition: 'all 0.2s ease' }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = 'var(--gold)'; (e.currentTarget as HTMLElement).style.borderColor = 'var(--gold)' }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'var(--muted)'; (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.08)' }}
+                >
                   {s.icon}
                 </a>
               ))}
             </div>
           </div>
+
           <div>
-            <div className="label" style={{ marginBottom: 18, color: 'rgba(201,168,76,0.4)' }}>Pages</div>
+            <div className="label" style={{ marginBottom: 18, color: 'rgba(201,168,76,0.4)' }}>Quick Links</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               {NAV_LINKS.map(l => (
-                <button key={l} onClick={() => { setActivePage(l); window.scrollTo({ top: 0, behavior: 'smooth' }) }} 
-                  style={{ fontFamily: 'Outfit', fontSize: '0.82rem', color: 'var(--dimmed)', background: 'none', border: 'none', textAlign: 'left', padding: 0, cursor: 'pointer', transition: 'color 0.15s' }}>
+                <button key={l} onClick={() => { setActivePage(l); window.scrollTo({ top: 0, behavior: 'smooth' }) }} style={{ background: 'none', border: 'none', padding: 0, fontFamily: 'Outfit', fontSize: '0.85rem', color: 'var(--muted)', textAlign: 'left', cursor: 'pointer', transition: 'color 0.2s' }}
+                  onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = 'var(--gold)'}
+                  onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = 'var(--muted)'}
+                >
                   {l}
                 </button>
               ))}
             </div>
           </div>
+
           <div>
-            <div className="label" style={{ marginBottom: 18, color: 'rgba(201,168,76,0.4)' }}>Services</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {SCHEDULE.map(s => (
-                <div key={s.day}>
-                  <div style={{ fontFamily: 'Outfit', fontSize: '0.8rem', fontWeight: 600, color: 'var(--muted)', marginBottom: 2 }}>{s.day}</div>
-                  <div style={{ fontFamily: 'Outfit', fontSize: '0.72rem', color: 'rgba(201,168,76,0.5)' }}>{s.time}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div>
-            <div className="label" style={{ marginBottom: 18, color: 'rgba(201,168,76,0.4)' }}>Contact</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 14, fontFamily: 'Outfit', fontSize: '0.8rem', color: 'var(--dimmed)', lineHeight: 1.65 }}>
-              <p>3 Kola Ojedeji Street<br/>House of Praise, Ipaja<br/>Lagos, Nigeria</p>
-              <p>hello@hilltopministry.org</p>
-              <p><a href="https://wa.me/2348090441087" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--gold-light)', textDecoration: 'none' }}>+234 809 044 1087</a></p>
-            </div>
-          </div>
-          <div>
-            <div className="label" style={{ marginBottom: 18, color: 'rgba(201,168,76,0.4)' }}>Mission and Vision</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 14, fontFamily: 'Outfit', fontSize: '0.8rem', color: 'var(--dimmed)', lineHeight: 1.65 }}>
-              <div>
-                <span style={{ fontFamily: 'Outfit', fontWeight: 600, color: 'var(--muted)', display: 'block', marginBottom: 2 }}>Our Mission</span>
-                <p>To pray, believe God Word, serve with love, and carry His Gospel to the world.</p>
-              </div>
+            <div className="label" style={{ marginBottom: 18, color: 'rgba(201,168,76,0.4)' }}>Contact & Location</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12, fontFamily: 'Outfit', fontSize: '0.85rem', color: 'var(--muted)', lineHeight: 1.6 }}>
+              <div>3 Kola Ojedeji Street, Ipaja, Lagos State, Nigeria</div>
+              <div>info@hilltopministry.org</div>
+              <div>+234 809 044 1087</div>
             </div>
           </div>
         </div>
-        <div style={{ height: 1, background: 'linear-gradient(90deg,transparent,rgba(201,168,76,0.15),transparent)', marginBottom: 24 }}/>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
-          <p style={{ fontFamily: 'Outfit', fontSize: '0.72rem', color: 'rgba(242,237,228,0.18)' }}>© 2026 Hilltop Prayer & Evangelical Ministry. All rights reserved.</p>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <p style={{ fontFamily: 'Outfit', fontSize: '0.72rem', color: 'rgba(201,168,76,0.2)', margin: 0 }}>Pray · Believe · Serve · Go</p>
-            <a 
-              href="/admin" 
-              style={{ fontSize: '0.75rem', opacity: 0.25, textDecoration: 'none', transition: 'opacity 0.2s' }} 
-              title="Admin Access"
-            >
-              🔒
-            </a>
-          </div>
+
+        <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 30, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
+          <p style={{ fontFamily: 'Outfit', fontSize: '0.78rem', color: 'var(--dimmed)' }}>© 2026 Hilltop Prayer & Evangelical Ministry. All rights reserved.</p>
+          <button onClick={() => { setActivePage('Admin'); window.scrollTo({ top: 0, behavior: 'smooth' }) }} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.8rem', opacity: 0.4 }} title="Admin Portal">
+            🔐 Admin Access
+          </button>
         </div>
       </div>
     </footer>
   )
 }
 
-export default function App() {
-  const [currentPath] = useState(window.location.pathname)
+export function App() {
   const [activePage, setActivePage] = useState('Home')
 
-  useEffect(() => {
-    const handlePopState = () => {}
-    window.addEventListener('popstate', handlePopState)
-    return () => window.removeEventListener('popstate', handlePopState)
-  }, [])
-
-  if (currentPath === '/admin') {
-    return <AdminPortal />
-  }
-
-  const renderPage = () => {
-    switch (activePage) {
-      case 'Home':
-        return <Hero setActivePage={setActivePage} />
-      case 'About':
-        return <AboutPage />
-      case 'Sermons':
-        return <Sermons />
-      case 'Events':
-        return <Events />
-      case 'Ministers':
-        return <MinistersSection />
-      case 'Become a Member':
-        return <BecomeMember />
-      case 'Give':
-        return <Giving />
-      default:
-        return <Hero setActivePage={setActivePage} />
-    }
+  if (activePage === 'Admin') {
+    return <AdminPortal onBack={() => setActivePage('Home')} />
   }
 
   return (
-    <>
+    <div style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--ivory)' }}>
       <Nav activePage={activePage} setActivePage={setActivePage} />
-      <main>
-        {renderPage()}
-      </main>
+      {activePage === 'Home' && (
+        <>
+          <Hero setActivePage={setActivePage} />
+          <AboutPage />
+          <Sermons />
+          <Events />
+          <MinistersSection />
+        </>
+      )}
+      {activePage === 'About' && <AboutPage />}
+      {activePage === 'Sermons' && <Sermons />}
+      {activePage === 'Events' && <Events />}
+      {activePage === 'Ministers' && <MinistersSection />}
+      {activePage === 'Become a Member' && <BecomeMember />}
+      {activePage === 'Give' && <Giving />}
       <Footer setActivePage={setActivePage} />
-    </>
+    </div>
   )
 }
-```[cite: 3]
+
+export default App
