@@ -1,0 +1,10 @@
+{
+  "description": "Experience a premium, immersive web platform for Hilltop Prayer & Evangelical Ministry, designed to foster community engagement, worship, and spiritual growth.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
