@@ -616,10 +616,10 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
 
           {/* TAB 1: MINISTERS MANAGEMENT */}
           {activeTab === 'ministers' && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
               
               {/* Form Section */}
-              <form onSubmit={handleSaveMinister} className="lg:col-span-7 bg-[#121212] border border-[#262626] p-4 rounded-xl shadow-xl flex flex-col justify-between">
+              <form onSubmit={handleSaveMinister} className="md:col-span-8 lg:col-span-8 bg-[#121212] border border-[#262626] p-4 rounded-xl shadow-xl flex flex-col justify-between">
                 <div>
                   <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#262626]">
                     <h2 className="text-[11px] font-bold text-white tracking-wide uppercase flex items-center space-x-1.5">
@@ -703,7 +703,7 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
               </form>
 
               {/* Slots Overview List */}
-              <div className="lg:col-span-5 bg-[#121212] border border-[#262626] p-4 rounded-xl shadow-xl flex flex-col">
+              <div className="md:col-span-4 lg:col-span-4 bg-[#121212] border border-[#262626] p-4 rounded-xl shadow-xl flex flex-col">
                 <div className="pb-3 mb-3 border-b border-[#262626]">
                   <h2 className="text-[11px] font-bold text-white tracking-wide uppercase">Minister Slots Overview</h2>
                 </div>
@@ -749,8 +749,8 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
 
           {/* TAB 2: GALLERY & MOMENTS MANAGEMENT */}
           {activeTab === 'gallery' && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-              <form onSubmit={handleAddGalleryItem} className="lg:col-span-7 bg-[#121212] border border-[#262626] p-4 rounded-xl shadow-xl flex flex-col justify-between">
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+              <form onSubmit={handleAddGalleryItem} className="md:col-span-8 lg:col-span-8 bg-[#121212] border border-[#262626] p-4 rounded-xl shadow-xl flex flex-col justify-between">
                 <div>
                   <div className="pb-3 mb-4 border-b border-[#262626]">
                     <h2 className="text-[11px] font-bold text-white tracking-wide uppercase flex items-center space-x-1.5">
@@ -796,7 +796,7 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
                 </div>
               </form>
 
-              <div className="lg:col-span-5 bg-[#121212] border border-[#262626] p-4 rounded-xl shadow-xl flex flex-col">
+              <div className="md:col-span-4 lg:col-span-4 bg-[#121212] border border-[#262626] p-4 rounded-xl shadow-xl flex flex-col">
                 <div className="pb-3 mb-3 border-b border-[#262626]">
                   <h2 className="text-[11px] font-bold text-white tracking-wide uppercase">Gallery Library ({galleryItems.length})</h2>
                 </div>
@@ -830,8 +830,8 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
 
           {/* TAB 3: VIDEO SERMONS */}
           {activeTab === 'videos' && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-              <form onSubmit={handleAddSermon} className="lg:col-span-7 bg-[#121212] border border-[#262626] p-4 rounded-xl shadow-xl flex flex-col justify-between">
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+              <form onSubmit={handleAddSermon} className="md:col-span-8 lg:col-span-8 bg-[#121212] border border-[#262626] p-4 rounded-xl shadow-xl flex flex-col justify-between">
                 <div>
                   <div className="pb-3 mb-4 border-b border-[#262626]">
                     <h2 className="text-[11px] font-bold text-white tracking-wide uppercase flex items-center space-x-1.5">
@@ -893,7 +893,7 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
                 </div>
               </form>
 
-              <div className="lg:col-span-5 bg-[#121212] border border-[#262626] p-4 rounded-xl shadow-xl flex flex-col">
+              <div className="md:col-span-4 lg:col-span-4 bg-[#121212] border border-[#262626] p-4 rounded-xl shadow-xl flex flex-col">
                 <div className="pb-3 mb-3 border-b border-[#262626]">
                   <h2 className="text-[11px] font-bold text-white tracking-wide uppercase">Existing Video Sermons ({sermons.length})</h2>
                 </div>
@@ -950,8 +950,8 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
 
           {/* TAB 5: AUDIO SERMONS */}
           {activeTab === 'audio' && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-              <form onSubmit={handleAddAudio} className="lg:col-span-7 bg-[#121212] border border-[#262626] p-4 rounded-xl shadow-xl flex flex-col justify-between">
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+              <form onSubmit={handleAddAudio} className="md:col-span-8 lg:col-span-8 bg-[#121212] border border-[#262626] p-4 rounded-xl shadow-xl flex flex-col justify-between">
                 <div>
                   <div className="pb-3 mb-4 border-b border-[#262626]">
                     <h2 className="text-[11px] font-bold text-white tracking-wide uppercase flex items-center space-x-1.5">
@@ -996,7 +996,7 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
                 </div>
               </form>
 
-              <div className="lg:col-span-5 bg-[#121212] border border-[#262626] p-4 rounded-xl shadow-xl flex flex-col">
+              <div className="md:col-span-4 lg:col-span-4 bg-[#121212] border border-[#262626] p-4 rounded-xl shadow-xl flex flex-col">
                 <div className="pb-3 mb-3 border-b border-[#262626]">
                   <h2 className="text-[11px] font-bold text-white tracking-wide uppercase">Audio Library ({audioList.length})</h2>
                 </div>
@@ -1026,3 +1026,4 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
     </div>
   );
 }
+```[cite: 6]
