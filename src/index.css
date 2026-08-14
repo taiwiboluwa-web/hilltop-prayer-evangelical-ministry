@@ -295,14 +295,23 @@ img, video, svg, canvas { max-width: 100%; height: auto; }
     box-sizing: border-box !important;
   }
 
-  /* Target content grids while excluding countdown timers and navigation drawers */
-  section > div.grid:not(:has(.cbox)), 
-  .card > div.grid:not(:has(.cbox)),
-  div[class*="grid"]:not(:has(.cbox)):not(:has(nav)):not([class*="mobile-menu"]) {
+  /* Target content grids while strictly excluding navigation, headers, and countdown sections */
+  section > div.grid:not(:has(.cbox)):not(:has(nav)):not([class*="nav"]), 
+  .card > div.grid:not(:has(.cbox)):not(:has(nav)):not([class*="nav"]),
+  div[class*="grid"]:not(:has(.cbox)):not(:has(nav)):not([class*="mobile-menu"]):not(header div[class*="grid"]) {
     display: flex !important;
     flex-direction: column !important;
     width: 100% !important;
     gap: 1.5rem !important;
+  }
+
+  /* Specifically protect header layout and logo-navigation alignment */
+  header div[class*="grid"], header div[class*="flex"] {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    justify-content: space-between !important;
+    align-items: center !important;
   }
 
   /* Fix for form step layouts or multi-column containers spilling out */
