@@ -15,7 +15,7 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className="w-full max-w-[100vw] overflow-x-hidden bg-[#0a0a12]/90 backdrop-blur-md sticky top-0 z-50 px-4 py-3 border-b border-[rgba(201,168,76,0.15)]">
+    <nav className="w-full bg-[#0a0a12]/90 backdrop-blur-md sticky top-0 z-50 px-4 py-3 border-b border-[rgba(201,168,76,0.15)] overflow-hidden">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         {/* Logo */}
         <div className="flex items-center space-x-2.5">
@@ -53,7 +53,7 @@ export default function Navbar() {
 
       {/* Mobile Dropdown Menu */}
       {isOpen && (
-        <div className="md:hidden absolute top-full left-0 w-full max-w-[100vw] bg-[#0c0c16]/98 border-t border-[rgba(201,168,76,0.2)] py-5 px-6 flex flex-col space-y-3 shadow-2xl backdrop-blur-xl">
+        <div className="md:hidden absolute top-full left-0 w-full bg-[#0c0c16]/98 border-t border-[rgba(201,168,76,0.2)] py-5 px-6 flex flex-col space-y-3 shadow-2xl backdrop-blur-xl">
           {navLinks.map((link) => (
             <a
               key={link.name}
@@ -70,4 +70,3 @@ export default function Navbar() {
     </nav>
   );
 }
-[cite: 6]
