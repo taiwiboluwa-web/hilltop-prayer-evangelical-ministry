@@ -283,74 +283,42 @@ img, video, svg, canvas { max-width: 100%; height: auto; }
 .min-card img { transition: transform 0.55s ease; }
 .min-card:hover img { transform: scale(1.07); }
 
-/* Universal Capsule Header (Desktop & Mobile Unified Layout) */
-header, .site-header, nav.sticky-header {
-  position: fixed;
-  top: 1.25rem;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 92%;
-  max-width: 1280px;
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: rgba(15, 15, 24, 0.75);
-  backdrop-filter: blur(24px) saturate(1.5);
-  -webkit-backdrop-filter: blur(24px) saturate(1.5);
-  border: 1px solid var(--border-hi);
-  border-radius: 100px;
-  padding: 0.6rem 0.8rem 0.6rem 1.5rem;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
-  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
-}
-
-/* Scroll Hide State */
-header.header-hidden, 
-.site-header.header-hidden, 
-nav.sticky-header.header-hidden {
-  transform: translateX(-50%) translateY(-150%) !important;
-  opacity: 0;
-  pointer-events: none;
-}
-
-/* Navigation Links Container (Inline horizontal capsule style across all screen sizes) */
-.nav-links, .nav-menu {
-  display: flex !important;
-  align-items: center !important;
-  gap: 1.75rem !important;
-  position: static !important;
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  padding: 0 !important;
-  transform: none !important;
-  opacity: 1 !important;
-  pointer-events: auto !important;
-  flex-direction: row !important;
-}
-
-/* Mobile responsive tight scaling so everything fits neatly inside the single capsule */
+/* Mobile Layout Fixes for Menu (1) and Footer/Content (2) */
 @media (max-width: 768px) {
-  header, .site-header, nav.sticky-header {
-    width: 96%;
-    top: 0.75rem;
-    padding: 0.45rem 0.6rem 0.45rem 1rem;
+  /* Smart Mobile Navigation Menu (1) */
+  .nav-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--bg2);
+    border: 1px solid var(--border-hi);
+    border-radius: var(--r-lg);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 100;
   }
 
-  .nav-links, .nav-menu {
-    gap: 0.75rem !important;
-    overflow-x: auto;
-    scrollbar-width: none;
+  .nav-menu.hidden-mobile,
+  .mobile-menu-hidden {
+    display: none !important;
+    opacity: 0 !important;
+    transform: translateY(-10px) !important;
+    pointer-events: none !important;
   }
-  
-  .nav-links::-webkit-scrollbar, .nav-menu::-webkit-scrollbar {
-    display: none;
-  }
-}
 
-/* Mobile Footer & Content columns restoration */
-@media (max-width: 768px) {
+  .nav-menu.visible-mobile {
+    display: flex !important;
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+    pointer-events: auto !important;
+  }
+
+  /* Footer & Content columns (2) */
   footer, .footer-container, .footer-grid {
     display: flex !important;
     flex-direction: column !important;
