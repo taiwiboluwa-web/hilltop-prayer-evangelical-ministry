@@ -283,28 +283,25 @@ img, video, svg, canvas { max-width: 100%; height: auto; }
 .min-card img { transition: transform 0.55s ease; }
 .min-card:hover img { transform: scale(1.07); }
 
-/* Mobile Layout Fixes for Menu, Cards, and Forms */
+/* Mobile Layout Fixes for Inline Grids, Menus, and Containers */
 @media (max-width: 768px) {
-  /* Prevent side clipping on main containers and cards */
   body, html {
     overflow-x: hidden !important;
   }
 
-  .card, form, .glass, .glass-hi {
-    max-width: 100% !important;
-    box-sizing: border-box !important;
-  }
-
-  /* Target only main page content grids safely, preserving navigation overlays */
-  main div.grid, section div.grid {
+  /* Force inline-styled multi-column grids in App.tsx to stack cleanly into single columns on mobile */
+  div[style*="grid-template-columns"], 
+  main div[style*="grid"], 
+  section div[style*="grid"] {
     display: flex !important;
     flex-direction: column !important;
+    grid-template-columns: none !important;
     width: 100% !important;
     gap: 1.5rem !important;
   }
 
-  /* Specifically protect header layout and logo-navigation alignment */
-  header div[class*="grid"], header div[class*="flex"] {
+  /* Exclude and protect the Navbar header and dropdown drawer layouts */
+  header, header *, header div[style*="grid"], header div[style*="flex"] {
     display: flex !important;
     flex-direction: row !important;
     flex-wrap: nowrap !important;
@@ -312,15 +309,13 @@ img, video, svg, canvas { max-width: 100%; height: auto; }
     align-items: center !important;
   }
 
-  /* Fix for form step layouts or multi-column containers spilling out */
-  form div[class*="grid"], .card div[class*="grid"] {
-    display: flex !important;
+  /* Ensure the mobile dropdown menu itself stays as a vertical dropdown container */
+  header div.glass-hi, header div[style*="position: absolute"] {
     flex-direction: column !important;
-    width: 100% !important;
-    gap: 1rem !important;
+    align-items: stretch !important;
   }
 
-  /* Ensure the countdown timer stays horizontal and compact in a single line */
+  /* Keep countdown boxes horizontal */
   div:has(.cbox) {
     display: flex !important;
     flex-direction: row !important;
@@ -330,38 +325,16 @@ img, video, svg, canvas { max-width: 100%; height: auto; }
     width: 100% !important;
   }
 
-  /* Scale down countdown boxes so all 4 fit comfortably side-by-side */
   .cbox {
     min-width: 0 !important;
     flex: 1 !important;
     padding: 8px 4px !important;
     text-align: center !important;
   }
-  
-  .cbox .display, .cbox span {
-    font-size: 1.1rem !important;
-  }
 
-  /* Add safe horizontal breathing room to prevent edge bleeding */
   section, .container, div[class*="max-w-"] {
     padding-left: 1rem !important;
     padding-right: 1rem !important;
-  }
-
-  /* Ensure footer elements and columns stack properly and display fully without overlapping */
-  footer, .footer-container, .footer-grid {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 2rem !important;
-    width: 100% !important;
-    overflow: hidden !important;
-  }
-
-  .footer-links, .footer-col, .social-icons-container {
-    width: 100% !important;
-    display: flex !important;
-    flex-wrap: wrap !important;
-    justify-content: flex-start !important;
-    gap: 1rem !important;
+    box-sizing: border-box !important;
   }
 }
