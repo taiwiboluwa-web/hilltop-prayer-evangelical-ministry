@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { AdminPortal } from './pages/AdminPortal'
 import { supabase } from './lib/supabase'
+import { Navbar, Logo } from './components/Navbar'
 
 const IMGS = {
   hero:      'https://images.unsplash.com/photo-1510590124886-dc2653b48bf0?w=1920&h=1080&fit=crop&auto=format',
@@ -15,8 +16,6 @@ const IMGS = {
   minister2: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=800&h=800&fit=crop&auto=format',
   minister3: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=800&h=800&fit=crop&auto=format',
 }
-
-const NAV_LINKS = ['Home', 'About', 'Sermons', 'Events', 'Ministers', 'Become a Member', 'Give']
 
 const SCHEDULE = [
   { day: '2nd and 3rd Saturdays', name: 'Prayer Meeting', time: '5:30 PM - 8:00 PM' },
@@ -122,16 +121,6 @@ function useCountdown(target: Date) {
   return t
 }
 
-function useScrolled(px = 60) {
-  const [on, setOn] = useState(false)
-  useEffect(() => {
-    const fn = () => setOn(window.scrollY > px)
-    window.addEventListener('scroll', fn, { passive: true })
-    return () => window.removeEventListener('scroll', fn)
-  }, [px])
-  return on
-}
-
 function AnimatedText({ children, style, className, tag = 'div' }: { children: React.ReactNode; style?: React.CSSProperties; className?: string; tag?: keyof HTMLElementTagNameMap }) {
   const [displayedText, setDisplayedText] = useState('')
   const [isVisible, setIsVisible] = useState(false)
@@ -181,85 +170,6 @@ function AnimatedText({ children, style, className, tag = 'div' }: { children: R
         <span style={{ borderRight: '2px solid var(--gold)', marginLeft: '1px', animation: 'blink 0.7s infinite' }} />
       )}
     </Component>
-  )
-}
-
-function Logo({ size = 'md' }: { size?: 'sm' | 'md' }) {
-  const s = size === 'sm' ? 28 : 34
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-      <svg width={s} height={s} viewBox="0 0 34 34" fill="none">
-        <polygon points="17,2 32,31 2,31" stroke="#c9a84c" strokeWidth="1.6" strokeLinejoin="round" fill="none"/>
-        <line x1="17" y1="2" x2="17" y2="31" stroke="#c9a84c" strokeWidth="1" opacity="0.35"/>
-        <circle cx="17" cy="18" r="2.5" fill="#c9a84c" opacity="0.7"/>
-      </svg>
-      <div>
-        <div style={{ fontFamily: 'Outfit', fontWeight: 800, fontSize: size === 'sm' ? '0.8rem' : '0.9rem', letterSpacing: '0.15em', background: 'linear-gradient(135deg,#c9a84c,#e4c76b,#c9a84c)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>HILLTOP</div>
-        <div style={{ fontFamily: 'Outfit', fontSize: '0.55rem', letterSpacing: '0.18em', color: 'rgba(201,168,76,0.5)', marginTop: '-1px' }}>MINISTRY</div>
-      </div>
-    </div>
-  )
-}
-
-function Nav({ activePage, setActivePage }: { activePage: string; setActivePage: (page: string) => void }) {
-  const scrolled = useScrolled()
-  const [open, setOpen] = useState(false)
-
-  const handleNavClick = (l: string) => {
-    setActivePage(l)
-    setOpen(false)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
-
-  return (
-    <header style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, display: 'flex', justifyContent: 'center', padding: '18px 20px' }}>
-      <nav
-        className="glass"
-        style={{
-          width: '100%', maxWidth: 1020,
-          borderRadius: 100,
-          padding: '10px 20px',
-          display: 'flex', alignItems: 'center', gap: 8,
-          background: scrolled ? 'rgba(10,10,18,0.9)' : 'rgba(15,15,24,0.55)',
-          transition: 'background 0.4s ease',
-        }}
-      >
-        <button onClick={() => handleNavClick('Home')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
-          <Logo size="sm" />
-        </button>
-        <div style={{ flex: 1, display: 'flex', justifyContent: 'center', gap: 4, flexWrap: 'wrap' }} className="nav-links">
-          {NAV_LINKS.map(l => (
-            <button key={l} onClick={() => handleNavClick(l)}
-              style={{
-                fontFamily: 'Outfit', fontSize: '0.78rem', fontWeight: 500,
-                color: activePage === l ? '#c9a84c' : 'rgba(242,237,228,0.65)',
-                padding: '6px 12px', borderRadius: 100, border: 'none', background: activePage === l ? 'rgba(201,168,76,0.12)' : 'transparent',
-                cursor: 'pointer', letterSpacing: '0.02em', transition: 'all 0.15s ease'
-              }}
-              onMouseEnter={e => { if (activePage !== l) { (e.currentTarget as HTMLElement).style.color = '#f2ede4'; (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.06)' } }}
-              onMouseLeave={e => { if (activePage !== l) { (e.currentTarget as HTMLElement).style.color = 'rgba(242,237,228,0.65)'; (e.currentTarget as HTMLElement).style.background = 'transparent' } }}
-            >{l}</button>
-          ))}
-        </div>
-        <button onClick={() => handleNavClick('Give')} className="btn btn-gold" style={{ padding: '9px 20px', fontSize: '0.68rem', border: 'none', cursor: 'pointer' }}>Give</button>
-        <button onClick={() => setOpen(o => !o)} style={{ display: 'none', background: 'none', border: 'none', color: '#f2ede4', cursor: 'pointer', padding: 6 }} className="mob-menu-btn" aria-label="Menu">
-          <svg width="22" height="16" viewBox="0 0 22 16" fill="currentColor">
-            {open
-              ? <><line x1="1" y1="1" x2="21" y2="15" stroke="currentColor" strokeWidth="2"/><line x1="21" y1="1" x2="1" y2="15" stroke="currentColor" strokeWidth="2"/></>
-              : <><rect width="22" height="2" rx="1"/><rect y="7" width="16" height="2" rx="1"/><rect y="14" width="22" height="2" rx="1"/></>}
-          </svg>
-        </button>
-      </nav>
-      {open && (
-        <div className="glass-hi" style={{ position: 'absolute', top: 76, left: 20, right: 20, borderRadius: 20, padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 8 }}>
-          {NAV_LINKS.map(l => (
-            <button key={l} onClick={() => handleNavClick(l)}
-              style={{ fontFamily: 'Outfit', fontSize: '0.9rem', color: activePage === l ? '#c9a84c' : 'rgba(242,237,228,0.7)', padding: '10px 4px', textDecoration: 'none', border: 'none', background: 'transparent', textAlign: 'left', borderBottom: '1px solid rgba(201,168,76,0.08)', cursor: 'pointer' }}>{l}</button>
-          ))}
-          <button onClick={() => handleNavClick('Give')} className="btn btn-gold" style={{ padding: '12px 24px', justifyContent: 'center', marginTop: 8, width: '100%', border: 'none', cursor: 'pointer' }}>Give Now</button>
-        </div>
-      )}
-    </header>
   )
 }
 
@@ -895,6 +805,8 @@ function Giving() {
   )
 }
 
+const NAV_LINKS = ['Home', 'About', 'Sermons', 'Events', 'Ministers', 'Become a Member', 'Give']
+
 function Footer({ setActivePage }: { setActivePage: (p: string) => void }) {
   const socials = [
     { name: 'Instagram', href: '#', icon: <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg> },
@@ -969,7 +881,7 @@ export function App() {
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--ivory)' }}>
-      <Nav activePage={activePage} setActivePage={setActivePage} />
+      <Navbar activePage={activePage} setActivePage={setActivePage} />
       {activePage === 'Home' && <Hero setActivePage={setActivePage} />}
       {activePage === 'About' && <AboutPage />}
       {activePage === 'Sermons' && <Sermons />}
