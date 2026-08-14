@@ -283,6 +283,58 @@ img, video, svg, canvas { max-width: 100%; height: auto; }
 .min-card img { transition: transform 0.55s ease; }
 .min-card:hover img { transform: scale(1.07); }
 
+/* Footer social icons — clean circular style matching the reference */
+footer a[aria-label="Instagram"],
+footer a[aria-label="Facebook"],
+footer a[aria-label="YouTube"],
+footer a[aria-label="TikTok"],
+footer a[aria-label="WhatsApp"] {
+  width: 38px !important;
+  height: 38px !important;
+  min-width: 38px !important;
+  min-height: 38px !important;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  background: #111116 !important;
+  border: 1px solid #2a2a31 !important;
+  color: #77777f !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: none !important;
+  transform: none !important;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease !important;
+}
+
+footer a[aria-label="Instagram"] svg,
+footer a[aria-label="Facebook"] svg,
+footer a[aria-label="YouTube"] svg,
+footer a[aria-label="TikTok"] svg,
+footer a[aria-label="WhatsApp"] svg {
+  width: 17px !important;
+  height: 17px !important;
+  max-width: 17px !important;
+  color: #77777f !important;
+}
+
+footer a[aria-label="Instagram"]:hover,
+footer a[aria-label="Facebook"]:hover,
+footer a[aria-label="YouTube"]:hover,
+footer a[aria-label="TikTok"]:hover,
+footer a[aria-label="WhatsApp"]:hover {
+  background: #15151b !important;
+  border-color: #3a3a43 !important;
+  color: #a0a0a8 !important;
+}
+
+footer a[aria-label="Instagram"]:hover svg,
+footer a[aria-label="Facebook"]:hover svg,
+footer a[aria-label="YouTube"]:hover svg,
+footer a[aria-label="TikTok"]:hover svg,
+footer a[aria-label="WhatsApp"]:hover svg {
+  color: #a0a0a8 !important;
+}
+
 /* Mobile Layout Fixes for Menu, Cards, and Forms */
 @media (max-width: 768px) {
   /* Hide mobile menu overlay cleanly when toggled off */
