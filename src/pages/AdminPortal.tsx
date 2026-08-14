@@ -490,99 +490,100 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
   };
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#08080e', color: '#f2ede4', padding: '32px', fontFamily: 'Outfit, sans-serif' }}>
-      <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
+    <div className="w-full min-h-screen bg-[#08080e] text-[#f2ede4] px-4 sm:px-6 py-6 md:py-8 overflow-x-hidden font-['Outfit',sans-serif]">
+      <div className="max-w-[1100px] mx-auto w-full">
         
         {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(201,168,76,0.15)', paddingBottom: '20px', marginBottom: '28px' }}>
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center border-b border-[rgba(201,168,76,0.15)] pb-5 mb-7 gap-4">
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '6px' }}>
+            <div className="flex flex-wrap items-center gap-3 mb-1.5">
               <button
                 onClick={onBack}
-                style={{
-                  backgroundColor: 'rgba(201,168,76,0.1)',
-                  border: '1px solid rgba(201,168,76,0.3)',
-                  color: '#e4c76b',
-                  padding: '6px 12px',
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  fontWeight: '600',
-                  fontSize: '12px',
-                }}
+                className="bg-[rgba(201,168,76,0.1)] border border-[rgba(201,168,76,0.3)] text-[#e4c76b] px-3 py-1.5 rounded-md cursor-pointer font-semibold text-xs transition-colors hover:bg-[rgba(201,168,76,0.2)]"
               >
                 ← Back to Home
               </button>
-              <h1 style={{ fontSize: '26px', fontWeight: '800', margin: 0, color: '#f2ede4', letterSpacing: '0.02em' }}>
+              <h1 className="text-xl sm:text-2xl md:text-[26px] font-extrabold m-0 text-[#f2ede4] tracking-[0.02em]">
                 Ministry Content Manager
               </h1>
             </div>
-            <p style={{ color: 'rgba(242,237,228,0.5)', fontSize: '13px', margin: '4px 0 0 0' }}>
+            <p className="text-[rgba(242,237,228,0.5)] text-xs sm:text-sm m-0">
               Manage ministers, fellowship gallery photos, video sermons, live broadcasts, and audio tracks
             </p>
           </div>
           
-          <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+          <div className="flex flex-wrap gap-3 items-center">
             <button
               onClick={handleTriggerDeploy}
               disabled={isDeploying}
-              style={{
-                background: isDeploying ? '#4b5563' : 'linear-gradient(135deg, #10b981, #059669)',
-                color: '#ffffff',
-                padding: '10px 18px',
-                borderRadius: '8px',
-                border: 'none',
-                fontWeight: '700',
-                cursor: isDeploying ? 'not-allowed' : 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                fontSize: '13px',
-              }}
+              className={`px-4 py-2.5 rounded-lg border-none font-bold cursor-pointer flex items-center gap-1.5 text-xs sm:text-sm transition-all ${
+                isDeploying ? 'bg-gray-600 cursor-not-allowed' : 'bg-gradient-to-br from-[#10b981] to-[#059669] text-white hover:opacity-95'
+              }`}
             >
               ⚡ {isDeploying ? 'Deploying...' : 'Deploy Live Site'}
             </button>
 
-            <button onClick={handleLogout} style={{ backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(242,237,228,0.7)', padding: '10px 18px', borderRadius: '8px', cursor: 'pointer', fontWeight: '600', fontSize: '13px' }}>
+            <button onClick={handleLogout} className="bg-white/5 border border-white/10 text-[rgba(242,237,228,0.7)] px-4 py-2.5 rounded-lg cursor-pointer font-semibold text-xs sm:text-sm hover:bg-white/10 transition-colors">
               Sign Out
             </button>
           </div>
         </div>
 
         {uploadProgress && (
-          <div style={{ backgroundColor: 'rgba(201,168,76,0.15)', border: '1px solid #c9a84c', color: '#e4c76b', padding: '10px', borderRadius: '8px', fontSize: '13px', marginBottom: '20px', textAlign: 'center' }}>
+          <div className="bg-[rgba(201,168,76,0.15)] border border-[#c9a84c] text-[#e4c76b] p-2.5 rounded-lg text-xs sm:text-sm mb-5 text-center">
             {uploadProgress}
           </div>
         )}
 
         {/* Tab Navigation */}
-        <div style={{ display: 'flex', gap: '8px', marginBottom: '28px', borderBottom: '1px solid rgba(201,168,76,0.15)', paddingBottom: '12px', flexWrap: 'wrap' }}>
+        <div className="flex gap-2 mb-7 border-b border-[rgba(201,168,76,0.15)] pb-3 overflow-x-auto scrollbar-none">
           <button
             onClick={() => setActiveTab('ministers')}
-            style={{ padding: '10px 20px', borderRadius: '8px', border: activeTab === 'ministers' ? '1px solid rgba(201,168,76,0.4)' : 'none', backgroundColor: activeTab === 'ministers' ? 'rgba(201,168,76,0.15)' : 'transparent', color: activeTab === 'ministers' ? '#e4c76b' : 'rgba(242,237,228,0.6)', cursor: 'pointer', fontWeight: '700', fontSize: '14px' }}
+            className={`px-4 py-2.5 rounded-lg font-bold text-xs sm:text-sm whitespace-nowrap cursor-pointer transition-all ${
+              activeTab === 'ministers' 
+                ? 'border border-[rgba(201,168,76,0.4)] bg-[rgba(201,168,76,0.15)] text-[#e4c76b]' 
+                : 'border-none bg-transparent text-[rgba(242,237,228,0.6)] hover:text-[#e4c76b]'
+            }`}
           >
             ⚡ Ministers
           </button>
           <button
             onClick={() => setActiveTab('gallery')}
-            style={{ padding: '10px 20px', borderRadius: '8px', border: activeTab === 'gallery' ? '1px solid rgba(201,168,76,0.4)' : 'none', backgroundColor: activeTab === 'gallery' ? 'rgba(201,168,76,0.15)' : 'transparent', color: activeTab === 'gallery' ? '#e4c76b' : 'rgba(242,237,228,0.6)', cursor: 'pointer', fontWeight: '700', fontSize: '14px' }}
+            className={`px-4 py-2.5 rounded-lg font-bold text-xs sm:text-sm whitespace-nowrap cursor-pointer transition-all ${
+              activeTab === 'gallery' 
+                ? 'border border-[rgba(201,168,76,0.4)] bg-[rgba(201,168,76,0.15)] text-[#e4c76b]' 
+                : 'border-none bg-transparent text-[rgba(242,237,228,0.6)] hover:text-[#e4c76b]'
+            }`}
           >
             🖼️ Fellowship Gallery &amp; Moments
           </button>
           <button
             onClick={() => setActiveTab('videos')}
-            style={{ padding: '10px 20px', borderRadius: '8px', border: activeTab === 'videos' ? '1px solid rgba(201,168,76,0.4)' : 'none', backgroundColor: activeTab === 'videos' ? 'rgba(201,168,76,0.15)' : 'transparent', color: activeTab === 'videos' ? '#e4c76b' : 'rgba(242,237,228,0.6)', cursor: 'pointer', fontWeight: '700', fontSize: '14px' }}
+            className={`px-4 py-2.5 rounded-lg font-bold text-xs sm:text-sm whitespace-nowrap cursor-pointer transition-all ${
+              activeTab === 'videos' 
+                ? 'border border-[rgba(201,168,76,0.4)] bg-[rgba(201,168,76,0.15)] text-[#e4c76b]' 
+                : 'border-none bg-transparent text-[rgba(242,237,228,0.6)] hover:text-[#e4c76b]'
+            }`}
           >
             Video Sermons
           </button>
           <button
             onClick={() => setActiveTab('live')}
-            style={{ padding: '10px 20px', borderRadius: '8px', border: activeTab === 'live' ? '1px solid rgba(201,168,76,0.4)' : 'none', backgroundColor: activeTab === 'live' ? 'rgba(201,168,76,0.15)' : 'transparent', color: activeTab === 'live' ? '#e4c76b' : 'rgba(242,237,228,0.6)', cursor: 'pointer', fontWeight: '700', fontSize: '14px' }}
+            className={`px-4 py-2.5 rounded-lg font-bold text-xs sm:text-sm whitespace-nowrap cursor-pointer transition-all ${
+              activeTab === 'live' 
+                ? 'border border-[rgba(201,168,76,0.4)] bg-[rgba(201,168,76,0.15)] text-[#e4c76b]' 
+                : 'border-none bg-transparent text-[rgba(242,237,228,0.6)] hover:text-[#e4c76b]'
+            }`}
           >
             Live Broadcast
           </button>
           <button
             onClick={() => setActiveTab('audio')}
-            style={{ padding: '10px 20px', borderRadius: '8px', border: activeTab === 'audio' ? '1px solid rgba(201,168,76,0.4)' : 'none', backgroundColor: activeTab === 'audio' ? 'rgba(201,168,76,0.15)' : 'transparent', color: activeTab === 'audio' ? '#e4c76b' : 'rgba(242,237,228,0.6)', cursor: 'pointer', fontWeight: '700', fontSize: '14px' }}
+            className={`px-4 py-2.5 rounded-lg font-bold text-xs sm:text-sm whitespace-nowrap cursor-pointer transition-all ${
+              activeTab === 'audio' 
+                ? 'border border-[rgba(201,168,76,0.4)] bg-[rgba(201,168,76,0.15)] text-[#e4c76b]' 
+                : 'border-none bg-transparent text-[rgba(242,237,228,0.6)] hover:text-[#e4c76b]'
+            }`}
           >
             Audio Messages
           </button>
@@ -590,9 +591,9 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
 
         {/* TAB 1: MINISTERS MANAGEMENT */}
         {activeTab === 'ministers' && (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: '28px' }}>
-            <form onSubmit={handleSaveMinister} style={{ backgroundColor: '#0e0e17', border: '1px solid rgba(201,168,76,0.18)', padding: '24px', borderRadius: '12px' }}>
-              <h3 style={{ fontSize: '16px', fontWeight: 'bold', margin: '0 0 16px 0', color: '#e4c76b' }}>
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.2fr] gap-7">
+            <form onSubmit={handleSaveMinister} className="bg-[#0e0e17] border border-[rgba(201,168,76,0.18)] p-5 sm:p-6 rounded-xl">
+              <h3 className="text-base font-bold m-0 mb-4 text-[#e4c76b]">
                 Edit Minister Slot #{selectedSlotOrder}
               </h3>
 
@@ -672,11 +673,11 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
               </button>
             </form>
 
-            <div style={{ backgroundColor: '#0e0e17', border: '1px solid rgba(201,168,76,0.18)', padding: '24px', borderRadius: '12px' }}>
-              <h3 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '16px', color: '#f2ede4' }}>
+            <div className="bg-[#0e0e17] border border-[rgba(201,168,76,0.18)] p-5 sm:p-6 rounded-xl">
+              <h3 className="text-base font-bold mb-4 text-[#f2ede4]">
                 Minister Slots Overview
               </h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div className="flex flex-col gap-3">
                 {[1, 2, 3, 4, 5].map((slotNum) => {
                   const m = ministers.find((item) => (item.display_order ?? item.id) === slotNum);
                   const isSelected = selectedSlotOrder === slotNum;
@@ -706,10 +707,11 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
                           borderRadius: '50%',
                           objectFit: 'cover',
                           border: '1px solid #c9a84c',
+                          flexShrink: 0,
                         }}
                       />
-                      <div style={{ flex: 1 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
                           <span
                             style={{
                               fontSize: '10px',
@@ -718,11 +720,12 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
                               padding: '2px 6px',
                               borderRadius: '4px',
                               fontWeight: 'bold',
+                              flexShrink: 0,
                             }}
                           >
                             SLOT {slotNum}
                           </span>
-                          <span style={{ fontWeight: 'bold', fontSize: '14px', color: '#f2ede4' }}>
+                          <span className="font-bold text-sm text-[#f2ede4] truncate">
                             {m?.name || 'Open Slot'}
                           </span>
                         </div>
@@ -734,7 +737,6 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
                             whiteSpace: 'nowrap',
-                            maxWidth: '260px',
                           }}
                         >
                           {m?.desc_text || m?.desc || 'No description provided.'}
@@ -755,6 +757,7 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
                           fontSize: '11px',
                           cursor: 'pointer',
                           fontWeight: '600',
+                          flexShrink: 0,
                         }}
                       >
                         Select
@@ -769,12 +772,12 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
 
         {/* TAB 2: GALLERY & MOMENTS MANAGEMENT (DYNAMIC LIST) */}
         {activeTab === 'gallery' && (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: '28px' }}>
-            <form onSubmit={handleAddGalleryItem} style={{ backgroundColor: '#0e0e17', border: '1px solid rgba(201,168,76,0.18)', padding: '24px', borderRadius: '12px' }}>
-              <h3 style={{ fontSize: '16px', fontWeight: 'bold', margin: '0 0 16px 0', color: '#e4c76b' }}>
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.2fr] gap-7">
+            <form onSubmit={handleAddGalleryItem} className="bg-[#0e0e17] border border-[rgba(201,168,76,0.18)] p-5 sm:p-6 rounded-xl">
+              <h3 className="text-base font-bold m-0 mb-4 text-[#e4c76b]">
                 Add New Gallery Photo
               </h3>
-              <p style={{ fontSize: '12px', color: 'rgba(242,237,228,0.6)', marginBottom: '16px' }}>
+              <p className="text-xs text-[rgba(242,237,228,0.6)] mb-4 leading-relaxed">
                 Add unlimited photos and captions to display in the &quot;A Glimpse Into Our Fellowship&quot; section on the website homepage.
               </p>
 
@@ -822,13 +825,13 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
               </button>
             </form>
 
-            <div style={{ backgroundColor: '#0e0e17', border: '1px solid rgba(201,168,76,0.18)', padding: '24px', borderRadius: '12px' }}>
-              <h3 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '16px', color: '#f2ede4' }}>
+            <div className="bg-[#0e0e17] border border-[rgba(201,168,76,0.18)] p-5 sm:p-6 rounded-xl">
+              <h3 className="text-base font-bold mb-4 text-[#f2ede4]">
                 Gallery Library ({galleryItems.length})
               </h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxHeight: '550px', overflowY: 'auto' }}>
+              <div className="flex flex-col gap-3 max-h-[550px] overflow-y-auto">
                 {galleryItems.length === 0 ? (
-                  <p style={{ color: 'rgba(242,237,228,0.4)', fontSize: '13px' }}>No gallery photos added yet.</p>
+                  <p className="text-[rgba(242,237,228,0.4)] text-xs sm:text-sm">No gallery photos added yet.</p>
                 ) : (
                   galleryItems.map((item, index) => (
                     <div
@@ -852,10 +855,11 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
                           borderRadius: '6px',
                           objectFit: 'cover',
                           border: '1px solid #c9a84c',
+                          flexShrink: 0,
                         }}
                       />
-                      <div style={{ flex: 1 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
                           <span
                             style={{
                               fontSize: '10px',
@@ -864,11 +868,12 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
                               padding: '2px 6px',
                               borderRadius: '4px',
                               fontWeight: 'bold',
+                              flexShrink: 0,
                             }}
                           >
                             #{index + 1}
                           </span>
-                          <span style={{ fontWeight: 'bold', fontSize: '13px', color: '#f2ede4' }}>
+                          <span className="font-bold text-xs sm:text-sm text-[#f2ede4] truncate">
                             {item.title}
                           </span>
                         </div>
@@ -885,6 +890,7 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
                           fontSize: '11px',
                           cursor: 'pointer',
                           fontWeight: '600',
+                          flexShrink: 0,
                         }}
                       >
                         Remove
@@ -899,9 +905,9 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
 
         {/* TAB 3: VIDEO SERMONS */}
         {activeTab === 'videos' && (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
-            <form onSubmit={handleAddSermon} style={{ backgroundColor: '#0e0e17', border: '1px solid rgba(201,168,76,0.18)', padding: '20px', borderRadius: '12px' }}>
-              <h3 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '16px', color: '#e4c76b' }}>Upload New Video Sermon</h3>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <form onSubmit={handleAddSermon} className="bg-[#0e0e17] border border-[rgba(201,168,76,0.18)] p-5 sm:p-6 rounded-xl">
+              <h3 className="text-base font-bold mb-4 text-[#e4c76b]">Upload New Video Sermon</h3>
               
               <label style={labelStyle}>Sermon Title</label>
               <input style={inputStyle} value={vTitle} onChange={(e) => setVTitle(e.target.value)} placeholder="e.g. The Power of Persistent Prayer" required />
@@ -943,21 +949,21 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
               </button>
             </form>
 
-            <div style={{ backgroundColor: '#0e0e17', border: '1px solid rgba(201,168,76,0.18)', padding: '20px', borderRadius: '12px' }}>
-              <h3 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '16px' }}>Existing Video Sermons ({sermons.length})</h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxHeight: '550px', overflowY: 'auto' }}>
+            <div className="bg-[#0e0e17] border border-[rgba(201,168,76,0.18)] p-5 sm:p-6 rounded-xl">
+              <h3 className="text-base font-bold mb-4 text-[#f2ede4]">Existing Video Sermons ({sermons.length})</h3>
+              <div className="flex flex-col gap-3 max-h-[550px] overflow-y-auto">
                 {sermons.length === 0 ? (
-                  <p style={{ color: 'rgba(242,237,228,0.4)', fontSize: '13px' }}>No video sermons uploaded yet.</p>
+                  <p className="text-[rgba(242,237,228,0.4)] text-xs sm:text-sm">No video sermons uploaded yet.</p>
                 ) : (
                   sermons.map((s) => (
-                    <div key={s.id} style={{ backgroundColor: '#050508', border: '1px solid rgba(201,168,76,0.12)', padding: '12px', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <div>
-                        <p style={{ margin: 0, fontWeight: 'bold', fontSize: '14px', color: s.is_featured ? '#e4c76b' : '#f2ede4' }}>
+                    <div key={s.id} style={{ backgroundColor: '#050508', border: '1px solid rgba(201,168,76,0.12)', padding: '12px', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
+                      <div className="min-w-0 flex-1">
+                        <p style={{ margin: 0, fontWeight: 'bold', fontSize: '14px', color: s.is_featured ? '#e4c76b' : '#f2ede4' }} className="truncate">
                           {s.is_featured ? '★ ' : ''}{s.title}
                         </p>
-                        <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: 'rgba(242,237,228,0.5)' }}>{s.speaker} • {s.category}</p>
+                        <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: 'rgba(242,237,228,0.5)' }} className="truncate">{s.speaker} • {s.category}</p>
                       </div>
-                      <button onClick={() => handleDeleteSermon(s.id)} style={{ backgroundColor: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', color: '#f87171', padding: '6px 12px', borderRadius: '6px', fontSize: '12px', cursor: 'pointer', fontWeight: '600' }}>
+                      <button onClick={() => handleDeleteSermon(s.id)} style={{ backgroundColor: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', color: '#f87171', padding: '6px 12px', borderRadius: '6px', fontSize: '12px', cursor: 'pointer', fontWeight: '600', flexShrink: 0 }}>
                         Remove
                       </button>
                     </div>
@@ -970,8 +976,8 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
 
         {/* TAB 4: LIVE STREAM */}
         {activeTab === 'live' && (
-          <div style={{ backgroundColor: '#0e0e17', border: '1px solid rgba(201,168,76,0.18)', padding: '24px', borderRadius: '12px', maxWidth: '600px' }}>
-            <h3 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '16px', color: '#e4c76b' }}>Configure Live Broadcast</h3>
+          <div className="bg-[#0e0e17] border border-[rgba(201,168,76,0.18)] p-5 sm:p-6 rounded-xl max-w-[600px] mx-auto lg:mx-0">
+            <h3 className="text-base font-bold mb-4 text-[#e4c76b]">Configure Live Broadcast</h3>
             <form onSubmit={handleUpdateLive}>
               <label style={labelStyle}>Live Event Title</label>
               <input style={inputStyle} value={liveTitle} onChange={(e) => setLiveTitle(e.target.value)} required />
@@ -993,9 +999,9 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
 
         {/* TAB 5: AUDIO SERMONS */}
         {activeTab === 'audio' && (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
-            <form onSubmit={handleAddAudio} style={{ backgroundColor: '#0e0e17', border: '1px solid rgba(201,168,76,0.18)', padding: '20px', borderRadius: '12px' }}>
-              <h3 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '16px', color: '#e4c76b' }}>Add Audio Sermon</h3>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <form onSubmit={handleAddAudio} className="bg-[#0e0e17] border border-[rgba(201,168,76,0.18)] p-5 sm:p-6 rounded-xl">
+              <h3 className="text-base font-bold mb-4 text-[#e4c76b]">Add Audio Sermon</h3>
 
               <label style={labelStyle}>Audio Title</label>
               <input style={inputStyle} value={aTitle} onChange={(e) => setATitle(e.target.value)} placeholder="e.g. Praying the Word of God" required />
@@ -1020,19 +1026,19 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
               </button>
             </form>
 
-            <div style={{ backgroundColor: '#0e0e17', border: '1px solid rgba(201,168,76,0.18)', padding: '20px', borderRadius: '12px' }}>
-              <h3 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '16px' }}>Audio Library ({audioList.length})</h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxHeight: '550px', overflowY: 'auto' }}>
+            <div className="bg-[#0e0e17] border border-[rgba(201,168,76,0.18)] p-5 sm:p-6 rounded-xl">
+              <h3 className="text-base font-bold mb-4 text-[#f2ede4]">Audio Library ({audioList.length})</h3>
+              <div className="flex flex-col gap-3 max-h-[550px] overflow-y-auto">
                 {audioList.length === 0 ? (
-                  <p style={{ color: 'rgba(242,237,228,0.4)', fontSize: '13px' }}>No audio tracks uploaded yet.</p>
+                  <p className="text-[rgba(242,237,228,0.4)] text-xs sm:text-sm">No audio tracks uploaded yet.</p>
                 ) : (
                   audioList.map((a) => (
-                    <div key={a.id} style={{ backgroundColor: '#050508', border: '1px solid rgba(201,168,76,0.12)', padding: '12px', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <div>
-                        <p style={{ margin: 0, fontWeight: 'bold', fontSize: '14px', color: '#f2ede4' }}>{a.title}</p>
-                        <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: 'rgba(242,237,228,0.5)' }}>{a.episode} • {a.duration}</p>
+                    <div key={a.id} style={{ backgroundColor: '#050508', border: '1px solid rgba(201,168,76,0.12)', padding: '12px', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
+                      <div className="min-w-0 flex-1">
+                        <p style={{ margin: 0, fontWeight: 'bold', fontSize: '14px', color: '#f2ede4' }} className="truncate">{a.title}</p>
+                        <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: 'rgba(242,237,228,0.5)' }} className="truncate">{a.episode} • {a.duration}</p>
                       </div>
-                      <button onClick={() => handleDeleteAudio(a.id)} style={{ backgroundColor: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', color: '#f87171', padding: '6px 12px', borderRadius: '6px', fontSize: '12px', cursor: 'pointer', fontWeight: '600' }}>
+                      <button onClick={() => handleDeleteAudio(a.id)} style={{ backgroundColor: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', color: '#f87171', padding: '6px 12px', borderRadius: '6px', fontSize: '12px', cursor: 'pointer', fontWeight: '600', flexShrink: 0 }}>
                         Remove
                       </button>
                     </div>
