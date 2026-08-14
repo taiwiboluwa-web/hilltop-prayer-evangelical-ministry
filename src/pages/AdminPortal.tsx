@@ -487,10 +487,10 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
   };
 
   return (
-    <div className="min-h-screen bg-[#050508] text-[#f5f2eb] font-['Outfit',sans-serif] flex">
+    <div className="h-screen w-screen overflow-hidden bg-[#050508] text-[#f5f2eb] font-['Outfit',sans-serif] flex">
       
-      {/* LEFT SIDEBAR NAVIGATION */}
-      <aside className="w-[280px] bg-[#080810] border-r border-[#dfb755]/10 flex flex-col justify-between fixed top-0 bottom-0 left-0 z-30 select-none shadow-2xl">
+      {/* SIDEBAR NAVIGATION (Flex Item - No Overlap) */}
+      <aside className="w-[280px] flex-shrink-0 bg-[#080810] border-r border-[#dfb755]/10 flex flex-col justify-between h-full select-none shadow-2xl">
         <div>
           {/* Logo Area */}
           <div className="p-6 border-b border-[#dfb755]/10 flex items-center gap-3">
@@ -546,8 +546,8 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
         </div>
       </aside>
 
-      {/* MAIN CONTENT AREA */}
-      <main className="flex-1 pl-[280px] min-h-screen bg-[#050508] flex flex-col">
+      {/* MAIN CONTENT AREA (Scrollable Column) */}
+      <main className="flex-1 h-full overflow-y-auto bg-[#050508] flex flex-col">
         
         {/* Top Navbar Header */}
         <header className="h-[76px] bg-[#080810]/90 backdrop-blur-md border-b border-[#dfb755]/10 px-8 flex items-center justify-between sticky top-0 z-20 w-full">
