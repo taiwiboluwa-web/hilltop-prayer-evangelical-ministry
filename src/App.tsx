@@ -52,8 +52,6 @@ const DEFAULT_MINISTERS = [
   { id: 5, name: 'Open Slot', role: 'Outreach Minister', desc: 'Spearheading evangelism initiatives and community integration.', img: IMGS.community },
 ]
 
-const GIVE_AMOUNTS = [1000, 2000, 5000, 10000, 25000, 50000]
-
 interface MinisterRow {
   id?: number | string
   name: string
@@ -675,131 +673,110 @@ function MinistersSection() {
 }
 
 function Giving() {
-  const [amt, setAmt] = useState<number | ''>(5000)
-  const [custom, setCustom] = useState('')
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const [phone, setPhone] = useState('')
-  const [purpose, setPurpose] = useState('Tithe')
-  const [loading, setLoading] = useState(false)
+  const [activeTab, setActiveTab] = useState<'online' | 'transfer'>('transfer')
 
-  const handleGive = async (e: React.FormEvent) => {
-    e.preventDefault()
-    const finalAmt = custom ? Number(custom) : Number(amt)
-    if (!finalAmt || finalAmt <= 0) return
-    setLoading(true)
-
-    try {
-      const { error } = await supabase.from('donations').insert([
-        { amount: finalAmt, name: name || 'Anonymous', email, phone, purpose }
-      ]).select()
-
-      if (error) throw error
-      alert('Thank you for your generous giving! God bless you.')
-      setAmt(5000)
-      setCustom('')
-      setName('')
-      setEmail('')
-      setPhone('')
-    } catch (err: any) {
-      console.error(err)
-      alert('Giving submission recorded successfully. God bless you!')
-    } finally {
-      setLoading(false)
-    }
-  }
+  const impacts = [
+    { amount: 'N5,000', text: 'feeds a family for a week' },
+    { amount: 'N10,000', text: 'covers media production' },
+    { amount: 'N25,000', text: 'funds one outreach day' },
+    { amount: 'N50,000', text: 'sponsors a youth conference slot' },
+  ]
 
   return (
-    <section id="give" style={{ padding: '140px 24px 100px', background: 'var(--bg)', position: 'relative', minHeight: '80vh' }}>
-      <div className="glow-gold" style={{ width: 700, height: 700, top: '20%', left: '50%', transform: 'translate(-50%,-50%)' }}/>
-      <div style={{ maxWidth: 800, margin: '0 auto', position: 'relative' }}>
-        <div style={{ textAlign: 'center', marginBottom: 48 }}>
-          <div className="label" style={{ marginBottom: 16 }}>Honor God With Your Substance</div>
-          <AnimatedText tag="h2" className="display" style={{ fontSize: 'clamp(2rem,4.5vw,3.4rem)', marginBottom: 16 }}>
-            Give Online
-          </AnimatedText>
-          <p style={{ fontFamily: 'Outfit', color: 'var(--muted)', fontSize: '1rem', maxWidth: 500, margin: '0 auto' }}>
+    <section id="give" className="bg-[#08080e] text-white py-24 px-4 flex flex-col items-center justify-center font-sans relative min-h-[80vh]">
+      <div className="glow-gold absolute w-[600px] h-[600px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"/>
+      
+      <div className="max-w-md w-full space-y-6 relative z-10">
+        <div className="text-center mb-8">
+          <div className="label mb-3">Honor God With Your Substance</div>
+          <h2 className="display text-3xl md:text-4xl mb-3">Give Online</h2>
+          <p className="font-outfit text-sm text-neutral-400">
             Bring ye all the tithes into the storehouse, and prove me now herewith, saith the Lord. (Malachi 3:10)
           </p>
         </div>
+        
+        {/* Your Impact Card */}
+        <div className="bg-[#141418] border border-[#22222a] rounded-2xl p-6 shadow-xl">
+          <h3 className="text-xs font-semibold tracking-widest text-[#d4af37] mb-6 uppercase">
+            Your Impact
+          </h3>
+          <div className="space-y-5">
+            {impacts.map((item, index) => (
+              <div key={index} className="flex items-start space-x-3 pb-4 border-b border-[#22222a] last:border-none last:pb-0">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#d4af37] mt-1.5 shrink-0 shadow-[0_0_8px_rgba(212,175,55,0.6)]"></span>
+                <p className="text-sm leading-relaxed font-outfit">
+                  <span className="text-[#d4af37] font-bold">{item.amount}</span> {item.text}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
 
-        <form onSubmit={handleGive} className="glass-hi" style={{ borderRadius: 24, padding: '48px 40px', border: '1px solid rgba(201,168,76,0.25)' }}>
-          <div style={{ marginBottom: 28 }}>
-            <label style={{ display: 'block', fontFamily: 'Outfit', fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.1em', color: 'var(--gold-light)', marginBottom: 12, textTransform: 'uppercase' }}>
-              Select Purpose
-            </label>
-            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-              {['Tithe', 'Offering', 'Building Fund', 'Partnership', 'Seed Faith'].map(p => (
-                <button
-                  key={p}
-                  type="button"
-                  onClick={() => setPurpose(p)}
-                  style={{
-                    fontFamily: 'Outfit', fontSize: '0.78rem', fontWeight: 600,
-                    padding: '8px 16px', borderRadius: 100, cursor: 'pointer', border: 'none',
-                    background: purpose === p ? 'var(--gold)' : 'rgba(255,255,255,0.05)',
-                    color: purpose === p ? '#08080e' : 'var(--muted)',
-                    transition: 'all 0.2s ease',
-                  }}
-                >
-                  {p}
-                </button>
-              ))}
-            </div>
+        {/* Payment Options Card */}
+        <div className="bg-[#141418] border border-[#22222a] rounded-2xl p-6 shadow-xl">
+          
+          {/* Toggle Switch */}
+          <div className="flex bg-[#0b0b0e] p-1 rounded-xl border border-[#22222a] mb-6">
+            <button
+              onClick={() => setActiveTab('online')}
+              className={`flex-1 py-2.5 text-xs font-semibold tracking-wider rounded-lg transition-all duration-300 cursor-pointer ${
+                activeTab === 'online'
+                  ? 'bg-[#1b1b22] text-[#d4af37] shadow-md'
+                  : 'text-neutral-500 hover:text-neutral-300'
+              }`}
+            >
+              ONLINE
+            </button>
+            <button
+              onClick={() => setActiveTab('transfer')}
+              className={`flex-1 py-2.5 text-xs font-semibold tracking-wider rounded-lg transition-all duration-300 cursor-pointer ${
+                activeTab === 'transfer'
+                  ? 'bg-[#1b1b22] text-[#d4af37] shadow-md border border-[#d4af37]/30'
+                  : 'text-neutral-500 hover:text-neutral-300'
+              }`}
+            >
+              BANK TRANSFER
+            </button>
           </div>
 
-          <div style={{ marginBottom: 28 }}>
-            <label style={{ display: 'block', fontFamily: 'Outfit', fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.1em', color: 'var(--gold-light)', marginBottom: 12, textTransform: 'uppercase' }}>
-              Select Amount (NGN)
-            </label>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 12, marginBottom: 16 }}>
-              {GIVE_AMOUNTS.map(a => (
-                <button
-                  key={a}
-                  type="button"
-                  onClick={() => { setAmt(a); setCustom('') }}
-                  style={{
-                    fontFamily: 'Outfit', fontSize: '0.95rem', fontWeight: 700,
-                    padding: '12px', borderRadius: 12, cursor: 'pointer',
-                    border: amt === a && !custom ? '1px solid var(--gold)' : '1px solid rgba(255,255,255,0.08)',
-                    background: amt === a && !custom ? 'rgba(201,168,76,0.15)' : 'rgba(255,255,255,0.03)',
-                    color: amt === a && !custom ? 'var(--gold-light)' : 'var(--ivory)',
-                    transition: 'all 0.2s ease',
-                  }}
-                >
-                  ₦{a.toLocaleString()}
-                </button>
-              ))}
-            </div>
-            <input
-              type="number"
-              placeholder="Or enter custom amount (NGN)"
-              value={custom}
-              onChange={e => { setCustom(e.target.value); setAmt('') }}
-              style={{ width: '100%', padding: '14px 18px', borderRadius: 12, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', fontFamily: 'Outfit', fontSize: '0.95rem', outline: 'none' }}
-            />
-          </div>
+          {/* Tab Content */}
+          {activeTab === 'transfer' ? (
+            <div className="space-y-5 animate-fadeIn font-outfit">
+              <div>
+                <p className="text-[10px] uppercase tracking-widest text-[#d4af37] font-medium mb-1">
+                  Account Name
+                </p>
+                <p className="text-base font-semibold text-white tracking-wide">
+                  Hilltop Prayer & Evangelical Ministry
+                </p>
+              </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16, marginBottom: 20 }} className="give-grid">
-            <div>
-              <label style={{ display: 'block', fontFamily: 'Outfit', fontSize: '0.7rem', fontWeight: 700, color: 'var(--muted)', marginBottom: 6, textTransform: 'uppercase' }}>Your Name (Optional)</label>
-              <input type="text" placeholder="Full Name" value={name} onChange={e => setName(e.target.value)} style={{ width: '100%', padding: '12px 16px', borderRadius: 8, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', fontFamily: 'Outfit', fontSize: '0.9rem', outline: 'none' }} />
-            </div>
-            <div>
-              <label style={{ display: 'block', fontFamily: 'Outfit', fontSize: '0.7rem', fontWeight: 700, color: 'var(--muted)', marginBottom: 6, textTransform: 'uppercase' }}>Email Address</label>
-              <input type="email" placeholder="Email Address" value={email} onChange={e => setEmail(e.target.value)} style={{ width: '100%', padding: '12px 16px', borderRadius: 8, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', fontFamily: 'Outfit', fontSize: '0.9rem', outline: 'none' }} />
-            </div>
-          </div>
+              <div className="pt-2 border-t border-[#22222a]">
+                <p className="text-[10px] uppercase tracking-widest text-[#d4af37] font-medium mb-1">
+                  Bank
+                </p>
+                <p className="text-base font-semibold text-white tracking-wide">
+                  First Bank of Nigeria
+                </p>
+              </div>
 
-          <div style={{ marginBottom: 32 }}>
-            <label style={{ display: 'block', fontFamily: 'Outfit', fontSize: '0.7rem', fontWeight: 700, color: 'var(--muted)', marginBottom: 6, textTransform: 'uppercase' }}>Phone Number</label>
-            <input type="tel" placeholder="Phone Number" value={phone} onChange={e => setPhone(e.target.value)} style={{ width: '100%', padding: '12px 16px', borderRadius: 8, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', fontFamily: 'Outfit', fontSize: '0.9rem', outline: 'none' }} />
-          </div>
+              <div className="pt-2 border-t border-[#22222a]">
+                <p className="text-[10px] uppercase tracking-widest text-[#d4af37] font-medium mb-1">
+                  Account No.
+                </p>
+                <p className="text-lg font-mono font-bold text-white tracking-wider">
+                  3012 345 678
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="py-8 text-center text-neutral-400 text-sm animate-fadeIn font-outfit">
+              Online payment integration portal goes here.
+            </div>
+          )}
 
-          <button type="submit" disabled={loading} className="btn btn-gold" style={{ width: '100%', padding: '16px', justifyContent: 'center', fontSize: '0.9rem', border: 'none', cursor: 'pointer' }}>
-            {loading ? 'Processing...' : `Proceed to Give ₦${(custom ? Number(custom) : Number(amt) || 0).toLocaleString()}`}
-          </button>
-        </form>
+        </div>
+
       </div>
     </section>
   )
