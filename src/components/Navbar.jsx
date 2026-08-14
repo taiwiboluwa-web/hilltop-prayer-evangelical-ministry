@@ -15,7 +15,7 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className="w-full bg-black/80 backdrop-blur-md sticky top-0 z-50 px-4 py-3">
+    <nav className="w-full max-w-[100vw] overflow-x-hidden bg-black/80 backdrop-blur-md sticky top-0 z-50 px-4 py-3">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         {/* Logo */}
         <div className="flex items-center space-x-2">
@@ -45,7 +45,7 @@ export default function Navbar() {
 
       {/* Mobile Dropdown Menu */}
       {isOpen && (
-        <div className="md:hidden absolute top-full left-0 w-full bg-black/95 border-t border-gray-800 py-4 px-6 flex flex-col space-y-4 shadow-xl">
+        <div className="md:hidden absolute top-full left-0 w-full max-w-[100vw] bg-black/95 border-t border-gray-800 py-4 px-6 flex flex-col space-y-4 shadow-xl">
           {navLinks.map((link) => (
             <a
               key={link.name}
