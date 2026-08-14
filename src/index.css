@@ -283,7 +283,7 @@ img, video, svg, canvas { max-width: 100%; height: auto; }
 .min-card img { transition: transform 0.55s ease; }
 .min-card:hover img { transform: scale(1.07); }
 
-/* Mobile Layout Fixes for Menu (1) and Footer/Content (2) */
+/* Mobile Layout Fixes for Menu, Cards, and Forms */
 @media (max-width: 768px) {
   /* Hide mobile menu overlay cleanly when toggled off */
   .mobile-menu-hidden {
@@ -293,7 +293,35 @@ img, video, svg, canvas { max-width: 100%; height: auto; }
     pointer-events: none !important;
   }
 
-  /* Ensure footer elements and columns (2) stack properly and display fully without overlapping */
+  /* Prevent side clipping on main containers and cards */
+  body, html {
+    overflow-x: hidden !important;
+  }
+
+  .card, form, .glass, .glass-hi {
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Force multi-column sections (like the contact form view) to stack vertically on mobile */
+  .grid, [class*="grid-cols-"] {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  /* Add safe horizontal breathing room to prevent edge bleeding */
+  section, .container, div[class*="max-w-"] {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  /* Ensure countdown and service cards handle mobile spacing cleanly */
+  .cbox {
+    min-width: 54px !important;
+    padding: 8px 10px !important;
+  }
+
+  /* Ensure footer elements and columns stack properly and display fully without overlapping */
   footer, .footer-container, .footer-grid {
     display: flex !important;
     flex-direction: column !important;
