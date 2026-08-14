@@ -70,7 +70,7 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
   const [mDescText, setMDescText] = useState('');
   const [mImageUrl, setMImageUrl] = useState('');
 
-  // Gallery Form & Data States (Dynamic List)
+  // Gallery Form & Data States
   const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
   const [gTitle, setGTitle] = useState('');
   const [gImageUrl, setGImageUrl] = useState('');
@@ -490,13 +490,13 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-neutral-200 font-sans flex overflow-hidden">
+    <div className="min-h-screen bg-[#0a0a0a] text-neutral-200 font-sans flex relative overflow-x-hidden">
       
-      {/* LEFT SIDEBAR NAVIGATION (COLLAPSIBLE) */}
-      <aside className={`bg-[#121212] border-r border-[#262626] flex flex-col justify-between fixed top-0 bottom-0 left-0 z-20 transition-all duration-300 ease-in-out ${isSidebarCollapsed ? 'w-20' : 'w-64'}`}>
+      {/* LEFT SIDEBAR NAVIGATION (FIXED & STATIC FLOW) */}
+      <aside className={`bg-[#121212] border-r border-[#262626] flex flex-col justify-between shrink-0 sticky top-0 h-screen transition-all duration-300 ease-in-out ${isSidebarCollapsed ? 'w-20' : 'w-64'}`}>
         <div>
           {/* Logo / Header Area */}
-          <div className="h-16 px-4 border-b border-[#262626] flex items-center justify-between">
+          <div className="h-16 px-4 border-b border-[#262626] flex items-center justify-between shrink-0">
             <div className={`flex items-center space-x-3 overflow-hidden ${isSidebarCollapsed ? 'hidden' : ''}`}>
               <div className="w-9 h-9 rounded-full bg-neutral-900 border border-neutral-800 flex items-center justify-center shrink-0">
                 <svg className="w-4 h-4 text-[#f59e0b]" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
@@ -550,7 +550,7 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
         </div>
 
         {/* Bottom User info & Signout */}
-        <div className="p-3 border-t border-[#262626]">
+        <div className="p-3 border-t border-[#262626] shrink-0">
           <div className={`bg-neutral-900/60 border border-neutral-800/80 rounded-xl p-3 flex items-center justify-between ${isSidebarCollapsed ? 'justify-center p-2' : ''}`}>
             {!isSidebarCollapsed && (
               <div className="truncate mr-2">
@@ -569,10 +569,10 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
       </aside>
 
       {/* MAIN CONTENT AREA */}
-      <main className={`flex-1 flex flex-col h-screen overflow-hidden bg-[#0a0a0a] transition-all duration-300 ${isSidebarCollapsed ? 'ml-20' : 'ml-64'}`}>
+      <main className="flex-1 flex flex-col min-h-screen overflow-y-auto bg-[#0a0a0a]">
         
         {/* Top Navbar Header */}
-        <header className="h-16 border-b border-[#262626] bg-[#121212] px-6 flex items-center justify-between shrink-0">
+        <header className="h-16 border-b border-[#262626] bg-[#121212] px-6 flex items-center justify-between shrink-0 sticky top-0 z-10">
           <div className="flex items-center space-x-4">
             <button
               onClick={onBack}
@@ -606,7 +606,7 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
         </header>
 
         {/* Content Body Container */}
-        <div className="p-6 overflow-y-auto flex-1">
+        <div className="p-6 flex-1">
           
           {uploadProgress && (
             <div className="bg-[#f59e0b]/10 border border-[#f59e0b]/30 text-[#f59e0b] p-3 rounded-xl text-xs mb-6 text-center font-medium shadow-md">
