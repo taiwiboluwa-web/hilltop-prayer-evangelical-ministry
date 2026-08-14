@@ -493,25 +493,26 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
     <div className="min-h-screen bg-[#0a0a0a] text-neutral-200 font-sans flex overflow-hidden">
       
       {/* LEFT SIDEBAR NAVIGATION (COLLAPSIBLE) */}
-      <aside className={`bg-[#121212] border-r border-[#262626] flex flex-col justify-between fixed top-0 bottom-0 left-0 z-20 transition-all duration-300 ease-in-out ${isSidebarCollapsed ? 'w-16' : 'w-56'}`}>
+      <aside className={`bg-[#121212] border-r border-[#262626] flex flex-col justify-between fixed top-0 bottom-0 left-0 z-20 transition-all duration-300 ease-in-out ${isSidebarCollapsed ? 'w-16' : 'w-48'}`}>
         <div>
           {/* Logo / Header Area */}
           <div className="h-14 px-3 border-b border-[#262626] flex items-center justify-between">
-            <div className={`flex items-center space-x-2.5 overflow-hidden ${isSidebarCollapsed ? 'hidden' : ''}`}>
-              <div className="w-7 h-7 rounded-full bg-neutral-900 border border-neutral-800 flex items-center justify-center shrink-0">
-                <svg className="w-3.5 h-3.5 text-[#f59e0b]" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+            <div className={`flex items-center space-x-2 overflow-hidden ${isSidebarCollapsed ? 'hidden' : ''}`}>
+              <div className="w-6 h-6 rounded-full bg-neutral-900 border border-neutral-800 flex items-center justify-center shrink-0">
+                <svg className="w-3 h-3 text-[#f59e0b]" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
               </div>
-              <div className="truncate">
-                <span className="text-[9px] uppercase tracking-wider text-neutral-500 block font-semibold">Admin Panel</span>
-                <span className="text-xs font-bold text-white tracking-wide">Dashboard</span>
+              <div className="flex items-center space-x-1 truncate">
+                <span className="text-[8px] uppercase tracking-wider text-neutral-500 font-semibold">Admin Panel</span>
+                <span className="text-[8px] text-neutral-600">•</span>
+                <span className="text-[10px] font-bold text-white tracking-wide">Dashboard</span>
               </div>
             </div>
             {/* Collapse Toggle Button */}
             <button 
               onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)} 
-              className={`w-7 h-7 rounded-lg bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-400 hover:text-white transition ${isSidebarCollapsed ? 'mx-auto' : ''}`}
+              className={`w-6 h-6 rounded-lg bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-400 hover:text-white transition ${isSidebarCollapsed ? 'mx-auto' : ''}`}
             >
-              <svg className={`w-3.5 h-3.5 transition-transform duration-300 ${isSidebarCollapsed ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/></svg>
+              <svg className={`w-3 h-3 transition-transform duration-300 ${isSidebarCollapsed ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/></svg>
             </button>
           </div>
 
@@ -533,14 +534,14 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as any)}
                   title={isSidebarCollapsed ? tab.label : undefined}
-                  className={`w-full flex items-center space-x-2.5 px-2.5 py-2 rounded-lg text-xs transition cursor-pointer ${
+                  className={`w-full flex items-center space-x-2 px-2 py-1.5 rounded-lg text-xs transition cursor-pointer ${
                     isActive
                       ? 'bg-neutral-900 border border-neutral-800 text-[#f59e0b] font-medium'
                       : 'text-neutral-400 hover:text-white hover:bg-neutral-900/50'
                   }`}
                 >
-                  <div className={`w-7 h-7 rounded-full border flex items-center justify-center shrink-0 ${isActive ? 'bg-neutral-950 border-neutral-800 text-[#f59e0b]' : 'bg-neutral-900/80 border-neutral-800/60 text-neutral-400'}`}>
-                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={tab.icon}/></svg>
+                  <div className={`w-6 h-6 rounded-full border flex items-center justify-center shrink-0 ${isActive ? 'bg-neutral-950 border-neutral-800 text-[#f59e0b]' : 'bg-neutral-900/80 border-neutral-800/60 text-neutral-400'}`}>
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={tab.icon}/></svg>
                   </div>
                   {!isSidebarCollapsed && <span className="truncate text-[11px]">{tab.label}</span>}
                 </button>
@@ -550,7 +551,7 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
         </div>
 
         {/* Bottom User info & Signout */}
-        <div className="p-2.5 border-t border-[#262626]">
+        <div className="p-2 border-t border-[#262626]">
           <div className={`bg-neutral-900/60 border border-neutral-800/80 rounded-lg p-2 flex items-center justify-between ${isSidebarCollapsed ? 'justify-center p-1.5' : ''}`}>
             {!isSidebarCollapsed && (
               <div className="truncate mr-1.5">
@@ -560,16 +561,16 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
             <button
               onClick={handleLogout}
               title="Sign Out"
-              className="w-7 h-7 rounded-md bg-neutral-900 border border-neutral-800 flex items-center justify-center text-red-400 hover:bg-red-500/10 transition shrink-0 cursor-pointer"
+              className="w-6 h-6 rounded-md bg-neutral-900 border border-neutral-800 flex items-center justify-center text-red-400 hover:bg-red-500/10 transition shrink-0 cursor-pointer"
             >
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
             </button>
           </div>
         </div>
       </aside>
 
       {/* MAIN CONTENT AREA */}
-      <main className={`flex-1 flex flex-col h-screen overflow-hidden bg-[#0a0a0a] transition-all duration-300 ${isSidebarCollapsed ? 'ml-16' : 'ml-56'}`}>
+      <main className={`flex-1 flex flex-col h-screen overflow-hidden bg-[#0a0a0a] transition-all duration-300 ${isSidebarCollapsed ? 'ml-16' : 'ml-48'}`}>
         
         {/* Top Navbar Header */}
         <header className="h-14 border-b border-[#262626] bg-[#121212] px-5 flex items-center justify-between shrink-0">
@@ -1026,4 +1027,3 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
     </div>
   );
 }
-```[cite: 6]
