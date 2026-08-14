@@ -50,6 +50,9 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
   const [loading, setLoading] = useState<boolean>(true);
   const [authError, setAuthError] = useState<string>('');
   const [activeTab, setActiveTab] = useState<'ministers' | 'gallery' | 'videos' | 'live' | 'audio'>('ministers');
+  
+  // Sidebar Collapse State
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
 
   // Deployment States
   const [isDeploying, setIsDeploying] = useState<boolean>(false);
@@ -141,7 +144,6 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
     fetchAudio();
   };
 
-  // --- Fetch Functions ---
   const fetchMinisters = async () => {
     const { data } = await supabase.from('ministers').select('*').order('display_order', { ascending: true });
     if (data && data.length > 0) {
@@ -158,9 +160,7 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
 
   const fetchGallery = async () => {
     const { data } = await supabase.from('gallery_moments').select('*').order('created_at', { ascending: false });
-    if (data) {
-      setGalleryItems(data);
-    }
+    if (data) setGalleryItems(data);
   };
 
   const fetchSermons = async () => {
@@ -182,7 +182,6 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
     if (data) setAudioList(data);
   };
 
-  // --- Auth & General Handlers ---
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -231,7 +230,6 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
 
   const handleTriggerDeploy = async () => {
     const deployHookUrl = 'https://api.vercel.com/v1/integrations/deploy/prj_Yij9Z5IGRxiUBFNiVJbzBAqpqqA2/L9JSap9y4V';
-
     if (!deployHookUrl) {
       alert('Deploy Hook URL missing!');
       return;
@@ -240,11 +238,8 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
     setIsDeploying(true);
     try {
       const res = await fetch(deployHookUrl, { method: 'POST' });
-      if (res.ok) {
-        alert('Deployment triggered successfully!');
-      } else {
-        alert('Failed to trigger deployment.');
-      }
+      if (res.ok) alert('Deployment triggered successfully!');
+      else alert('Failed to trigger deployment.');
     } catch (err: any) {
       alert('Deployment error: ' + err.message);
     } finally {
@@ -252,7 +247,6 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
     }
   };
 
-  // --- Minister Slot Handling ---
   const handleSlotChange = (order: number) => {
     setSelectedSlotOrder(order);
     const existing = ministers.find((m) => (m.display_order ?? m.id) === order);
@@ -271,7 +265,6 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
 
   const handleSaveMinister = async (e: React.FormEvent) => {
     e.preventDefault();
-
     const existing = ministers.find((m) => (m.display_order ?? m.id) === selectedSlotOrder);
 
     const payload = {
@@ -294,16 +287,9 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
     }
   };
 
-  // --- Gallery Dynamic Actions ---
   const handleAddGalleryItem = async (e: React.FormEvent) => {
     e.preventDefault();
-    const { error } = await supabase.from('gallery_moments').insert([
-      {
-        title: gTitle,
-        image_url: gImageUrl,
-      },
-    ]);
-
+    const { error } = await supabase.from('gallery_moments').insert([{ title: gTitle, image_url: gImageUrl }]);
     if (error) {
       alert(error.message);
     } else {
@@ -322,20 +308,17 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
     }
   };
 
-  // --- Sermon Actions ---
   const handleAddSermon = async (e: React.FormEvent) => {
     e.preventDefault();
-    const { error } = await supabase.from('sermons').insert([
-      {
-        title: vTitle,
-        speaker: vSpeaker,
-        scripture: vScripture,
-        category: vCategory,
-        video_url: vVideoUrl,
-        thumbnail_url: vThumbnail,
-        is_featured: vIsFeatured,
-      },
-    ]);
+    const { error } = await supabase.from('sermons').insert([{
+      title: vTitle,
+      speaker: vSpeaker,
+      scripture: vScripture,
+      category: vCategory,
+      video_url: vVideoUrl,
+      thumbnail_url: vThumbnail,
+      is_featured: vIsFeatured,
+    }]);
 
     if (error) {
       alert(error.message);
@@ -357,7 +340,6 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
     }
   };
 
-  // --- Live Stream Actions ---
   const handleUpdateLive = async (e: React.FormEvent) => {
     e.preventDefault();
     const { error } = await supabase.from('live_stream').upsert({
@@ -372,18 +354,15 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
     else alert('Live stream settings updated');
   };
 
-  // --- Audio Actions ---
   const handleAddAudio = async (e: React.FormEvent) => {
     e.preventDefault();
-    const { error } = await supabase.from('audio_sermons').insert([
-      {
-        title: aTitle,
-        speaker: aSpeaker,
-        episode: aEpisode,
-        duration: aDuration,
-        audio_url: aAudioUrl,
-      },
-    ]);
+    const { error } = await supabase.from('audio_sermons').insert([{
+      title: aTitle,
+      speaker: aSpeaker,
+      episode: aEpisode,
+      duration: aDuration,
+      audio_url: aAudioUrl,
+    }]);
 
     if (error) {
       alert(error.message);
@@ -489,23 +468,43 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
   return (
     <div className="h-screen w-screen overflow-hidden bg-[#050508] text-[#f5f2eb] font-['Outfit',sans-serif] flex">
       
-      {/* SIDEBAR NAVIGATION (Flex Item - No Overlap) */}
-      <aside className="w-[280px] flex-shrink-0 bg-[#080810] border-r border-[#dfb755]/10 flex flex-col justify-between h-full select-none shadow-2xl">
+      {/* PROFESSIONAL COLLAPSIBLE SIDEBAR */}
+      <aside className={`flex-shrink-0 bg-[#080810] border-r border-[#dfb755]/10 flex flex-col justify-between h-full select-none transition-all duration-300 ease-in-out relative ${isSidebarCollapsed ? 'w-[76px]' : 'w-[260px]'}`}>
         <div>
-          {/* Logo Area */}
-          <div className="p-6 border-b border-[#dfb755]/10 flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#dfb755] to-[#9a7828] flex items-center justify-center font-black text-[#050508] text-base shadow-md shadow-[#dfb755]/20">
-              ✦
-            </div>
-            <div>
-              <span className="block font-black text-[10px] tracking-wider text-[#dfb755] uppercase">Admin</span>
-              <span className="block text-sm font-bold text-[#f5f2eb] tracking-tight">Dashboard</span>
-            </div>
+          {/* Logo & Toggle Header */}
+          <div className="p-4 border-b border-[#dfb755]/10 flex items-center justify-between gap-2">
+            {!isSidebarCollapsed && (
+              <div className="flex items-center gap-3 overflow-hidden">
+                <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#dfb755] to-[#9a7828] flex items-center justify-center font-black text-[#050508] text-sm shadow-md shadow-[#dfb755]/25 flex-shrink-0">
+                  ✦
+                </div>
+                <div className="min-w-0">
+                  <span className="block font-black text-[9px] tracking-widest text-[#dfb755] uppercase leading-none mb-0.5">Admin</span>
+                  <span className="block text-xs font-bold text-[#f5f2eb] tracking-tight truncate">Dashboard</span>
+                </div>
+              </div>
+            )}
+            {isSidebarCollapsed && (
+              <div className="w-8 h-8 mx-auto rounded-xl bg-gradient-to-br from-[#dfb755] to-[#9a7828] flex items-center justify-center font-black text-[#050508] text-sm shadow-md shadow-[#dfb755]/25">
+                ✦
+              </div>
+            )}
+            <button
+              onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+              title={isSidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+              className={`w-7 h-7 rounded-lg bg-white/5 border border-white/10 text-[#dfb755] flex items-center justify-center cursor-pointer hover:bg-[#dfb755]/15 transition-all ${isSidebarCollapsed ? 'mx-auto mt-2' : ''}`}
+            >
+              <span className={`transform transition-transform duration-300 text-xs font-bold ${isSidebarCollapsed ? 'rotate-180' : ''}`}>
+                ❮
+              </span>
+            </button>
           </div>
 
           {/* Navigation Links */}
-          <div className="p-4 flex flex-col gap-1.5">
-            <span className="px-3 text-[10px] font-bold tracking-[0.15em] text-[#dfb755]/60 uppercase mb-2 mt-2">Views</span>
+          <div className="p-3 flex flex-col gap-1.5">
+            {!isSidebarCollapsed && (
+              <span className="px-3 text-[9px] font-bold tracking-[0.18em] text-[#dfb755]/50 uppercase mb-1 mt-2">Views</span>
+            )}
             {[
               { id: 'ministers', label: 'Ministers', icon: '⚡' },
               { id: 'gallery', label: 'Gallery Moments', icon: '🖼️' },
@@ -518,14 +517,15 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as any)}
-                  className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-xl font-bold text-xs cursor-pointer transition-all ${
+                  title={isSidebarCollapsed ? tab.label : undefined}
+                  className={`w-full flex items-center gap-3.5 px-3 py-2.5 rounded-xl font-bold text-xs cursor-pointer transition-all ${
                     isActive
                       ? 'bg-[#dfb755]/15 border border-[#dfb755]/40 text-[#f4d688] shadow-sm shadow-[#dfb755]/10'
                       : 'bg-transparent border border-transparent text-[#f5f2eb]/60 hover:bg-white/[0.03] hover:text-[#f5f2eb]'
-                  }`}
+                  } ${isSidebarCollapsed ? 'justify-center px-0' : ''}`}
                 >
-                  <span className="text-sm">{tab.icon}</span>
-                  <span className="truncate">{tab.label}</span>
+                  <span className="text-base flex-shrink-0">{tab.icon}</span>
+                  {!isSidebarCollapsed && <span className="truncate">{tab.label}</span>}
                 </button>
               );
             })}
@@ -533,32 +533,36 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
         </div>
 
         {/* Bottom User info & Signout */}
-        <div className="p-4 border-t border-[#dfb755]/10 bg-[#06060a]/50">
-          <div className="text-[11px] text-[#f5f2eb]/40 truncate mb-3 px-2 font-mono">
-            {email || 'taiwiboluwa@gmail.com'}
-          </div>
+        <div className="p-3 border-t border-[#dfb755]/10 bg-[#06060a]/50">
+          {!isSidebarCollapsed && (
+            <div className="text-[10px] text-[#f5f2eb]/40 truncate mb-2.5 px-2 font-mono">
+              {email || 'taiwiboluwa@gmail.com'}
+            </div>
+          )}
           <button
             onClick={handleLogout}
-            className="w-full py-2.5 bg-white/5 border border-white/10 text-[#f5f2eb]/80 rounded-xl font-bold text-xs hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400 transition-all cursor-pointer"
+            title={isSidebarCollapsed ? "Sign Out" : undefined}
+            className={`w-full py-2 bg-white/5 border border-white/10 text-[#f5f2eb]/80 rounded-xl font-bold text-xs hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400 transition-all cursor-pointer flex items-center justify-center gap-2 ${isSidebarCollapsed ? 'px-0' : ''}`}
           >
-            Sign Out
+            <span>⎋</span>
+            {!isSidebarCollapsed && <span>Sign Out</span>}
           </button>
         </div>
       </aside>
 
-      {/* MAIN CONTENT AREA (Scrollable Column) */}
+      {/* MAIN CONTENT AREA */}
       <main className="flex-1 h-full overflow-y-auto bg-[#050508] flex flex-col">
         
-        {/* Top Navbar Header */}
-        <header className="h-[76px] bg-[#080810]/90 backdrop-blur-md border-b border-[#dfb755]/10 px-8 flex items-center justify-between sticky top-0 z-20 w-full">
+        {/* Top Header */}
+        <header className="h-[70px] bg-[#080810]/90 backdrop-blur-md border-b border-[#dfb755]/10 px-6 md:px-8 flex items-center justify-between sticky top-0 z-20 w-full shadow-sm">
           <div className="flex items-center gap-4">
             <button
               onClick={onBack}
-              className="bg-white/5 border border-white/10 text-[#dfb755] px-3.5 py-2 rounded-lg cursor-pointer font-semibold text-xs transition-all hover:bg-[#dfb755]/15"
+              className="bg-white/5 border border-white/10 text-[#dfb755] px-3.5 py-2 rounded-xl cursor-pointer font-semibold text-xs transition-all hover:bg-[#dfb755]/15 flex items-center gap-1.5"
             >
-              ← Back to Home
+              <span>←</span> Back to Home
             </button>
-            <h1 className="text-sm md:text-base font-extrabold m-0 text-[#f5f2eb] tracking-tight uppercase">
+            <h1 className="text-xs md:text-sm font-extrabold m-0 text-[#f5f2eb] tracking-wide uppercase">
               {activeTab === 'ministers' && 'Ministers Management'}
               {activeTab === 'gallery' && 'Fellowship Gallery Moments'}
               {activeTab === 'videos' && 'Video Sermons Repository'}
@@ -572,7 +576,7 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
               onClick={handleTriggerDeploy}
               disabled={isDeploying}
               className={`px-4 py-2.5 rounded-xl border-none font-bold cursor-pointer flex items-center gap-2 text-xs transition-all shadow-md ${
-                isDeploying ? 'bg-gray-700 cursor-not-allowed opacity-60' : 'bg-gradient-to-r from-[#10b981] to-[#059669] text-white hover:brightness-110 shadow-emerald-900/20'
+                isDeploying ? 'bg-gray-750 cursor-not-allowed opacity-60' : 'bg-gradient-to-r from-[#10b981] to-[#059669] text-white hover:brightness-110 shadow-emerald-900/20'
               }`}
             >
               <span>⚡</span> {isDeploying ? 'Deploying...' : 'Deploy Live Site'}
@@ -580,8 +584,8 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
           </div>
         </header>
 
-        {/* Content Body Container */}
-        <div className="p-8 max-w-[1400px] w-full mx-auto flex-1">
+        {/* Content Body */}
+        <div className="p-6 md:p-8 max-w-[1400px] w-full mx-auto flex-1">
           
           {uploadProgress && (
             <div className="bg-[#dfb755]/10 border border-[#dfb755] text-[#f4d688] p-3 rounded-xl text-xs mb-6 text-center font-medium shadow-md">
@@ -591,11 +595,16 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
 
           {/* TAB 1: MINISTERS MANAGEMENT */}
           {activeTab === 'ministers' && (
-            <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.2fr] gap-8">
-              <form onSubmit={handleSaveMinister} className="bg-[#0b0b14] border border-[#dfb755]/15 p-6 md:p-8 rounded-2xl shadow-xl">
-                <h3 className="text-base font-bold m-0 mb-5 text-[#f4d688] flex items-center gap-2">
-                  <span>✦</span> Edit Minister Slot #{selectedSlotOrder}
-                </h3>
+            <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_1fr] gap-8">
+              <form onSubmit={handleSaveMinister} className="bg-[#0b0b14] border border-[#dfb755]/15 p-6 md:p-8 rounded-2xl shadow-2xl">
+                <div className="flex items-center justify-between mb-5">
+                  <h3 className="text-sm font-extrabold m-0 text-[#f4d688] flex items-center gap-2">
+                    <span>✦</span> Edit Minister Slot #{selectedSlotOrder}
+                  </h3>
+                  <span className="text-[10px] bg-[#dfb755]/15 text-[#dfb755] px-2.5 py-1 rounded-lg font-bold">
+                    Slot {selectedSlotOrder} of 5
+                  </span>
+                </div>
 
                 <label style={labelStyle}>Select Minister Slot</label>
                 <select
@@ -657,17 +666,17 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
 
                 <button
                   type="submit"
-                  className="w-full py-3.5 bg-gradient-to-r from-[#dfb755] to-[#c59938] text-[#06060a] border-none rounded-xl font-bold cursor-pointer mt-4 text-xs tracking-wider shadow-md hover:brightness-105 transition-all"
+                  className="w-full py-3.5 bg-gradient-to-r from-[#dfb755] to-[#c59938] text-[#06060a] border-none rounded-xl font-bold cursor-pointer mt-2 text-xs tracking-wider shadow-lg shadow-[#dfb755]/10 hover:brightness-105 transition-all"
                 >
                   Save Changes to Slot {selectedSlotOrder}
                 </button>
               </form>
 
-              <div className="bg-[#0b0b14] border border-[#dfb755]/15 p-6 md:p-8 rounded-2xl shadow-xl">
-                <h3 className="text-base font-bold mb-5 text-[#f5f2eb]">
+              <div className="bg-[#0b0b14] border border-[#dfb755]/15 p-6 md:p-8 rounded-2xl shadow-2xl">
+                <h3 className="text-sm font-extrabold mb-5 text-[#f5f2eb]">
                   Minister Slots Overview
                 </h3>
-                <div className="flex flex-col gap-3.5">
+                <div className="flex flex-col gap-3">
                   {[1, 2, 3, 4, 5].map((slotNum) => {
                     const m = ministers.find((item) => (item.display_order ?? item.id) === slotNum);
                     const isSelected = selectedSlotOrder === slotNum;
@@ -676,17 +685,19 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
                       <div
                         key={slotNum}
                         onClick={() => handleSlotChange(slotNum)}
-                        className={`p-4 rounded-xl flex items-center gap-4 cursor-pointer transition-all ${
-                          isSelected ? 'bg-[#dfb755]/15 border border-[#dfb755] shadow-lg shadow-[#dfb755]/5' : 'bg-[#06060a] border border-[#dfb755]/15 hover:border-[#dfb755]/40'
+                        className={`p-3.5 rounded-xl flex items-center gap-3.5 cursor-pointer transition-all ${
+                          isSelected 
+                            ? 'bg-[#dfb755]/15 border border-[#dfb755] shadow-md shadow-[#dfb755]/5' 
+                            : 'bg-[#06060a] border border-[#dfb755]/15 hover:border-[#dfb755]/40'
                         }`}
                       >
                         <img
                           src={m?.image_url || m?.img || 'https://via.placeholder.com/60?text=No+Photo'}
                           alt={m?.name || 'Open Slot'}
-                          className="w-12 h-12 rounded-full object-cover border-2 border-[#dfb755]/40 flex-shrink-0"
+                          className="w-11 h-11 rounded-xl object-cover border border-[#dfb755]/40 flex-shrink-0"
                         />
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
+                          <div className="flex items-center gap-2 mb-0.5">
                             <span className="text-[9px] bg-[#dfb755]/25 text-[#f4d688] px-2 py-0.5 rounded font-bold tracking-wider flex-shrink-0">
                               SLOT {slotNum}
                             </span>
@@ -704,7 +715,7 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
                             e.stopPropagation();
                             handleSlotChange(slotNum);
                           }}
-                          className={`px-3.5 py-1.5 rounded-lg text-[11px] cursor-pointer font-bold flex-shrink-0 transition-all ${
+                          className={`px-3 py-1.5 rounded-lg text-[11px] cursor-pointer font-bold flex-shrink-0 transition-all ${
                             isSelected ? 'bg-[#dfb755] text-[#06060a] border-none shadow' : 'bg-[#dfb755]/10 border border-[#dfb755]/30 text-[#f4d688]'
                           }`}
                         >
@@ -721,8 +732,8 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
           {/* TAB 2: GALLERY & MOMENTS MANAGEMENT */}
           {activeTab === 'gallery' && (
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.2fr] gap-8">
-              <form onSubmit={handleAddGalleryItem} className="bg-[#0b0b14] border border-[#dfb755]/15 p-6 md:p-8 rounded-2xl shadow-xl">
-                <h3 className="text-base font-bold m-0 mb-2 text-[#f4d688]">
+              <form onSubmit={handleAddGalleryItem} className="bg-[#0b0b14] border border-[#dfb755]/15 p-6 md:p-8 rounded-2xl shadow-2xl">
+                <h3 className="text-sm font-extrabold m-0 mb-2 text-[#f4d688]">
                   Add New Gallery Photo
                 </h3>
                 <p className="text-xs text-[#f5f2eb]/60 mb-5 leading-relaxed">
@@ -757,17 +768,17 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
 
                 <button
                   type="submit"
-                  className="w-full py-3.5 bg-gradient-to-r from-[#dfb755] to-[#c59938] text-[#06060a] border-none rounded-xl font-bold cursor-pointer mt-4 text-xs tracking-wider shadow-md hover:brightness-105 transition-all"
+                  className="w-full py-3.5 bg-gradient-to-r from-[#dfb755] to-[#c59938] text-[#06060a] border-none rounded-xl font-bold cursor-pointer mt-2 text-xs tracking-wider shadow-lg shadow-[#dfb755]/10 hover:brightness-105 transition-all"
                 >
                   Add Gallery Photo
                 </button>
               </form>
 
-              <div className="bg-[#0b0b14] border border-[#dfb755]/15 p-6 md:p-8 rounded-2xl shadow-xl">
-                <h3 className="text-base font-bold mb-5 text-[#f5f2eb]">
+              <div className="bg-[#0b0b14] border border-[#dfb755]/15 p-6 md:p-8 rounded-2xl shadow-2xl">
+                <h3 className="text-sm font-extrabold mb-5 text-[#f5f2eb]">
                   Gallery Library ({galleryItems.length})
                 </h3>
-                <div className="flex flex-col gap-3.5 max-h-[580px] overflow-y-auto pr-1">
+                <div className="flex flex-col gap-3 max-h-[580px] overflow-y-auto pr-1">
                   {galleryItems.length === 0 ? (
                     <p className="text-[#f5f2eb]/40 text-xs py-8 text-center">No gallery photos added yet.</p>
                   ) : (
@@ -809,8 +820,8 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
           {/* TAB 3: VIDEO SERMONS */}
           {activeTab === 'videos' && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <form onSubmit={handleAddSermon} className="bg-[#0b0b14] border border-[#dfb755]/15 p-6 md:p-8 rounded-2xl shadow-xl">
-                <h3 className="text-base font-bold mb-5 text-[#f4d688]">Upload New Video Sermon</h3>
+              <form onSubmit={handleAddSermon} className="bg-[#0b0b14] border border-[#dfb755]/15 p-6 md:p-8 rounded-2xl shadow-2xl">
+                <h3 className="text-sm font-extrabold mb-5 text-[#f4d688]">Upload New Video Sermon</h3>
                 
                 <label style={labelStyle}>Sermon Title</label>
                 <input style={inputStyle} value={vTitle} onChange={(e) => setVTitle(e.target.value)} placeholder="e.g. The Power of Persistent Prayer" required />
@@ -847,19 +858,19 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
                   Mark as Main Featured Sermon
                 </label>
 
-                <button type="submit" className="w-full py-3.5 bg-gradient-to-r from-[#dfb755] to-[#c59938] text-[#06060a] border-none rounded-xl font-bold cursor-pointer text-xs tracking-wider shadow-md hover:brightness-105 transition-all">
+                <button type="submit" className="w-full py-3.5 bg-gradient-to-r from-[#dfb755] to-[#c59938] text-[#06060a] border-none rounded-xl font-bold cursor-pointer text-xs tracking-wider shadow-lg shadow-[#dfb755]/10 hover:brightness-105 transition-all">
                   Publish Sermon
                 </button>
               </form>
 
-              <div className="bg-[#0b0b14] border border-[#dfb755]/15 p-6 md:p-8 rounded-2xl shadow-xl">
-                <h3 className="text-base font-bold mb-5 text-[#f5f2eb]">Existing Video Sermons ({sermons.length})</h3>
-                <div className="flex flex-col gap-3.5 max-h-[580px] overflow-y-auto pr-1">
+              <div className="bg-[#0b0b14] border border-[#dfb755]/15 p-6 md:p-8 rounded-2xl shadow-2xl">
+                <h3 className="text-sm font-extrabold mb-5 text-[#f5f2eb]">Existing Video Sermons ({sermons.length})</h3>
+                <div className="flex flex-col gap-3 max-h-[580px] overflow-y-auto pr-1">
                   {sermons.length === 0 ? (
                     <p className="text-[#f5f2eb]/40 text-xs py-8 text-center">No video sermons uploaded yet.</p>
                   ) : (
                     sermons.map((s) => (
-                      <div key={s.id} className="bg-[#06060a] border border-[#dfb755]/15 p-4 rounded-xl flex justify-between items-center gap-3">
+                      <div key={s.id} className="bg-[#06060a] border border-[#dfb755]/15 p-3.5 rounded-xl flex justify-between items-center gap-3">
                         <div className="min-w-0 flex-1">
                           <p className={`m-0 font-bold text-xs truncate ${s.is_featured ? 'text-[#f4d688]' : 'text-[#f5f2eb]'}`}>
                             {s.is_featured ? '★ ' : ''}{s.title}
@@ -879,8 +890,8 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
 
           {/* TAB 4: LIVE STREAM */}
           {activeTab === 'live' && (
-            <div className="bg-[#0b0b14] border border-[#dfb755]/15 p-6 md:p-8 rounded-2xl shadow-xl max-w-[700px]">
-              <h3 className="text-base font-bold mb-5 text-[#f4d688]">Configure Live Broadcast</h3>
+            <div className="bg-[#0b0b14] border border-[#dfb755]/15 p-6 md:p-8 rounded-2xl shadow-2xl max-w-[700px]">
+              <h3 className="text-sm font-extrabold mb-5 text-[#f4d688]">Configure Live Broadcast</h3>
               <form onSubmit={handleUpdateLive}>
                 <label style={labelStyle}>Live Event Title</label>
                 <input style={inputStyle} value={liveTitle} onChange={(e) => setLiveTitle(e.target.value)} required />
@@ -893,7 +904,7 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
                   Service is Currently LIVE (Displays Live Badge on Website)
                 </label>
 
-                <button type="submit" className="w-full py-3.5 bg-gradient-to-r from-[#10b981] to-[#059669] text-white border-none rounded-xl font-bold cursor-pointer text-xs tracking-wider shadow-md hover:brightness-105 transition-all">
+                <button type="submit" className="w-full py-3.5 bg-gradient-to-r from-[#10b981] to-[#059669] text-white border-none rounded-xl font-bold cursor-pointer text-xs tracking-wider shadow-lg shadow-emerald-900/20 hover:brightness-105 transition-all">
                   Save Live Stream Settings
                 </button>
               </form>
@@ -903,8 +914,8 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
           {/* TAB 5: AUDIO SERMONS */}
           {activeTab === 'audio' && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <form onSubmit={handleAddAudio} className="bg-[#0b0b14] border border-[#dfb755]/15 p-6 md:p-8 rounded-2xl shadow-xl">
-                <h3 className="text-base font-bold mb-5 text-[#f4d688]">Add Audio Sermon</h3>
+              <form onSubmit={handleAddAudio} className="bg-[#0b0b14] border border-[#dfb755]/15 p-6 md:p-8 rounded-2xl shadow-2xl">
+                <h3 className="text-sm font-extrabold mb-5 text-[#f4d688]">Add Audio Sermon</h3>
 
                 <label style={labelStyle}>Audio Title</label>
                 <input style={inputStyle} value={aTitle} onChange={(e) => setATitle(e.target.value)} placeholder="e.g. Praying the Word of God" required />
@@ -924,19 +935,19 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
                 <label style={labelStyle}>Or Audio MP3 URL</label>
                 <input style={inputStyle} value={aAudioUrl} onChange={(e) => setAAudioUrl(e.target.value)} placeholder="https://..." required />
 
-                <button type="submit" className="w-full py-3.5 bg-gradient-to-r from-[#dfb755] to-[#c59938] text-[#06060a] border-none rounded-xl font-bold cursor-pointer text-xs tracking-wider shadow-md hover:brightness-105 transition-all">
+                <button type="submit" className="w-full py-3.5 bg-gradient-to-r from-[#dfb755] to-[#c59938] text-[#06060a] border-none rounded-xl font-bold cursor-pointer text-xs tracking-wider shadow-lg shadow-[#dfb755]/10 hover:brightness-105 transition-all">
                   Add Audio Track
                 </button>
               </form>
 
-              <div className="bg-[#0b0b14] border border-[#dfb755]/15 p-6 md:p-8 rounded-2xl shadow-xl">
-                <h3 className="text-base font-bold mb-5 text-[#f5f2eb]">Audio Library ({audioList.length})</h3>
-                <div className="flex flex-col gap-3.5 max-h-[580px] overflow-y-auto pr-1">
+              <div className="bg-[#0b0b14] border border-[#dfb755]/15 p-6 md:p-8 rounded-2xl shadow-2xl">
+                <h3 className="text-sm font-extrabold mb-5 text-[#f5f2eb]">Audio Library ({audioList.length})</h3>
+                <div className="flex flex-col gap-3 max-h-[580px] overflow-y-auto pr-1">
                   {audioList.length === 0 ? (
                     <p className="text-[#f5f2eb]/40 text-xs py-8 text-center">No audio tracks uploaded yet.</p>
                   ) : (
                     audioList.map((a) => (
-                      <div key={a.id} className="bg-[#06060a] border border-[#dfb755]/15 p-4 rounded-xl flex justify-between items-center gap-3">
+                      <div key={a.id} className="bg-[#06060a] border border-[#dfb755]/15 p-3.5 rounded-xl flex justify-between items-center gap-3">
                         <div className="min-w-0 flex-1">
                           <p className="m-0 font-bold text-xs text-[#f5f2eb] truncate">{a.title}</p>
                           <p className="m-0 text-[11px] text-[#f5f2eb]/50 truncate mt-1">{a.episode} • {a.duration}</p>
