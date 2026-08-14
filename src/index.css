@@ -295,7 +295,7 @@ img, video, svg, canvas { max-width: 100%; height: auto; }
     box-sizing: border-box !important;
   }
 
-  /* Target only main content grids safely without breaking fixed side navigation or drawers */
+  /* Target only main page content grids safely, preserving navigation overlays */
   main div.grid, section div.grid {
     display: flex !important;
     flex-direction: column !important;
