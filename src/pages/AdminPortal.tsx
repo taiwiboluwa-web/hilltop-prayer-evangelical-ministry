@@ -454,37 +454,37 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
 
   const inputStyle: React.CSSProperties = {
     width: '100%',
-    padding: '8px 12px',
+    padding: '6px 10px',
     backgroundColor: '#171717',
     border: '1px solid #262626',
     borderRadius: '8px',
     color: '#f5f5f5',
-    fontSize: '12px',
+    fontSize: '11px',
     boxSizing: 'border-box',
-    marginBottom: '10px',
+    marginBottom: '8px',
     outline: 'none',
     transition: 'all 0.2s ease',
   };
 
   const fileInputStyle: React.CSSProperties = {
     width: '100%',
-    padding: '7px',
+    padding: '5px',
     backgroundColor: '#171717',
     border: '1px dashed #3f3f46',
     borderRadius: '8px',
     color: '#a1a1aa',
-    fontSize: '11px',
+    fontSize: '10px',
     boxSizing: 'border-box',
-    marginBottom: '10px',
+    marginBottom: '8px',
     cursor: 'pointer',
   };
 
   const labelStyle: React.CSSProperties = {
     display: 'block',
     color: '#a1a1aa',
-    fontSize: '10px',
+    fontSize: '9px',
     fontWeight: '700',
-    marginBottom: '4px',
+    marginBottom: '3px',
     letterSpacing: '0.08em',
     textTransform: 'uppercase',
   };
@@ -615,21 +615,21 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
             </div>
           )}
 
-          {/* TAB 1: MINISTERS MANAGEMENT */}
+          {/* TAB 1: MINISTERS MANAGEMENT (3-Column Side-by-Side Layout for Ministers [3], Gallery [1], and Videos [2]) */}
           {activeTab === 'ministers' && (
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
               
-              {/* Form Section */}
-              <form onSubmit={handleSaveMinister} className="md:col-span-8 lg:col-span-8 bg-[#121212] border border-[#262626] p-4 rounded-xl shadow-xl flex flex-col justify-between">
+              {/* ITEM 3: Ministers Form Panel */}
+              <form onSubmit={handleSaveMinister} className="bg-[#121212] border border-[#262626] p-3.5 rounded-xl shadow-xl flex flex-col justify-between">
                 <div>
-                  <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#262626]">
+                  <div className="flex items-center justify-between pb-2.5 mb-3 border-b border-[#262626]">
                     <h2 className="text-[11px] font-bold text-white tracking-wide uppercase flex items-center space-x-1.5">
-                      <span className="w-1.5 h-3.5 bg-[#f59e0b] rounded-full"></span>
-                      <span>Edit Minister Slot #{selectedSlotOrder}</span>
+                      <span className="w-1.5 h-3 bg-[#f59e0b] rounded-full"></span>
+                      <span>Ministers Slot #{selectedSlotOrder}</span>
                     </h2>
                   </div>
 
-                  <label style={labelStyle}>Select Minister Slot</label>
+                  <label style={labelStyle}>Select Slot</label>
                   <select
                     style={{ ...inputStyle, cursor: 'pointer' }}
                     value={selectedSlotOrder}
@@ -662,89 +662,144 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
                     placeholder="e.g. Resident Pastor"
                   />
 
-                  <label style={labelStyle}>About Me (Biography)</label>
+                  <label style={labelStyle}>Biography</label>
                   <textarea
                     style={{ ...inputStyle, resize: 'none' }}
                     rows={2}
                     value={mDescText}
                     onChange={(e) => setMDescText(e.target.value)}
-                    placeholder="Write full biography or brief description..."
+                    placeholder="Write brief description..."
                   />
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <div>
-                      <label style={labelStyle}>Upload Picture</label>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        style={fileInputStyle}
-                        onChange={(e) => handleFileUpload(e, 'media', setMImageUrl)}
-                      />
-                    </div>
-                    <div>
-                      <label style={labelStyle}>Or Picture URL</label>
-                      <input
-                        style={inputStyle}
-                        value={mImageUrl}
-                        onChange={(e) => setMImageUrl(e.target.value)}
-                        placeholder="https://..."
-                      />
-                    </div>
-                  </div>
+                  <label style={labelStyle}>Upload Picture</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    style={fileInputStyle}
+                    onChange={(e) => handleFileUpload(e, 'media', setMImageUrl)}
+                  />
+
+                  <label style={labelStyle}>Or Picture URL</label>
+                  <input
+                    style={inputStyle}
+                    value={mImageUrl}
+                    onChange={(e) => setMImageUrl(e.target.value)}
+                    placeholder="https://..."
+                  />
                 </div>
 
-                <div className="pt-4 mt-4 border-t border-[#262626]">
+                <div className="pt-3 mt-3 border-t border-[#262626]">
                   <button
                     type="submit"
-                    className="w-full bg-[#f59e0b] text-[#0a0a0a] font-bold text-[11px] uppercase tracking-wider py-2.5 rounded-lg hover:bg-amber-400 transition shadow-md shadow-amber-500/10 cursor-pointer"
+                    className="w-full bg-[#f59e0b] text-[#0a0a0a] font-bold text-[10px] uppercase tracking-wider py-2 rounded-lg hover:bg-amber-400 transition shadow-md shadow-amber-500/10 cursor-pointer"
                   >
-                    Save Changes to Slot {selectedSlotOrder}
+                    Save Changes
                   </button>
                 </div>
               </form>
 
-              {/* Slots Overview List */}
-              <div className="md:col-span-4 lg:col-span-4 bg-[#121212] border border-[#262626] p-4 rounded-xl shadow-xl flex flex-col">
-                <div className="pb-3 mb-3 border-b border-[#262626]">
-                  <h2 className="text-[11px] font-bold text-white tracking-wide uppercase">Minister Slots Overview</h2>
-                </div>
-                <div className="space-y-2.5 overflow-y-auto pr-1 max-h-[420px]">
-                  {[1, 2, 3, 4, 5].map((slotNum) => {
-                    const m = ministers.find((item) => (item.display_order ?? item.id) === slotNum);
-                    const isSelected = selectedSlotOrder === slotNum;
+              {/* ITEM 1: Gallery Management Quick Box (Reduced Size) */}
+              <div className="bg-[#121212] border border-[#262626] p-3.5 rounded-xl shadow-xl flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between pb-2.5 mb-3 border-b border-[#262626]">
+                    <h2 className="text-[11px] font-bold text-white tracking-wide uppercase flex items-center space-x-1.5">
+                      <span className="w-1.5 h-3 bg-[#f59e0b] rounded-full"></span>
+                      <span>Gallery Moments</span>
+                    </h2>
+                    <span className="text-[9px] bg-neutral-900 border border-neutral-800 text-neutral-400 px-2 py-0.5 rounded">
+                      {galleryItems.length} Items
+                    </span>
+                  </div>
 
-                    return (
-                      <div
-                        key={slotNum}
-                        onClick={() => handleSlotChange(slotNum)}
-                        className={`p-3 rounded-lg flex items-center justify-between cursor-pointer transition ${
-                          isSelected ? 'bg-neutral-950 border border-[#f59e0b]/60' : 'bg-neutral-900/40 border border-neutral-800/80 hover:border-neutral-700'
-                        }`}
-                      >
-                        <div className="flex items-center space-x-2.5 min-w-0 mr-2">
-                          <div className="w-8 h-8 rounded-full bg-neutral-950 border border-neutral-800 flex items-center justify-center shrink-0 overflow-hidden">
-                            {m?.image_url || m?.img ? (
-                              <img src={m.image_url || m.img} alt="" className="w-full h-full object-cover" />
-                            ) : (
-                              <svg className="w-3.5 h-3.5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-                            )}
-                          </div>
-                          <div className="truncate">
-                            <span className={`text-[9px] font-bold uppercase tracking-wider block ${isSelected ? 'text-[#f59e0b]' : 'text-neutral-500'}`}>Slot {slotNum}</span>
-                            <h3 className="text-xs font-semibold text-white truncate">{m?.name || 'Open Slot'}</h3>
-                            <p className="text-[10px] text-neutral-500 truncate max-w-[150px]">{m?.desc_text || m?.desc || 'No description provided.'}</p>
-                          </div>
-                        </div>
-                        <span className={`px-2.5 py-1 rounded-md text-[9px] font-bold uppercase tracking-wider transition shrink-0 ${
-                          isSelected ? 'bg-[#f59e0b]/10 border border-[#f59e0b]/30 text-[#f59e0b]' : 'bg-neutral-800 text-neutral-300 hover:bg-neutral-700'
-                        }`}>
-                          {isSelected ? 'Editing' : 'Select'}
-                        </span>
+                  <form onSubmit={handleAddGalleryItem}>
+                    <label style={labelStyle}>Photo Title</label>
+                    <input
+                      style={inputStyle}
+                      value={gTitle}
+                      onChange={(e) => setGTitle(e.target.value)}
+                      placeholder="Caption..."
+                      required
+                    />
+
+                    <label style={labelStyle}>Picture URL</label>
+                    <input
+                      style={inputStyle}
+                      value={gImageUrl}
+                      onChange={(e) => setGImageUrl(e.target.value)}
+                      placeholder="https://..."
+                      required
+                    />
+
+                    <button
+                      type="submit"
+                      className="w-full bg-neutral-900 border border-neutral-800 text-white font-bold text-[10px] uppercase tracking-wider py-2 rounded-lg hover:bg-neutral-800 transition cursor-pointer mt-1"
+                    >
+                      + Add Gallery Photo
+                    </button>
+                  </form>
+
+                  <div className="mt-3 space-y-1.5 max-h-[140px] overflow-y-auto pr-1">
+                    {galleryItems.slice(0, 3).map((item) => (
+                      <div key={item.id} className="bg-neutral-900/40 border border-neutral-800/60 p-2 rounded flex items-center justify-between text-[10px]">
+                        <span className="truncate text-neutral-300">{item.title}</span>
+                        <button onClick={() => handleDeleteGalleryItem(item.id)} className="text-red-400 hover:text-red-300 ml-2 font-bold">×</button>
                       </div>
-                    );
-                  })}
+                    ))}
+                  </div>
                 </div>
               </div>
+
+              {/* ITEM 2: Video Sermons Quick Box (Reduced Size) */}
+              <div className="bg-[#121212] border border-[#262626] p-3.5 rounded-xl shadow-xl flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between pb-2.5 mb-3 border-b border-[#262626]">
+                    <h2 className="text-[11px] font-bold text-white tracking-wide uppercase flex items-center space-x-1.5">
+                      <span className="w-1.5 h-3 bg-[#f59e0b] rounded-full"></span>
+                      <span>Video Sermons</span>
+                    </h2>
+                    <span className="text-[9px] bg-neutral-900 border border-neutral-800 text-neutral-400 px-2 py-0.5 rounded">
+                      {sermons.length} Videos
+                    </span>
+                  </div>
+
+                  <form onSubmit={handleAddSermon}>
+                    <label style={labelStyle}>Sermon Title</label>
+                    <input
+                      style={inputStyle}
+                      value={vTitle}
+                      onChange={(e) => setVTitle(e.target.value)}
+                      placeholder="Title..."
+                      required
+                    />
+
+                    <label style={labelStyle}>Video Embed URL</label>
+                    <input
+                      style={inputStyle}
+                      value={vVideoUrl}
+                      onChange={(e) => setVVideoUrl(e.target.value)}
+                      placeholder="https://..."
+                      required
+                    />
+
+                    <button
+                      type="submit"
+                      className="w-full bg-neutral-900 border border-neutral-800 text-white font-bold text-[10px] uppercase tracking-wider py-2 rounded-lg hover:bg-neutral-800 transition cursor-pointer mt-1"
+                    >
+                      + Publish Video Sermon
+                    </button>
+                  </form>
+
+                  <div className="mt-3 space-y-1.5 max-h-[140px] overflow-y-auto pr-1">
+                    {sermons.slice(0, 3).map((s) => (
+                      <div key={s.id} className="bg-neutral-900/40 border border-neutral-800/60 p-2 rounded flex items-center justify-between text-[10px]">
+                        <span className="truncate text-neutral-300">{s.title}</span>
+                        <button onClick={() => handleDeleteSermon(s.id)} className="text-red-400 hover:text-red-300 ml-2 font-bold">×</button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
             </div>
           )}
 
