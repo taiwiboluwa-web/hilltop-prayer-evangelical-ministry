@@ -70,7 +70,7 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
   const [mDescText, setMDescText] = useState('');
   const [mImageUrl, setMImageUrl] = useState('');
 
-  // Gallery Form & Data States (Dynamic List)
+  // Gallery Form & Data States
   const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
   const [gTitle, setGTitle] = useState('');
   const [gImageUrl, setGImageUrl] = useState('');
@@ -117,7 +117,9 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
         .eq('id', user.id)
         .maybeSingle();
 
-      if (user.email === 'taiwiboluwa@gmail.com' || profile?.role === 'admin' || user.user_metadata?.role === 'admin') {
+      const adminEmails = ['taiwiboluwa@gmail.com', 'bluehavens.studios@gmail.com'];
+
+      if (adminEmails.includes(user.email || '') || profile?.role === 'admin' || user.user_metadata?.role === 'admin') {
         setIsAdmin(true);
         loadDashboardData();
       } else {
@@ -452,50 +454,16 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
     );
   }
 
-  const inputStyle: React.CSSProperties = {
-    width: '100%',
-    padding: '11px 15px',
-    backgroundColor: '#171717',
-    border: '1px solid #262626',
-    borderRadius: '10px',
-    color: '#f5f5f5',
-    fontSize: '13px',
-    boxSizing: 'border-box',
-    marginBottom: '14px',
-    outline: 'none',
-    transition: 'all 0.2s ease',
-  };
-
-  const fileInputStyle: React.CSSProperties = {
-    width: '100%',
-    padding: '10px',
-    backgroundColor: '#171717',
-    border: '1px dashed #3f3f46',
-    borderRadius: '10px',
-    color: '#a1a1aa',
-    fontSize: '12px',
-    boxSizing: 'border-box',
-    marginBottom: '14px',
-    cursor: 'pointer',
-  };
-
-  const labelStyle: React.CSSProperties = {
-    display: 'block',
-    color: '#a1a1aa',
-    fontSize: '11px',
-    fontWeight: '700',
-    marginBottom: '6px',
-    letterSpacing: '0.08em',
-    textTransform: 'uppercase',
-  };
+  const inputClass = "w-full px-4 py-3 bg-[#171717] border border-[#262626] rounded-xl text-[#f5f5f5] text-[13px] box-border mb-3.5 outline-none focus:border-[#f59e0b] transition-all";
+  const fileInputClass = "w-full p-2.5 bg-[#171717] border border-dashed border-[#3f3f46] rounded-xl text-[#a1a1aa] text-xs box-border mb-3.5 cursor-pointer";
+  const labelClass = "block text-[#a1a1aa] text-[11px] font-bold mb-1.5 tracking-[0.08em] uppercase";
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-neutral-200 font-sans flex overflow-hidden">
       
-      {/* LEFT SIDEBAR NAVIGATION (COLLAPSIBLE) */}
+      {/* LEFT SIDEBAR NAVIGATION */}
       <aside className={`bg-[#121212] border-r border-[#262626] flex flex-col justify-between fixed top-0 bottom-0 left-0 z-20 transition-all duration-300 ease-in-out ${isSidebarCollapsed ? 'w-20' : 'w-64'}`}>
         <div>
-          {/* Logo / Header Area */}
           <div className="h-16 px-4 border-b border-[#262626] flex items-center justify-between">
             <div className={`flex items-center space-x-3 overflow-hidden ${isSidebarCollapsed ? 'hidden' : ''}`}>
               <div className="w-9 h-9 rounded-full bg-neutral-900 border border-neutral-800 flex items-center justify-center shrink-0">
@@ -506,7 +474,6 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
                 <span className="text-sm font-bold text-white tracking-wide">Dashboard</span>
               </div>
             </div>
-            {/* Collapse Toggle Button */}
             <button 
               onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)} 
               className={`w-8 h-8 rounded-lg bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-400 hover:text-white transition ${isSidebarCollapsed ? 'mx-auto' : ''}`}
@@ -515,7 +482,6 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
             </button>
           </div>
 
-          {/* Navigation Links with Circular Monochromatic Icon Containers */}
           <div className="p-3 space-y-1.5 overflow-y-auto">
             {!isSidebarCollapsed && (
               <span className="px-3 text-[10px] font-semibold uppercase tracking-wider text-neutral-500 mb-2 block">Views</span>
@@ -549,7 +515,6 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
           </div>
         </div>
 
-        {/* Bottom User info & Signout */}
         <div className="p-3 border-t border-[#262626]">
           <div className={`bg-neutral-900/60 border border-neutral-800/80 rounded-xl p-3 flex items-center justify-between ${isSidebarCollapsed ? 'justify-center p-2' : ''}`}>
             {!isSidebarCollapsed && (
@@ -571,7 +536,6 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
       {/* MAIN CONTENT AREA */}
       <main className={`flex-1 flex flex-col h-screen overflow-hidden bg-[#0a0a0a] transition-all duration-300 ${isSidebarCollapsed ? 'ml-20' : 'ml-64'}`}>
         
-        {/* Top Navbar Header */}
         <header className="h-16 border-b border-[#262626] bg-[#121212] px-6 flex items-center justify-between shrink-0">
           <div className="flex items-center space-x-4">
             <button
@@ -605,7 +569,6 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
           </div>
         </header>
 
-        {/* Content Body Container */}
         <div className="p-6 overflow-y-auto flex-1">
           
           {uploadProgress && (
@@ -617,8 +580,6 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
           {/* TAB 1: MINISTERS MANAGEMENT */}
           {activeTab === 'ministers' && (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-              
-              {/* Form Section */}
               <form onSubmit={handleSaveMinister} className="lg:col-span-7 bg-[#121212] border border-[#262626] p-6 rounded-2xl shadow-xl flex flex-col justify-between">
                 <div>
                   <div className="flex items-center justify-between pb-4 mb-6 border-b border-[#262626]">
@@ -628,42 +589,42 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
                     </h2>
                   </div>
 
-                  <label style={labelStyle}>Select Minister Slot</label>
+                  <label className={labelClass}>Select Minister Slot</label>
                   <select
-                    style={{ ...inputStyle, cursor: 'pointer' }}
+                    className={`${inputClass} cursor-pointer`}
                     value={selectedSlotOrder}
                     onChange={(e) => handleSlotChange(Number(e.target.value))}
                   >
                     {[1, 2, 3, 4, 5].map((slotNum) => {
                       const m = ministers.find((item) => (item.display_order ?? item.id) === slotNum);
                       return (
-                        <option key={slotNum} value={slotNum} style={{ background: '#121212', color: '#fff' }}>
+                        <option key={slotNum} value={slotNum} className="bg-[#121212] text-white">
                           Slot {slotNum}: {m ? m.name : '(Open Slot)'}
                         </option>
                       );
                     })}
                   </select>
 
-                  <label style={labelStyle}>Full Name</label>
+                  <label className={labelClass}>Full Name</label>
                   <input
-                    style={inputStyle}
+                    className={inputClass}
                     value={mName}
                     onChange={(e) => setMName(e.target.value)}
                     placeholder="e.g. Pst. Emmanuel Oloya"
                     required
                   />
 
-                  <label style={labelStyle}>Role / Title</label>
+                  <label className={labelClass}>Role / Title</label>
                   <input
-                    style={inputStyle}
+                    className={inputClass}
                     value={mRole}
                     onChange={(e) => setMRole(e.target.value)}
                     placeholder="e.g. Resident Pastor"
                   />
 
-                  <label style={labelStyle}>About Me (Biography)</label>
+                  <label className={labelClass}>About Me (Biography)</label>
                   <textarea
-                    style={{ ...inputStyle, resize: 'none' }}
+                    className={`${inputClass} resize-none`}
                     rows={3}
                     value={mDescText}
                     onChange={(e) => setMDescText(e.target.value)}
@@ -672,18 +633,18 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label style={labelStyle}>Upload Picture</label>
+                      <label className={labelClass}>Upload Picture</label>
                       <input
                         type="file"
                         accept="image/*"
-                        style={fileInputStyle}
+                        className={fileInputClass}
                         onChange={(e) => handleFileUpload(e, 'media', setMImageUrl)}
                       />
                     </div>
                     <div>
-                      <label style={labelStyle}>Or Picture URL</label>
+                      <label className={labelClass}>Or Picture URL</label>
                       <input
-                        style={inputStyle}
+                        className={inputClass}
                         value={mImageUrl}
                         onChange={(e) => setMImageUrl(e.target.value)}
                         placeholder="https://..."
@@ -702,7 +663,6 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
                 </div>
               </form>
 
-              {/* Slots Overview List */}
               <div className="lg:col-span-5 bg-[#121212] border border-[#262626] p-6 rounded-2xl shadow-xl flex flex-col">
                 <div className="pb-4 mb-4 border-b border-[#262626]">
                   <h2 className="text-xs font-bold text-white tracking-wide uppercase">Minister Slots Overview</h2>
@@ -756,29 +716,29 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
                     <h2 className="text-xs font-bold text-white tracking-wide uppercase flex items-center space-x-2">
                       <span className="w-1.5 h-4 bg-[#f59e0b] rounded-full"></span>
                       <span>Add New Gallery Photo</span>
-                    </h4>
+                    </h2>
                   </div>
 
-                  <label style={labelStyle}>Caption / Title</label>
+                  <label className={labelClass}>Caption / Title</label>
                   <input
-                    style={inputStyle}
+                    className={inputClass}
                     value={gTitle}
                     onChange={(e) => setGTitle(e.target.value)}
                     placeholder="e.g. Fervent Worship, Prayer & Intercession"
                     required
                   />
 
-                  <label style={labelStyle}>Upload Picture</label>
+                  <label className={labelClass}>Upload Picture</label>
                   <input
                     type="file"
                     accept="image/*"
-                    style={fileInputStyle}
+                    className={fileInputClass}
                     onChange={(e) => handleFileUpload(e, 'media', setGImageUrl)}
                   />
 
-                  <label style={labelStyle}>Or Picture URL</label>
+                  <label className={labelClass}>Or Picture URL</label>
                   <input
-                    style={inputStyle}
+                    className={inputClass}
                     value={gImageUrl}
                     onChange={(e) => setGImageUrl(e.target.value)}
                     placeholder="https://..."
@@ -840,43 +800,43 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
                     </h2>
                   </div>
 
-                  <label style={labelStyle}>Sermon Title</label>
-                  <input style={inputStyle} value={vTitle} onChange={(e) => setVTitle(e.target.value)} placeholder="e.g. The Power of Persistent Prayer" required />
+                  <label className={labelClass}>Sermon Title</label>
+                  <input className={inputClass} value={vTitle} onChange={(e) => setVTitle(e.target.value)} placeholder="e.g. The Power of Persistent Prayer" required />
 
-                  <label style={labelStyle}>Preacher / Speaker</label>
-                  <input style={inputStyle} value={vSpeaker} onChange={(e) => setVSpeaker(e.target.value)} required />
+                  <label className={labelClass}>Preacher / Speaker</label>
+                  <input className={inputClass} value={vSpeaker} onChange={(e) => setVSpeaker(e.target.value)} required />
 
-                  <label style={labelStyle}>Scripture Reference</label>
-                  <input style={inputStyle} value={vScripture} onChange={(e) => setVScripture(e.target.value)} placeholder="e.g. Luke 18:1-8" />
+                  <label className={labelClass}>Scripture Reference</label>
+                  <input className={inputClass} value={vScripture} onChange={(e) => setVScripture(e.target.value)} placeholder="e.g. Luke 18:1-8" />
 
-                  <label style={labelStyle}>Category</label>
-                  <select style={{ ...inputStyle, cursor: 'pointer' }} value={vCategory} onChange={(e) => setVCategory(e.target.value)}>
-                    <option value="Faith" style={{ background: '#121212' }}>Faith</option>
-                    <option value="Prayer" style={{ background: '#121212' }}>Prayer</option>
-                    <option value="Healing" style={{ background: '#121212' }}>Healing</option>
-                    <option value="Deliverance" style={{ background: '#121212' }}>Deliverance</option>
-                    <option value="Evangelism" style={{ background: '#121212' }}>Evangelism</option>
+                  <label className={labelClass}>Category</label>
+                  <select className={`${inputClass} cursor-pointer`} value={vCategory} onChange={(e) => setVCategory(e.target.value)}>
+                    <option value="Faith" className="bg-[#121212]">Faith</option>
+                    <option value="Prayer" className="bg-[#121212]">Prayer</option>
+                    <option value="Healing" className="bg-[#121212]">Healing</option>
+                    <option value="Deliverance" className="bg-[#121212]">Deliverance</option>
+                    <option value="Evangelism" className="bg-[#121212]">Evangelism</option>
                   </select>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label style={labelStyle}>Upload Video File</label>
-                      <input type="file" accept="video/*" style={fileInputStyle} onChange={(e) => handleFileUpload(e, 'media', setVVideoUrl)} />
+                      <label className={labelClass}>Upload Video File</label>
+                      <input type="file" accept="video/*" className={fileInputClass} onChange={(e) => handleFileUpload(e, 'media', setVVideoUrl)} />
                     </div>
                     <div>
-                      <label style={labelStyle}>Or YouTube Embed URL</label>
-                      <input style={inputStyle} value={vVideoUrl} onChange={(e) => setVVideoUrl(e.target.value)} placeholder="https://..." required />
+                      <label className={labelClass}>Or YouTube Embed URL</label>
+                      <input className={inputClass} value={vVideoUrl} onChange={(e) => setVVideoUrl(e.target.value)} placeholder="https://..." required />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label style={labelStyle}>Upload Thumbnail</label>
-                      <input type="file" accept="image/*" style={fileInputStyle} onChange={(e) => handleFileUpload(e, 'media', setVThumbnail)} />
+                      <label className={labelClass}>Upload Thumbnail</label>
+                      <input type="file" accept="image/*" className={fileInputClass} onChange={(e) => handleFileUpload(e, 'media', setVThumbnail)} />
                     </div>
                     <div>
-                      <label style={labelStyle}>Or Thumbnail URL</label>
-                      <input style={inputStyle} value={vThumbnail} onChange={(e) => setVThumbnail(e.target.value)} placeholder="https://..." />
+                      <label className={labelClass}>Or Thumbnail URL</label>
+                      <input className={inputClass} value={vThumbnail} onChange={(e) => setVThumbnail(e.target.value)} placeholder="https://..." />
                     </div>
                   </div>
 
@@ -930,11 +890,11 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
                 </h2>
               </div>
               <form onSubmit={handleUpdateLive}>
-                <label style={labelStyle}>Live Event Title</label>
-                <input style={inputStyle} value={liveTitle} onChange={(e) => setLiveTitle(e.target.value)} required />
+                <label className={labelClass}>Live Event Title</label>
+                <input className={inputClass} value={liveTitle} onChange={(e) => setLiveTitle(e.target.value)} required />
 
-                <label style={labelStyle}>YouTube Live Stream Embed URL</label>
-                <input style={inputStyle} value={liveUrl} onChange={(e) => setLiveUrl(e.target.value)} placeholder="https://www.youtube.com/embed/..." required />
+                <label className={labelClass}>YouTube Live Stream Embed URL</label>
+                <input className={inputClass} value={liveUrl} onChange={(e) => setLiveUrl(e.target.value)} placeholder="https://www.youtube.com/embed/..." required />
 
                 <label className="flex items-center space-x-2.5 text-neutral-300 text-xs mb-6 cursor-pointer">
                   <input type="checkbox" checked={isLiveActive} onChange={(e) => setIsLiveActive(e.target.checked)} className="w-4 h-4 accent-emerald-500 rounded cursor-pointer" />
@@ -960,31 +920,31 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
                     </h2>
                   </div>
 
-                  <label style={labelStyle}>Audio Title</label>
-                  <input style={inputStyle} value={aTitle} onChange={(e) => setATitle(e.target.value)} placeholder="e.g. Praying the Word of God" required />
+                  <label className={labelClass}>Audio Title</label>
+                  <input className={inputClass} value={aTitle} onChange={(e) => setATitle(e.target.value)} placeholder="e.g. Praying the Word of God" required />
 
-                  <label style={labelStyle}>Speaker</label>
-                  <input style={inputStyle} value={aSpeaker} onChange={(e) => setASpeaker(e.target.value)} required />
+                  <label className={labelClass}>Speaker</label>
+                  <input className={inputClass} value={aSpeaker} onChange={(e) => setASpeaker(e.target.value)} required />
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label style={labelStyle}>Episode Label</label>
-                      <input style={inputStyle} value={aEpisode} onChange={(e) => setAEpisode(e.target.value)} placeholder="Ep. 1" />
+                      <label className={labelClass}>Episode Label</label>
+                      <input className={inputClass} value={aEpisode} onChange={(e) => setAEpisode(e.target.value)} placeholder="Ep. 1" />
                     </div>
                     <div>
-                      <label style={labelStyle}>Duration</label>
-                      <input style={inputStyle} value={aDuration} onChange={(e) => setADuration(e.target.value)} placeholder="42:15" />
+                      <label className={labelClass}>Duration</label>
+                      <input className={inputClass} value={aDuration} onChange={(e) => setADuration(e.target.value)} placeholder="42:15" />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label style={labelStyle}>Upload Audio File</label>
-                      <input type="file" accept="audio/*" style={fileInputStyle} onChange={(e) => handleFileUpload(e, 'media', setAAudioUrl)} />
+                      <label className={labelClass}>Upload Audio File</label>
+                      <input type="file" accept="audio/*" className={fileInputClass} onChange={(e) => handleFileUpload(e, 'media', setAAudioUrl)} />
                     </div>
                     <div>
-                      <label style={labelStyle}>Or MP3 URL</label>
-                      <input style={inputStyle} value={aAudioUrl} onChange={(e) => setAAudioUrl(e.target.value)} placeholder="https://..." required />
+                      <label className={labelClass}>Or MP3 URL</label>
+                      <input className={inputClass} value={aAudioUrl} onChange={(e) => setAAudioUrl(e.target.value)} placeholder="https://..." required />
                     </div>
                   </div>
                 </div>
