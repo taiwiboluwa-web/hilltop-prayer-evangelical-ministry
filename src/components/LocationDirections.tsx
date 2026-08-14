@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 
 const DESTINATION = '3 Kola Ojedeji Street, Ipaja, Lagos State, Nigeria'
 
@@ -12,6 +12,23 @@ const mapsUrl = (origin?: string) => {
 }
 
 export function LocationDirections() {
+  const [isHome, setIsHome] = useState(false)
+
+  useEffect(() => {
+    const syncVisibility = () => {
+      setIsHome(Boolean(document.getElementById('home')))
+    }
+
+    syncVisibility()
+
+    const observer = new MutationObserver(syncVisibility)
+    observer.observe(document.body, { childList: true, subtree: true })
+
+    return () => observer.disconnect()
+  }, [])
+
+  if (!isHome) return null
+
   return (
     <section id="location" style={{ background: '#08080e', color: '#fff', padding: '96px 24px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
       <div style={{ maxWidth: 1120, margin: '0 auto' }}>
