@@ -29,6 +29,27 @@ export function LocationDirections() {
 
   if (!isHome) return null
 
+  const cardStyle: React.CSSProperties = {
+    height: '100%',
+    padding: 28,
+    border: '1px solid rgba(255,255,255,0.1)',
+    borderRadius: 18,
+    background: 'rgba(255,255,255,0.035)',
+  }
+
+  const buttonStyle: React.CSSProperties = {
+    display: 'inline-block',
+    padding: '12px 22px',
+    borderRadius: 999,
+    background: 'linear-gradient(135deg, #c9a84c 0%, #e4c76b 60%, #c9a84c 100%)',
+    color: '#08080e',
+    fontFamily: 'Outfit',
+    fontSize: '.68rem',
+    fontWeight: 700,
+    letterSpacing: '.14em',
+    textTransform: 'uppercase',
+  }
+
   return (
     <section id="location" style={{ background: '#08080e', color: '#fff', padding: '96px 24px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
       <div style={{ maxWidth: 1120, margin: '0 auto' }}>
@@ -42,29 +63,26 @@ export function LocationDirections() {
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(260px,1fr))', gap: 18 }}>
           <a href={mapsUrl('Abule Egba, Lagos, Nigeria')} target="_blank" rel="noreferrer" style={{ textDecoration: 'none', color: 'inherit' }}>
-            <div style={{ height: '100%', padding: 28, border: '1px solid rgba(255,255,255,0.1)', borderRadius: 18, background: 'rgba(255,255,255,0.035)' }}>
-              <div style={{ fontSize: 28, marginBottom: 14 }}>📍</div>
+            <div style={cardStyle}>
               <h3 style={{ margin: '0 0 8px', fontFamily: 'Outfit', fontSize: '1.1rem' }}>From Abule Egba</h3>
               <p style={{ margin: '0 0 20px', color: 'var(--muted)', lineHeight: 1.7, fontFamily: 'Outfit', fontSize: '.9rem' }}>Abule Egba → Iyana Ipaja → Ipaja → Kola Ojedeji Street</p>
-              <span className="btn btn-gold" style={{ display: 'inline-block' }}>Get Directions</span>
+              <span style={buttonStyle}>Get Directions</span>
             </div>
           </a>
 
           <a href={mapsUrl('Oshodi, Lagos, Nigeria')} target="_blank" rel="noreferrer" style={{ textDecoration: 'none', color: 'inherit' }}>
-            <div style={{ height: '100%', padding: 28, border: '1px solid rgba(255,255,255,0.1)', borderRadius: 18, background: 'rgba(255,255,255,0.035)' }}>
-              <div style={{ fontSize: 28, marginBottom: 14 }}>🧭</div>
+            <div style={cardStyle}>
               <h3 style={{ margin: '0 0 8px', fontFamily: 'Outfit', fontSize: '1.1rem' }}>From Oshodi</h3>
               <p style={{ margin: '0 0 20px', color: 'var(--muted)', lineHeight: 1.7, fontFamily: 'Outfit', fontSize: '.9rem' }}>Oshodi → Ikeja → Egbeda → Iyana Ipaja → Ipaja → Kola Ojedeji Street</p>
-              <span className="btn btn-gold" style={{ display: 'inline-block' }}>Get Directions</span>
+              <span style={buttonStyle}>Get Directions</span>
             </div>
           </a>
 
           <a href={mapsUrl()} target="_blank" rel="noreferrer" style={{ textDecoration: 'none', color: 'inherit' }}>
-            <div style={{ height: '100%', padding: 28, border: '1px solid rgba(255,255,255,0.1)', borderRadius: 18, background: 'rgba(140,109,38,0.08)' }}>
-              <div style={{ fontSize: 28, marginBottom: 14 }}>🗺️</div>
+            <div style={{ ...cardStyle, background: 'rgba(140,109,38,0.08)' }}>
               <h3 style={{ margin: '0 0 8px', fontFamily: 'Outfit', fontSize: '1.1rem' }}>Open Location</h3>
               <p style={{ margin: '0 0 20px', color: 'var(--muted)', lineHeight: 1.7, fontFamily: 'Outfit', fontSize: '.9rem' }}>Open the destination directly in Google Maps and choose your own starting point.</p>
-              <span className="btn btn-gold" style={{ display: 'inline-block' }}>Open Google Maps</span>
+              <span style={buttonStyle}>Open Google Maps</span>
             </div>
           </a>
         </div>
