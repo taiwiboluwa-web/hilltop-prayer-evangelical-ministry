@@ -490,7 +490,7 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
     <div className="min-h-screen bg-[#050508] text-[#f5f2eb] font-['Outfit',sans-serif] flex">
       
       {/* LEFT SIDEBAR NAVIGATION */}
-      <aside className="w-[260px] bg-[#080810] border-r border-[#dfb755]/10 flex flex-col justify-between fixed top-0 bottom-0 left-0 z-20 select-none">
+      <aside className="w-[280px] bg-[#080810] border-r border-[#dfb755]/10 flex flex-col justify-between fixed top-0 bottom-0 left-0 z-30 select-none shadow-2xl">
         <div>
           {/* Logo Area */}
           <div className="p-6 border-b border-[#dfb755]/10 flex items-center gap-3">
@@ -498,7 +498,7 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
               ✦
             </div>
             <div>
-              <span className="block font-black text-xs tracking-wider text-[#dfb755] uppercase">Admin</span>
+              <span className="block font-black text-[10px] tracking-wider text-[#dfb755] uppercase">Admin</span>
               <span className="block text-sm font-bold text-[#f5f2eb] tracking-tight">Dashboard</span>
             </div>
           </div>
@@ -520,7 +520,7 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
                   onClick={() => setActiveTab(tab.id as any)}
                   className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-xl font-bold text-xs cursor-pointer transition-all ${
                     isActive
-                      ? 'bg-[#dfb755]/10 border border-[#dfb755]/30 text-[#f4d688] shadow-sm shadow-[#dfb755]/5'
+                      ? 'bg-[#dfb755]/15 border border-[#dfb755]/40 text-[#f4d688] shadow-sm shadow-[#dfb755]/10'
                       : 'bg-transparent border border-transparent text-[#f5f2eb]/60 hover:bg-white/[0.03] hover:text-[#f5f2eb]'
                   }`}
                 >
@@ -547,10 +547,10 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
       </aside>
 
       {/* MAIN CONTENT AREA */}
-      <main className="flex-1 ml-[260px] min-h-screen bg-[#050508] flex flex-col">
+      <main className="flex-1 pl-[280px] min-h-screen bg-[#050508] flex flex-col">
         
         {/* Top Navbar Header */}
-        <header className="h-[76px] bg-[#080810]/80 backdrop-blur-md border-b border-[#dfb755]/10 px-8 flex items-center justify-between sticky top-0 z-10">
+        <header className="h-[76px] bg-[#080810]/90 backdrop-blur-md border-b border-[#dfb755]/10 px-8 flex items-center justify-between sticky top-0 z-20 w-full">
           <div className="flex items-center gap-4">
             <button
               onClick={onBack}
@@ -558,7 +558,7 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
             >
               ← Back to Home
             </button>
-            <h1 className="text-lg font-extrabold m-0 text-[#f5f2eb] tracking-tight uppercase">
+            <h1 className="text-sm md:text-base font-extrabold m-0 text-[#f5f2eb] tracking-tight uppercase">
               {activeTab === 'ministers' && 'Ministers Management'}
               {activeTab === 'gallery' && 'Fellowship Gallery Moments'}
               {activeTab === 'videos' && 'Video Sermons Repository'}
@@ -581,7 +581,7 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
         </header>
 
         {/* Content Body Container */}
-        <div className="p-8 max-w-[1280px] w-full mx-auto flex-1">
+        <div className="p-8 max-w-[1400px] w-full mx-auto flex-1">
           
           {uploadProgress && (
             <div className="bg-[#dfb755]/10 border border-[#dfb755] text-[#f4d688] p-3 rounded-xl text-xs mb-6 text-center font-medium shadow-md">
@@ -591,9 +591,9 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
 
           {/* TAB 1: MINISTERS MANAGEMENT */}
           {activeTab === 'ministers' && (
-            <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_1.3fr] gap-6">
-              <form onSubmit={handleSaveMinister} className="bg-[#0b0b14] border border-[#dfb755]/15 p-6 rounded-2xl shadow-xl">
-                <h3 className="text-base font-bold m-0 mb-4 text-[#f4d688] flex items-center gap-2">
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.2fr] gap-8">
+              <form onSubmit={handleSaveMinister} className="bg-[#0b0b14] border border-[#dfb755]/15 p-6 md:p-8 rounded-2xl shadow-xl">
+                <h3 className="text-base font-bold m-0 mb-5 text-[#f4d688] flex items-center gap-2">
                   <span>✦</span> Edit Minister Slot #{selectedSlotOrder}
                 </h3>
 
@@ -633,7 +633,7 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
                 <label style={labelStyle}>About Me (Biography / Profile Description)</label>
                 <textarea
                   style={{ ...inputStyle, resize: 'vertical' }}
-                  rows={3}
+                  rows={4}
                   value={mDescText}
                   onChange={(e) => setMDescText(e.target.value)}
                   placeholder="Write full biography or brief description..."
@@ -657,17 +657,17 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
 
                 <button
                   type="submit"
-                  className="w-full py-3 bg-gradient-to-r from-[#dfb755] to-[#c59938] text-[#06060a] border-none rounded-xl font-bold cursor-pointer mt-2 text-xs tracking-wider shadow-md hover:brightness-105 transition-all"
+                  className="w-full py-3.5 bg-gradient-to-r from-[#dfb755] to-[#c59938] text-[#06060a] border-none rounded-xl font-bold cursor-pointer mt-4 text-xs tracking-wider shadow-md hover:brightness-105 transition-all"
                 >
                   Save Changes to Slot {selectedSlotOrder}
                 </button>
               </form>
 
-              <div className="bg-[#0b0b14] border border-[#dfb755]/15 p-6 rounded-2xl shadow-xl">
-                <h3 className="text-base font-bold mb-4 text-[#f5f2eb]">
+              <div className="bg-[#0b0b14] border border-[#dfb755]/15 p-6 md:p-8 rounded-2xl shadow-xl">
+                <h3 className="text-base font-bold mb-5 text-[#f5f2eb]">
                   Minister Slots Overview
                 </h3>
-                <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-3.5">
                   {[1, 2, 3, 4, 5].map((slotNum) => {
                     const m = ministers.find((item) => (item.display_order ?? item.id) === slotNum);
                     const isSelected = selectedSlotOrder === slotNum;
@@ -676,8 +676,8 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
                       <div
                         key={slotNum}
                         onClick={() => handleSlotChange(slotNum)}
-                        className={`p-3.5 rounded-xl flex items-center gap-4 cursor-pointer transition-all ${
-                          isSelected ? 'bg-[#dfb755]/10 border border-[#dfb755]' : 'bg-[#06060a] border border-[#dfb755]/15'
+                        className={`p-4 rounded-xl flex items-center gap-4 cursor-pointer transition-all ${
+                          isSelected ? 'bg-[#dfb755]/15 border border-[#dfb755] shadow-lg shadow-[#dfb755]/5' : 'bg-[#06060a] border border-[#dfb755]/15 hover:border-[#dfb755]/40'
                         }`}
                       >
                         <img
@@ -687,14 +687,14 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
                         />
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
-                            <span className="text-[9px] bg-[#dfb755]/20 text-[#f4d688] px-2 py-0.5 rounded font-bold tracking-wider flex-shrink-0">
+                            <span className="text-[9px] bg-[#dfb755]/25 text-[#f4d688] px-2 py-0.5 rounded font-bold tracking-wider flex-shrink-0">
                               SLOT {slotNum}
                             </span>
                             <span className="font-bold text-xs sm:text-sm text-[#f5f2eb] truncate">
                               {m?.name || 'Open Slot'}
                             </span>
                           </div>
-                          <p className="m-0 text-[11px] text-[#f5f2eb]/50 truncate">
+                          <p className="m-0 text-[11px] text-[#f5f2eb]/60 truncate">
                             {m?.desc_text || m?.desc || 'No description provided.'}
                           </p>
                         </div>
@@ -704,8 +704,8 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
                             e.stopPropagation();
                             handleSlotChange(slotNum);
                           }}
-                          className={`px-3 py-1.5 rounded-lg text-[11px] cursor-pointer font-bold flex-shrink-0 transition-all ${
-                            isSelected ? 'bg-[#dfb755] text-[#06060a] border-none' : 'bg-[#dfb755]/10 border border-[#dfb755]/30 text-[#f4d688]'
+                          className={`px-3.5 py-1.5 rounded-lg text-[11px] cursor-pointer font-bold flex-shrink-0 transition-all ${
+                            isSelected ? 'bg-[#dfb755] text-[#06060a] border-none shadow' : 'bg-[#dfb755]/10 border border-[#dfb755]/30 text-[#f4d688]'
                           }`}
                         >
                           {isSelected ? 'Editing' : 'Select'}
@@ -720,12 +720,12 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
 
           {/* TAB 2: GALLERY & MOMENTS MANAGEMENT */}
           {activeTab === 'gallery' && (
-            <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_1.3fr] gap-6">
-              <form onSubmit={handleAddGalleryItem} className="bg-[#0b0b14] border border-[#dfb755]/15 p-6 rounded-2xl shadow-xl">
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.2fr] gap-8">
+              <form onSubmit={handleAddGalleryItem} className="bg-[#0b0b14] border border-[#dfb755]/15 p-6 md:p-8 rounded-2xl shadow-xl">
                 <h3 className="text-base font-bold m-0 mb-2 text-[#f4d688]">
                   Add New Gallery Photo
                 </h3>
-                <p className="text-xs text-[#f5f2eb]/60 mb-4 leading-relaxed">
+                <p className="text-xs text-[#f5f2eb]/60 mb-5 leading-relaxed">
                   Add photos and captions to display in the fellowship gallery section on the website.
                 </p>
 
@@ -757,24 +757,24 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
 
                 <button
                   type="submit"
-                  className="w-full py-3 bg-gradient-to-r from-[#dfb755] to-[#c59938] text-[#06060a] border-none rounded-xl font-bold cursor-pointer mt-2 text-xs tracking-wider shadow-md hover:brightness-105 transition-all"
+                  className="w-full py-3.5 bg-gradient-to-r from-[#dfb755] to-[#c59938] text-[#06060a] border-none rounded-xl font-bold cursor-pointer mt-4 text-xs tracking-wider shadow-md hover:brightness-105 transition-all"
                 >
                   Add Gallery Photo
                 </button>
               </form>
 
-              <div className="bg-[#0b0b14] border border-[#dfb755]/15 p-6 rounded-2xl shadow-xl">
-                <h3 className="text-base font-bold mb-4 text-[#f5f2eb]">
+              <div className="bg-[#0b0b14] border border-[#dfb755]/15 p-6 md:p-8 rounded-2xl shadow-xl">
+                <h3 className="text-base font-bold mb-5 text-[#f5f2eb]">
                   Gallery Library ({galleryItems.length})
                 </h3>
-                <div className="flex flex-col gap-3 max-h-[540px] overflow-y-auto pr-1">
+                <div className="flex flex-col gap-3.5 max-h-[580px] overflow-y-auto pr-1">
                   {galleryItems.length === 0 ? (
                     <p className="text-[#f5f2eb]/40 text-xs py-8 text-center">No gallery photos added yet.</p>
                   ) : (
                     galleryItems.map((item, index) => (
                       <div
                         key={item.id}
-                        className="bg-[#06060a] border border-[#dfb755]/15 p-3 rounded-xl flex items-center gap-4"
+                        className="bg-[#06060a] border border-[#dfb755]/15 p-3.5 rounded-xl flex items-center gap-4"
                       >
                         <img
                           src={item.image_url || 'https://via.placeholder.com/80?text=Gallery+Photo'}
@@ -794,7 +794,7 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
                         <button
                           type="button"
                           onClick={() => handleDeleteGalleryItem(item.id)}
-                          className="bg-red-500/10 border border-red-500/30 text-red-400 px-3 py-1.5 rounded-lg text-xs cursor-pointer font-bold flex-shrink-0 hover:bg-red-500/20 transition-all"
+                          className="bg-red-500/10 border border-red-500/30 text-red-400 px-3.5 py-1.5 rounded-lg text-xs cursor-pointer font-bold flex-shrink-0 hover:bg-red-500/20 transition-all"
                         >
                           Remove
                         </button>
@@ -808,9 +808,9 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
 
           {/* TAB 3: VIDEO SERMONS */}
           {activeTab === 'videos' && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <form onSubmit={handleAddSermon} className="bg-[#0b0b14] border border-[#dfb755]/15 p-6 rounded-2xl shadow-xl">
-                <h3 className="text-base font-bold mb-4 text-[#f4d688]">Upload New Video Sermon</h3>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <form onSubmit={handleAddSermon} className="bg-[#0b0b14] border border-[#dfb755]/15 p-6 md:p-8 rounded-2xl shadow-xl">
+                <h3 className="text-base font-bold mb-5 text-[#f4d688]">Upload New Video Sermon</h3>
                 
                 <label style={labelStyle}>Sermon Title</label>
                 <input style={inputStyle} value={vTitle} onChange={(e) => setVTitle(e.target.value)} placeholder="e.g. The Power of Persistent Prayer" required />
@@ -842,31 +842,31 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
                 <label style={labelStyle}>Thumbnail URL</label>
                 <input style={inputStyle} value={vThumbnail} onChange={(e) => setVThumbnail(e.target.value)} placeholder="https://..." />
 
-                <label className="flex items-center gap-2.5 text-[#f5f2eb]/85 text-xs mb-4 cursor-pointer font-medium">
+                <label className="flex items-center gap-2.5 text-[#f5f2eb]/85 text-xs mb-5 cursor-pointer font-medium">
                   <input type="checkbox" checked={vIsFeatured} onChange={(e) => setVIsFeatured(e.target.checked)} className="w-4 h-4 accent-[#dfb755] cursor-pointer" />
                   Mark as Main Featured Sermon
                 </label>
 
-                <button type="submit" className="w-full py-3 bg-gradient-to-r from-[#dfb755] to-[#c59938] text-[#06060a] border-none rounded-xl font-bold cursor-pointer text-xs tracking-wider shadow-md hover:brightness-105 transition-all">
+                <button type="submit" className="w-full py-3.5 bg-gradient-to-r from-[#dfb755] to-[#c59938] text-[#06060a] border-none rounded-xl font-bold cursor-pointer text-xs tracking-wider shadow-md hover:brightness-105 transition-all">
                   Publish Sermon
                 </button>
               </form>
 
-              <div className="bg-[#0b0b14] border border-[#dfb755]/15 p-6 rounded-2xl shadow-xl">
-                <h3 className="text-base font-bold mb-4 text-[#f5f2eb]">Existing Video Sermons ({sermons.length})</h3>
-                <div className="flex flex-col gap-3 max-h-[540px] overflow-y-auto pr-1">
+              <div className="bg-[#0b0b14] border border-[#dfb755]/15 p-6 md:p-8 rounded-2xl shadow-xl">
+                <h3 className="text-base font-bold mb-5 text-[#f5f2eb]">Existing Video Sermons ({sermons.length})</h3>
+                <div className="flex flex-col gap-3.5 max-h-[580px] overflow-y-auto pr-1">
                   {sermons.length === 0 ? (
                     <p className="text-[#f5f2eb]/40 text-xs py-8 text-center">No video sermons uploaded yet.</p>
                   ) : (
                     sermons.map((s) => (
-                      <div key={s.id} className="bg-[#06060a] border border-[#dfb755]/15 p-3.5 rounded-xl flex justify-between items-center gap-3">
+                      <div key={s.id} className="bg-[#06060a] border border-[#dfb755]/15 p-4 rounded-xl flex justify-between items-center gap-3">
                         <div className="min-w-0 flex-1">
                           <p className={`m-0 font-bold text-xs truncate ${s.is_featured ? 'text-[#f4d688]' : 'text-[#f5f2eb]'}`}>
                             {s.is_featured ? '★ ' : ''}{s.title}
                           </p>
-                          <p className="m-0 text-[11px] text-[#f5f2eb]/50 truncate mt-0.5">{s.speaker} • {s.category}</p>
+                          <p className="m-0 text-[11px] text-[#f5f2eb]/50 truncate mt-1">{s.speaker} • {s.category}</p>
                         </div>
-                        <button onClick={() => handleDeleteSermon(s.id)} className="bg-red-500/10 border border-red-500/30 text-red-400 px-3 py-1.5 rounded-lg text-xs cursor-pointer font-bold flex-shrink-0 hover:bg-red-500/20 transition-all">
+                        <button onClick={() => handleDeleteSermon(s.id)} className="bg-red-500/10 border border-red-500/30 text-red-400 px-3.5 py-1.5 rounded-lg text-xs cursor-pointer font-bold flex-shrink-0 hover:bg-red-500/20 transition-all">
                           Remove
                         </button>
                       </div>
@@ -879,8 +879,8 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
 
           {/* TAB 4: LIVE STREAM */}
           {activeTab === 'live' && (
-            <div className="bg-[#0b0b14] border border-[#dfb755]/15 p-6 sm:p-8 rounded-2xl shadow-xl max-w-[650px]">
-              <h3 className="text-base font-bold mb-4 text-[#f4d688]">Configure Live Broadcast</h3>
+            <div className="bg-[#0b0b14] border border-[#dfb755]/15 p-6 md:p-8 rounded-2xl shadow-xl max-w-[700px]">
+              <h3 className="text-base font-bold mb-5 text-[#f4d688]">Configure Live Broadcast</h3>
               <form onSubmit={handleUpdateLive}>
                 <label style={labelStyle}>Live Event Title</label>
                 <input style={inputStyle} value={liveTitle} onChange={(e) => setLiveTitle(e.target.value)} required />
@@ -893,7 +893,7 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
                   Service is Currently LIVE (Displays Live Badge on Website)
                 </label>
 
-                <button type="submit" className="w-full py-3 bg-gradient-to-r from-[#10b981] to-[#059669] text-white border-none rounded-xl font-bold cursor-pointer text-xs tracking-wider shadow-md hover:brightness-105 transition-all">
+                <button type="submit" className="w-full py-3.5 bg-gradient-to-r from-[#10b981] to-[#059669] text-white border-none rounded-xl font-bold cursor-pointer text-xs tracking-wider shadow-md hover:brightness-105 transition-all">
                   Save Live Stream Settings
                 </button>
               </form>
@@ -902,9 +902,9 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
 
           {/* TAB 5: AUDIO SERMONS */}
           {activeTab === 'audio' && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <form onSubmit={handleAddAudio} className="bg-[#0b0b14] border border-[#dfb755]/15 p-6 rounded-2xl shadow-xl">
-                <h3 className="text-base font-bold mb-4 text-[#f4d688]">Add Audio Sermon</h3>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <form onSubmit={handleAddAudio} className="bg-[#0b0b14] border border-[#dfb755]/15 p-6 md:p-8 rounded-2xl shadow-xl">
+                <h3 className="text-base font-bold mb-5 text-[#f4d688]">Add Audio Sermon</h3>
 
                 <label style={labelStyle}>Audio Title</label>
                 <input style={inputStyle} value={aTitle} onChange={(e) => setATitle(e.target.value)} placeholder="e.g. Praying the Word of God" required />
@@ -924,24 +924,24 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
                 <label style={labelStyle}>Or Audio MP3 URL</label>
                 <input style={inputStyle} value={aAudioUrl} onChange={(e) => setAAudioUrl(e.target.value)} placeholder="https://..." required />
 
-                <button type="submit" className="w-full py-3 bg-gradient-to-r from-[#dfb755] to-[#c59938] text-[#06060a] border-none rounded-xl font-bold cursor-pointer text-xs tracking-wider shadow-md hover:brightness-105 transition-all">
+                <button type="submit" className="w-full py-3.5 bg-gradient-to-r from-[#dfb755] to-[#c59938] text-[#06060a] border-none rounded-xl font-bold cursor-pointer text-xs tracking-wider shadow-md hover:brightness-105 transition-all">
                   Add Audio Track
                 </button>
               </form>
 
-              <div className="bg-[#0b0b14] border border-[#dfb755]/15 p-6 rounded-2xl shadow-xl">
-                <h3 className="text-base font-bold mb-4 text-[#f5f2eb]">Audio Library ({audioList.length})</h3>
-                <div className="flex flex-col gap-3 max-h-[540px] overflow-y-auto pr-1">
+              <div className="bg-[#0b0b14] border border-[#dfb755]/15 p-6 md:p-8 rounded-2xl shadow-xl">
+                <h3 className="text-base font-bold mb-5 text-[#f5f2eb]">Audio Library ({audioList.length})</h3>
+                <div className="flex flex-col gap-3.5 max-h-[580px] overflow-y-auto pr-1">
                   {audioList.length === 0 ? (
                     <p className="text-[#f5f2eb]/40 text-xs py-8 text-center">No audio tracks uploaded yet.</p>
                   ) : (
                     audioList.map((a) => (
-                      <div key={a.id} className="bg-[#06060a] border border-[#dfb755]/15 p-3.5 rounded-xl flex justify-between items-center gap-3">
+                      <div key={a.id} className="bg-[#06060a] border border-[#dfb755]/15 p-4 rounded-xl flex justify-between items-center gap-3">
                         <div className="min-w-0 flex-1">
                           <p className="m-0 font-bold text-xs text-[#f5f2eb] truncate">{a.title}</p>
-                          <p className="m-0 text-[11px] text-[#f5f2eb]/50 truncate mt-0.5">{a.episode} • {a.duration}</p>
+                          <p className="m-0 text-[11px] text-[#f5f2eb]/50 truncate mt-1">{a.episode} • {a.duration}</p>
                         </div>
-                        <button onClick={() => handleDeleteAudio(a.id)} className="bg-red-500/10 border border-red-500/30 text-red-400 px-3 py-1.5 rounded-lg text-xs cursor-pointer font-bold flex-shrink-0 hover:bg-red-500/20 transition-all">
+                        <button onClick={() => handleDeleteAudio(a.id)} className="bg-red-500/10 border border-red-500/30 text-red-400 px-3.5 py-1.5 rounded-lg text-xs cursor-pointer font-bold flex-shrink-0 hover:bg-red-500/20 transition-all">
                           Remove
                         </button>
                       </div>
