@@ -250,9 +250,9 @@ function BecomeMember() {
             </AnimatedText>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: 48, alignItems: 'center', background: '#fcf9f2', padding: '48px 40px', borderRadius: 24, boxShadow: '0 20px 50px rgba(0,0,0,0.06)', border: '1px solid rgba(201,168,76,0.2)' }} className="member-grid">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 48, alignItems: 'center', background: '#fcf9f2', padding: '48px 40px', borderRadius: 24, boxShadow: '0 20px 50px rgba(0,0,0,0.06)', border: '1px solid rgba(201,168,76,0.2)' }} className="member-grid">
             
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', borderRight: '1px solid rgba(0,0,0,0.06)', paddingRight: 24 }} className="member-crest-col">
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', paddingRight: 0 }} className="member-crest-col">
               <div style={{ width: 180, height: 180, borderRadius: '50%', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 10px 30px rgba(0,0,0,0.08)', marginBottom: 20, border: '3px solid #c9a84c', position: 'relative', overflow: 'hidden' }}>
                 <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 12 }}>
                   <svg width="48" height="48" viewBox="0 0 34 34" fill="none">
@@ -392,7 +392,7 @@ function AboutPage() {
             </AnimatedText>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }} className="about-gallery-grid">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }} className="about-gallery-grid">
             <div style={{ borderRadius: 16, overflow: 'hidden', height: 260, position: 'relative', border: '1px solid var(--border)' }}>
               <img src={IMGS.worship} alt="Worship Session" style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'brightness(0.7) saturate(0.8)' }} />
               <div style={{ position: 'absolute', bottom: 12, left: 14, fontFamily: 'Outfit', fontSize: '0.8rem', color: '#fff', fontWeight: 600, background: 'rgba(0,0,0,0.6)', padding: '4px 10px', borderRadius: 6 }}>Fervent Worship</div>
@@ -415,7 +415,7 @@ function AboutPage() {
 
         <div className="glass-hi" style={{ borderRadius: 'var(--r-xl)', padding: '48px', marginBottom: 24, position: 'relative', overflow: 'hidden' }}>
           <div className="glow-gold" style={{ width: 500, height: 400, top: -120, right: -100, borderRadius: '50%' }}/>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 40, alignItems: 'center', position: 'relative' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 40, alignItems: 'center', position: 'relative' }}>
             <div style={{ position: 'relative' }}>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 12px', borderRadius: 100, border: '1px solid rgba(201,168,76,0.3)', background: 'rgba(201,168,76,0.08)', marginBottom: 16 }}>
                 <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--gold)' }} />
@@ -437,8 +437,8 @@ function AboutPage() {
               </p>
             </div>
             <div>
-              <div className="label" style={{ marginBottom: 14, textAlign: 'right' }}>Starts In</div>
-              <div style={{ display: 'flex', gap: 8 }}>
+              <div className="label" style={{ marginBottom: 14 }}>Starts In</div>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                 {[[c.d,'Days'],[c.h,'Hrs'],[c.m,'Min'],[c.s,'Sec']].map(([val, lbl]) => (
                   <div key={lbl as string} className="cbox">
                     <div className="serif gold-text" style={{ fontSize: 'clamp(1.8rem,3vw,2.6rem)', lineHeight: 1 }}>
@@ -452,7 +452,7 @@ function AboutPage() {
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16 }}>
           {SCHEDULE.map(s => (
             <div key={s.day} className="card" style={{ padding: 24 }}>
               <div className="label" style={{ marginBottom: 10, color: 'rgba(201,168,76,0.5)' }}>{s.day}</div>
@@ -492,7 +492,7 @@ function Sermons() {
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 1fr', gap: 0, marginBottom: 32, borderRadius: 'var(--r-xl)', overflow: 'hidden', border: '1px solid var(--border)' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 0, marginBottom: 32, borderRadius: 'var(--r-xl)', overflow: 'hidden', border: '1px solid var(--border)' }}>
           <div style={{ position: 'relative', minHeight: 340, background: '#0f0f18' }}>
             <img src={featured.img} alt={featured.title} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', filter: 'brightness(0.38) saturate(0.65)' }}/>
             <div className="overlay"/>
@@ -521,7 +521,7 @@ function Sermons() {
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 20 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
           {grid.map(s => (
             <div key={s.title} className="card" style={{ cursor: 'pointer' }}>
               <div style={{ position: 'relative', height: 160, background: '#0f0f18' }}>
@@ -752,7 +752,7 @@ function Giving() {
             <label style={{ display: 'block', fontFamily: 'Outfit', fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.1em', color: 'var(--gold-light)', marginBottom: 12, textTransform: 'uppercase' }}>
               Select Amount (NGN)
             </label>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 16 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 12, marginBottom: 16 }}>
               {GIVE_AMOUNTS.map(a => (
                 <button
                   key={a}
@@ -780,7 +780,7 @@ function Giving() {
             />
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 }} className="give-grid">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16, marginBottom: 20 }} className="give-grid">
             <div>
               <label style={{ display: 'block', fontFamily: 'Outfit', fontSize: '0.7rem', fontWeight: 700, color: 'var(--muted)', marginBottom: 6, textTransform: 'uppercase' }}>Your Name (Optional)</label>
               <input type="text" placeholder="Full Name" value={name} onChange={e => setName(e.target.value)} style={{ width: '100%', padding: '12px 16px', borderRadius: 8, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', fontFamily: 'Outfit', fontSize: '0.9rem', outline: 'none' }} />
@@ -819,7 +819,7 @@ function Footer({ setActivePage }: { setActivePage: (p: string) => void }) {
   return (
     <footer style={{ background: '#050509', borderTop: '1px solid var(--border)', padding: '80px 24px 40px', position: 'relative' }}>
       <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr 1fr', gap: 40, marginBottom: 60 }} className="footer-grid">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 40, marginBottom: 60 }} className="footer-grid">
           <div>
             <Logo size="md" />
             <p style={{ fontFamily: 'Outfit', fontSize: '0.85rem', color: 'var(--muted)', marginTop: 16, lineHeight: 1.7, maxWidth: 320 }}>
