@@ -303,33 +303,40 @@ img, video, svg, canvas { max-width: 100%; height: auto; }
     box-sizing: border-box !important;
   }
 
-  /* Force multi-column sections to stack vertically on mobile with forced high specificity */
-  div[class*="grid"], section div[class*="grid"], .card div[class*="grid"] {
+  /* Target content grids while keeping countdown row safe */
+  section > div.grid:not(:has(.cbox)), .card > div.grid:not(:has(.cbox)) {
     display: flex !important;
     flex-direction: column !important;
     width: 100% !important;
     gap: 1.5rem !important;
   }
 
-  /* Target the next live service countdown card layout wrapper specifically */
-  .card div, section div {
-    box-sizing: border-box;
+  /* Ensure the countdown timer stays horizontal and compact in a single line */
+  div:has(.cbox) {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    justify-content: space-between !important;
+    gap: 4px !important;
+    width: 100% !important;
+  }
+
+  /* Scale down countdown boxes so all 4 fit comfortably side-by-side */
+  .cbox {
+    min-width: 0 !important;
+    flex: 1 !important;
+    padding: 8px 4px !important;
+    text-align: center !important;
+  }
+  
+  .cbox .display, .cbox span {
+    font-size: 1.1rem !important;
   }
 
   /* Add safe horizontal breathing room to prevent edge bleeding */
   section, .container, div[class*="max-w-"] {
     padding-left: 1rem !important;
     padding-right: 1rem !important;
-  }
-
-  /* Scale down countdown boxes slightly so they fit 4 across on mobile viewports */
-  .cbox {
-    min-width: 46px !important;
-    padding: 8px 6px !important;
-  }
-  
-  .cbox .display, .cbox span {
-    font-size: 1.25rem !important;
   }
 
   /* Ensure footer elements and columns stack properly and display fully without overlapping */
