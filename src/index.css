@@ -295,10 +295,8 @@ img, video, svg, canvas { max-width: 100%; height: auto; }
     box-sizing: border-box !important;
   }
 
-  /* Target content grids while strictly excluding navigation, headers, and countdown sections */
-  section > div.grid:not(:has(.cbox)):not(:has(nav)):not([class*="nav"]), 
-  .card > div.grid:not(:has(.cbox)):not(:has(nav)):not([class*="nav"]),
-  div[class*="grid"]:not(:has(.cbox)):not(:has(nav)):not([class*="mobile-menu"]):not(header div[class*="grid"]) {
+  /* Target only main content grids safely without breaking fixed side navigation or drawers */
+  main div.grid, section div.grid {
     display: flex !important;
     flex-direction: column !important;
     width: 100% !important;
