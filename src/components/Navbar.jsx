@@ -38,7 +38,7 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Desktop Links & Tablet Capsule Inline Links */}
+      {/* Desktop Links */}
       <nav className="nav-links noscroll hidden md:flex items-center space-x-5 text-sm text-gray-200" style={{ fontFamily: 'Outfit' }}>
         {navLinks.map((link) => (
           <a key={link.name} href={link.href} className="hover:text-[#c9a84c] transition-colors text-xs uppercase tracking-wider font-medium no-underline">
@@ -47,7 +47,7 @@ export default function Navbar() {
         ))}
       </nav>
 
-      {/* Desktop / Large Screen CTA Button */}
+      {/* Desktop CTA Button */}
       <div className="shrink-0 hidden md:block">
         <a href="#give" className="btn btn-gold !py-2 !px-4 !text-[0.65rem]">
           Give
@@ -65,9 +65,9 @@ export default function Navbar() {
         </button>
       </div>
 
-      {/* Mobile Dropdown Menu (Floating neatly below the capsule header) */}
+      {/* Mobile Dropdown Menu (Fixed to viewport so it spans cleanly across the screen) */}
       {isOpen && (
-        <div className="md:hidden absolute top-[calc(100%+12px)] left-0 right-0 bg-[rgba(15,15,24,0.96)] backdrop-blur-2xl border border-[rgba(201,168,76,0.32)] rounded-[24px] py-4 px-5 flex flex-col space-y-2.5 shadow-2xl z-50">
+        <div className="md:hidden fixed top-20 left-4 right-4 bg-[rgba(15,15,24,0.98)] backdrop-blur-2xl border border-[rgba(201,168,76,0.32)] rounded-[24px] py-5 px-6 flex flex-col space-y-3 shadow-2xl z-[9999]">
           {navLinks.map((link) => (
             <a
               key={link.name}
