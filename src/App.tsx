@@ -224,21 +224,6 @@ function BecomeMember() {
 
   return (
     <section id="become-member" style={{ minHeight: '100vh', background: '#08080e', display: 'flex', flexDirection: 'column', position: 'relative' }}>
-      <style>{`
-        @media (max-width: 768px) {
-          .member-grid-container {
-            grid-template-columns: 1fr !important;
-            padding: 28px 20px !important;
-            gap: 24px !important;
-          }
-          .member-crest-col {
-            border-right: none !important;
-            border-bottom: 1px solid rgba(0,0,0,0.08);
-            padding-right: 0 !important;
-            padding-bottom: 24px;
-          }
-        }
-      `}</style>
       <div style={{ position: 'relative', width: '100%', height: '42vh', minHeight: 320, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <img src={IMGS.diverse} alt="Welcome" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', filter: 'brightness(0.32) saturate(0.7)' }} />
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(8,8,14,0.4) 0%, #08080e 100%)' }} />
@@ -253,7 +238,7 @@ function BecomeMember() {
         </div>
       </div>
 
-      <div style={{ flex: 1, background: '#f5f0e6', padding: '60px 16px 80px', display: 'flex', flexDirection: 'column', alignItems: 'center', color: '#1a1a1a' }}>
+      <div style={{ flex: 1, background: '#f5f0e6', padding: '60px 24px 80px', display: 'flex', flexDirection: 'column', alignItems: 'center', color: '#1a1a1a' }}>
         <div style={{ width: '100%', maxWidth: 960, margin: '0 auto' }}>
           
           <div style={{ textAlign: 'center', marginBottom: 44 }}>
@@ -265,10 +250,10 @@ function BecomeMember() {
             </AnimatedText>
           </div>
 
-          <div className="member-grid-container" style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: 48, alignItems: 'center', background: '#fcf9f2', padding: '48px 40px', borderRadius: 24, boxShadow: '0 20px 50px rgba(0,0,0,0.06)', border: '1px solid rgba(201,168,76,0.2)', width: '100%', boxSizing: 'border-box' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: 48, alignItems: 'center', background: '#fcf9f2', padding: '48px 40px', borderRadius: 24, boxShadow: '0 20px 50px rgba(0,0,0,0.06)', border: '1px solid rgba(201,168,76,0.2)' }} className="member-grid">
             
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', borderRight: '1px solid rgba(0,0,0,0.06)', paddingRight: 24 }} className="member-crest-col">
-              <div style={{ width: 160, height: 160, borderRadius: '50%', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 10px 30px rgba(0,0,0,0.08)', marginBottom: 20, border: '3px solid #c9a84c', position: 'relative', overflow: 'hidden', maxWidth: '100%' }}>
+              <div style={{ width: 180, height: 180, borderRadius: '50%', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 10px 30px rgba(0,0,0,0.08)', marginBottom: 20, border: '3px solid #c9a84c', position: 'relative', overflow: 'hidden' }}>
                 <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 12 }}>
                   <svg width="48" height="48" viewBox="0 0 34 34" fill="none">
                     <polygon points="17,2 32,31 2,31" stroke="#1f1c16" strokeWidth="1.5" strokeLinejoin="round" fill="none"/>
@@ -283,7 +268,7 @@ function BecomeMember() {
               </div>
             </div>
 
-            <div style={{ width: '100%', minWidth: 0 }}>
+            <div>
               {submitted ? (
                 <div style={{ textAlign: 'center', padding: '30px 20px' }}>
                   <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'rgba(46,125,50,0.1)', color: '#2e7d32', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.6rem', margin: '0 auto 16px' }}>✓</div>
@@ -293,8 +278,8 @@ function BecomeMember() {
                   </AnimatedText>
                 </div>
               ) : (
-                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 20, width: '100%' }}>
-                  <div style={{ width: '100%' }}>
+                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+                  <div>
                     <label style={{ display: 'block', fontFamily: 'Outfit', fontSize: '0.68rem', fontWeight: 700, letterSpacing: '0.12em', color: '#776d5e', textTransform: 'uppercase', marginBottom: 6 }}>Name</label>
                     <input 
                       type="text" 
@@ -302,11 +287,11 @@ function BecomeMember() {
                       placeholder="Enter your full name" 
                       value={formData.name}
                       onChange={e => setFormData({ ...formData, name: e.target.value })}
-                      style={{ width: '100%', boxSizing: 'border-box', padding: '12px 16px', borderRadius: 8, border: '1px solid #d4cebe', background: '#fff', fontFamily: 'Outfit', fontSize: '0.9rem', color: '#1f1c16', outline: 'none', transition: 'border-color 0.2s' }}
+                      style={{ width: '100%', padding: '12px 16px', borderRadius: 8, border: '1px solid #d4cebe', background: '#fff', fontFamily: 'Outfit', fontSize: '0.9rem', color: '#1f1c16', outline: 'none', transition: 'border-color 0.2s' }}
                     />
                   </div>
 
-                  <div style={{ width: '100%' }}>
+                  <div>
                     <label style={{ display: 'block', fontFamily: 'Outfit', fontSize: '0.68rem', fontWeight: 700, letterSpacing: '0.12em', color: '#776d5e', textTransform: 'uppercase', marginBottom: 6 }}>Email</label>
                     <input 
                       type="email" 
@@ -314,24 +299,24 @@ function BecomeMember() {
                       placeholder="Enter your email address" 
                       value={formData.email}
                       onChange={e => setFormData({ ...formData, email: e.target.value })}
-                      style={{ width: '100%', boxSizing: 'border-box', padding: '12px 16px', borderRadius: 8, border: '1px solid #d4cebe', background: '#fff', fontFamily: 'Outfit', fontSize: '0.9rem', color: '#1f1c16', outline: 'none', transition: 'border-color 0.2s' }}
+                      style={{ width: '100%', padding: '12px 16px', borderRadius: 8, border: '1px solid #d4cebe', background: '#fff', fontFamily: 'Outfit', fontSize: '0.9rem', color: '#1f1c16', outline: 'none', transition: 'border-color 0.2s' }}
                     />
                   </div>
 
-                  <div style={{ width: '100%' }}>
+                  <div>
                     <label style={{ display: 'block', fontFamily: 'Outfit', fontSize: '0.68rem', fontWeight: 700, letterSpacing: '0.12em', color: '#776d5e', textTransform: 'uppercase', marginBottom: 6 }}>Phone Number</label>
                     <input 
                       type="tel" 
                       placeholder="Enter your phone number" 
                       value={formData.phone}
                       onChange={e => setFormData({ ...formData, phone: e.target.value })}
-                      style={{ width: '100%', boxSizing: 'border-box', padding: '12px 16px', borderRadius: 8, border: '1px solid #d4cebe', background: '#fff', fontFamily: 'Outfit', fontSize: '0.9rem', color: '#1f1c16', outline: 'none', transition: 'border-color 0.2s' }}
+                      style={{ width: '100%', padding: '12px 16px', borderRadius: 8, border: '1px solid #d4cebe', background: '#fff', fontFamily: 'Outfit', fontSize: '0.9rem', color: '#1f1c16', outline: 'none', transition: 'border-color 0.2s' }}
                     />
                   </div>
 
                   <button 
                     type="submit"
-                    style={{ marginTop: 8, width: '100%', boxSizing: 'border-box', padding: '14px 24px', borderRadius: 8, border: 'none', background: '#8c6d26', color: '#fff', fontFamily: 'Outfit', fontWeight: 600, fontSize: '0.85rem', letterSpacing: '0.08em', cursor: 'pointer', transition: 'background 0.2s', textTransform: 'uppercase' }}
+                    style={{ marginTop: 8, padding: '14px 24px', borderRadius: 8, border: 'none', background: '#8c6d26', color: '#fff', fontFamily: 'Outfit', fontWeight: 600, fontSize: '0.85rem', letterSpacing: '0.08em', cursor: 'pointer', transition: 'background 0.2s', textTransform: 'uppercase' }}
                     onMouseEnter={e => e.currentTarget.style.background = '#73571d'}
                     onMouseLeave={e => e.currentTarget.style.background = '#8c6d26'}
                   >
@@ -360,20 +345,7 @@ function AboutPage() {
   })
 
   return (
-    <section id="about" style={{ padding: '140px 16px 100px', background: 'var(--bg)', position: 'relative', overflow: 'hidden', minHeight: '80vh' }}>
-      <style>{`
-        @media (max-width: 768px) {
-          .service-card-grid {
-            grid-template-columns: 1fr !important;
-            gap: 24px !important;
-            padding: 32px 20px !important;
-          }
-          .countdown-flex-container {
-            justify-content: flex-start !important;
-            flex-wrap: wrap;
-          }
-        }
-      `}</style>
+    <section id="about" style={{ padding: '140px 24px 100px', background: 'var(--bg)', position: 'relative', overflow: 'hidden', minHeight: '80vh' }}>
       <div className="glow-gold" style={{ width: 700, height: 500, top: -200, left: '50%', transform: 'translateX(-50%)' }}/>
       <div style={{ maxWidth: 1100, margin: '0 auto', position: 'relative' }}>
         
@@ -387,7 +359,7 @@ function AboutPage() {
           </AnimatedText>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 28, marginBottom: 72 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 28, marginBottom: 72 }}>
           <div className="glass-hi" style={{ borderRadius: 20, padding: '40px 36px', border: '1px solid rgba(201,168,76,0.25)', position: 'relative', overflow: 'hidden' }}>
             <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'rgba(201,168,76,0.12)', border: '1px solid var(--gold)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20, color: 'var(--gold-light)', fontSize: '1.2rem', fontWeight: 800 }}>🎯</div>
             <AnimatedText tag="h3" className="serif" style={{ fontFamily: 'Instrument Serif', fontSize: '2rem', color: 'var(--ivory)', marginBottom: 12 }}>
@@ -420,7 +392,7 @@ function AboutPage() {
             </AnimatedText>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 20 }} className="about-gallery-grid">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }} className="about-gallery-grid">
             <div style={{ borderRadius: 16, overflow: 'hidden', height: 260, position: 'relative', border: '1px solid var(--border)' }}>
               <img src={IMGS.worship} alt="Worship Session" style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'brightness(0.7) saturate(0.8)' }} />
               <div style={{ position: 'absolute', bottom: 12, left: 14, fontFamily: 'Outfit', fontSize: '0.8rem', color: '#fff', fontWeight: 600, background: 'rgba(0,0,0,0.6)', padding: '4px 10px', borderRadius: 6 }}>Fervent Worship</div>
@@ -441,9 +413,9 @@ function AboutPage() {
         <div className="label" style={{ marginBottom: 16, textAlign: 'center' }}>Gather With Us</div>
         <AnimatedText tag="h2" className="display" style={{ fontSize: 'clamp(2rem,4.5vw,3.4rem)', marginBottom: 40, textAlign: 'center' }}>Next Live Service</AnimatedText>
 
-        <div className="glass-hi" style={{ borderRadius: 'var(--r-xl)', padding: '48px', marginBottom: 24, position: 'relative', overflow: 'hidden', boxSizing: 'border-box' }}>
+        <div className="glass-hi" style={{ borderRadius: 'var(--r-xl)', padding: '48px', marginBottom: 24, position: 'relative', overflow: 'hidden' }}>
           <div className="glow-gold" style={{ width: 500, height: 400, top: -120, right: -100, borderRadius: '50%' }}/>
-          <div className="service-card-grid" style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 40, alignItems: 'center', position: 'relative' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 40, alignItems: 'center', position: 'relative' }}>
             <div style={{ position: 'relative' }}>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 12px', borderRadius: 100, border: '1px solid rgba(201,168,76,0.3)', background: 'rgba(201,168,76,0.08)', marginBottom: 16 }}>
                 <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--gold)' }} />
@@ -465,11 +437,11 @@ function AboutPage() {
               </p>
             </div>
             <div>
-              <div className="label" style={{ marginBottom: 14, textAlign: 'right' }} className="countdown-label">Starts In</div>
-              <div className="countdown-flex-container" style={{ display: 'flex', gap: 8 }}>
+              <div className="label" style={{ marginBottom: 14, textAlign: 'right' }}>Starts In</div>
+              <div style={{ display: 'flex', gap: 8 }}>
                 {[[c.d,'Days'],[c.h,'Hrs'],[c.m,'Min'],[c.s,'Sec']].map(([val, lbl]) => (
-                  <div key={lbl as string} className="cbox" style={{ minWidth: 54, textAlign: 'center', padding: '10px 6px', boxSizing: 'border-box' }}>
-                    <div className="serif gold-text" style={{ fontSize: 'clamp(1.5rem,2.5vw,2.2rem)', lineHeight: 1 }}>
+                  <div key={lbl as string} className="cbox">
+                    <div className="serif gold-text" style={{ fontSize: 'clamp(1.8rem,3vw,2.6rem)', lineHeight: 1 }}>
                       {pad(val as number)}
                     </div>
                     <div className="label" style={{ fontSize: '0.55rem', marginTop: 6, color: 'rgba(201,168,76,0.45)' }}>{lbl as string}</div>
@@ -480,7 +452,7 @@ function AboutPage() {
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16 }}>
           {SCHEDULE.map(s => (
             <div key={s.day} className="card" style={{ padding: 24 }}>
               <div className="label" style={{ marginBottom: 10, color: 'rgba(201,168,76,0.5)' }}>{s.day}</div>
@@ -501,14 +473,7 @@ function Sermons() {
   const grid = SERMONS.slice(1).filter(s => tag === 'All' || s.tag === tag)
 
   return (
-    <section id="sermons" style={{ padding: '140px 16px 100px', background: 'var(--bg2)', position: 'relative', minHeight: '80vh' }}>
-      <style>{`
-        @media (max-width: 768px) {
-          .featured-sermon-grid {
-            grid-template-columns: 1fr !important;
-          }
-        }
-      `}</style>
+    <section id="sermons" style={{ padding: '140px 24px 100px', background: 'var(--bg2)', position: 'relative', minHeight: '80vh' }}>
       <div style={{ maxWidth: 1100, margin: '0 auto' }}>
         <div className="label" style={{ marginBottom: 16 }}>The Word</div>
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 48, gap: 20, flexWrap: 'wrap' }}>
@@ -527,7 +492,7 @@ function Sermons() {
           </div>
         </div>
 
-        <div className="featured-sermon-grid" style={{ display: 'grid', gridTemplateColumns: '1.1fr 1fr', gap: 0, marginBottom: 32, borderRadius: 'var(--r-xl)', overflow: 'hidden', border: '1px solid var(--border)' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 1fr', gap: 0, marginBottom: 32, borderRadius: 'var(--r-xl)', overflow: 'hidden', border: '1px solid var(--border)' }}>
           <div style={{ position: 'relative', minHeight: 340, background: '#0f0f18' }}>
             <img src={featured.img} alt={featured.title} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', filter: 'brightness(0.38) saturate(0.65)' }}/>
             <div className="overlay"/>
@@ -543,7 +508,7 @@ function Sermons() {
               {featured.dur}
             </div>
           </div>
-          <div style={{ background: 'var(--bg3)', padding: '40px 30px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+          <div style={{ background: 'var(--bg3)', padding: '40px 40px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
             <div>
               <div className="label" style={{ marginBottom: 12, color: 'rgba(201,168,76,0.5)' }}>{featured.series}</div>
               <AnimatedText tag="h3" className="serif" style={{ fontFamily: 'Instrument Serif', fontSize: 'clamp(1.5rem,2.5vw,2rem)', color: 'var(--ivory)', lineHeight: 1.2, marginBottom: 14 }}>{featured.title}</AnimatedText>
@@ -556,7 +521,7 @@ function Sermons() {
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 20 }}>
           {grid.map(s => (
             <div key={s.title} className="card" style={{ cursor: 'pointer' }}>
               <div style={{ position: 'relative', height: 160, background: '#0f0f18' }}>
@@ -579,7 +544,7 @@ function Sermons() {
 
 function Events() {
   return (
-    <section id="events" style={{ padding: '140px 16px 100px', background: 'var(--bg)', position: 'relative', overflow: 'hidden', minHeight: '80vh' }}>
+    <section id="events" style={{ padding: '140px 24px 100px', background: 'var(--bg)', position: 'relative', overflow: 'hidden', minHeight: '80vh' }}>
       <div className="glow-warm" style={{ width: 800, height: 600, bottom: -200, right: -100 }}/>
       <div style={{ maxWidth: 1100, margin: '0 auto', position: 'relative' }}>
         <div className="label" style={{ marginBottom: 16 }}>Calendar</div>
@@ -587,7 +552,7 @@ function Events() {
           Upcoming Events
         </AnimatedText>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 28 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 28 }}>
           {EVENTS.map(ev => (
             <div key={ev.title} className="card" style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
               <div style={{ position: 'relative', height: 200, background: '#0f0f18' }}>
@@ -637,7 +602,7 @@ function MinistersSection() {
   }, [])
 
   return (
-    <section id="ministers" style={{ padding: '140px 16px 100px', background: 'var(--bg2)', position: 'relative', minHeight: '80vh' }}>
+    <section id="ministers" style={{ padding: '140px 24px 100px', background: 'var(--bg2)', position: 'relative', minHeight: '80vh' }}>
       <div style={{ maxWidth: 1100, margin: '0 auto' }}>
         <div style={{ textAlign: 'center', marginBottom: 60 }}>
           <div className="label" style={{ marginBottom: 16 }}>Leadership</div>
@@ -649,7 +614,7 @@ function MinistersSection() {
           </p>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 30 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 30 }}>
           {ministers.map(m => (
             <div 
               key={m.id} 
@@ -686,7 +651,7 @@ function MinistersSection() {
 
       {selectedMinister && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(8,8,14,0.85)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }} onClick={() => setSelectedMinister(null)}>
-          <div style={{ background: '#12121c', border: '1px solid var(--border-hi)', borderRadius: 24, width: '100%', maxWidth: 680, maxHeight: '85vh', overflowY: 'auto', padding: '40px 24px', position: 'relative', boxShadow: '0 25px 60px rgba(0,0,0,0.6)', boxSizing: 'border-box' }} onClick={e => e.stopPropagation()}>
+          <div style={{ background: '#12121c', border: '1px solid var(--border-hi)', borderRadius: 24, width: '100%', maxWidth: 680, maxHeight: '85vh', overflowY: 'auto', padding: '40px', position: 'relative', boxShadow: '0 25px 60px rgba(0,0,0,0.6)' }} onClick={e => e.stopPropagation()}>
             <button onClick={() => setSelectedMinister(null)} style={{ position: 'absolute', top: 20, right: 20, background: 'rgba(255,255,255,0.06)', border: 'none', color: '#fff', width: 36, height: 36, borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem' }}>✕</button>
             <div style={{ display: 'flex', gap: 24, alignItems: 'center', marginBottom: 28, flexWrap: 'wrap' }}>
               <img src={selectedMinister.img} alt={selectedMinister.name} style={{ width: 100, height: 100, borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--gold)' }} />
@@ -745,14 +710,7 @@ function Giving() {
   }
 
   return (
-    <section id="give" style={{ padding: '140px 16px 100px', background: 'var(--bg)', position: 'relative', minHeight: '80vh' }}>
-      <style>{`
-        @media (max-width: 768px) {
-          .give-grid {
-            grid-template-columns: 1fr !important;
-          }
-        }
-      `}</style>
+    <section id="give" style={{ padding: '140px 24px 100px', background: 'var(--bg)', position: 'relative', minHeight: '80vh' }}>
       <div className="glow-gold" style={{ width: 700, height: 700, top: '20%', left: '50%', transform: 'translate(-50%,-50%)' }}/>
       <div style={{ maxWidth: 800, margin: '0 auto', position: 'relative' }}>
         <div style={{ textAlign: 'center', marginBottom: 48 }}>
@@ -765,7 +723,7 @@ function Giving() {
           </p>
         </div>
 
-        <form onSubmit={handleGive} className="glass-hi" style={{ borderRadius: 24, padding: '48px 24px', border: '1px solid rgba(201,168,76,0.25)', boxSizing: 'border-box' }}>
+        <form onSubmit={handleGive} className="glass-hi" style={{ borderRadius: 24, padding: '48px 40px', border: '1px solid rgba(201,168,76,0.25)' }}>
           <div style={{ marginBottom: 28 }}>
             <label style={{ display: 'block', fontFamily: 'Outfit', fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.1em', color: 'var(--gold-light)', marginBottom: 12, textTransform: 'uppercase' }}>
               Select Purpose
@@ -794,7 +752,7 @@ function Giving() {
             <label style={{ display: 'block', fontFamily: 'Outfit', fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.1em', color: 'var(--gold-light)', marginBottom: 12, textTransform: 'uppercase' }}>
               Select Amount (NGN)
             </label>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', gap: 12, marginBottom: 16 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 16 }}>
               {GIVE_AMOUNTS.map(a => (
                 <button
                   key={a}
@@ -818,27 +776,27 @@ function Giving() {
               placeholder="Or enter custom amount (NGN)"
               value={custom}
               onChange={e => { setCustom(e.target.value); setAmt('') }}
-              style={{ width: '100%', boxSizing: 'border-box', padding: '14px 18px', borderRadius: 12, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', fontFamily: 'Outfit', fontSize: '0.95rem', outline: 'none' }}
+              style={{ width: '100%', padding: '14px 18px', borderRadius: 12, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', fontFamily: 'Outfit', fontSize: '0.95rem', outline: 'none' }}
             />
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 }} className="give-grid">
             <div>
               <label style={{ display: 'block', fontFamily: 'Outfit', fontSize: '0.7rem', fontWeight: 700, color: 'var(--muted)', marginBottom: 6, textTransform: 'uppercase' }}>Your Name (Optional)</label>
-              <input type="text" placeholder="Full Name" value={name} onChange={e => setName(e.target.value)} style={{ width: '100%', boxSizing: 'border-box', padding: '12px 16px', borderRadius: 8, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', fontFamily: 'Outfit', fontSize: '0.9rem', outline: 'none' }} />
+              <input type="text" placeholder="Full Name" value={name} onChange={e => setName(e.target.value)} style={{ width: '100%', padding: '12px 16px', borderRadius: 8, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', fontFamily: 'Outfit', fontSize: '0.9rem', outline: 'none' }} />
             </div>
             <div>
               <label style={{ display: 'block', fontFamily: 'Outfit', fontSize: '0.7rem', fontWeight: 700, color: 'var(--muted)', marginBottom: 6, textTransform: 'uppercase' }}>Email Address</label>
-              <input type="email" placeholder="Email Address" value={email} onChange={e => setEmail(e.target.value)} style={{ width: '100%', boxSizing: 'border-box', padding: '12px 16px', borderRadius: 8, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', fontFamily: 'Outfit', fontSize: '0.9rem', outline: 'none' }} />
+              <input type="email" placeholder="Email Address" value={email} onChange={e => setEmail(e.target.value)} style={{ width: '100%', padding: '12px 16px', borderRadius: 8, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', fontFamily: 'Outfit', fontSize: '0.9rem', outline: 'none' }} />
             </div>
           </div>
 
           <div style={{ marginBottom: 32 }}>
             <label style={{ display: 'block', fontFamily: 'Outfit', fontSize: '0.7rem', fontWeight: 700, color: 'var(--muted)', marginBottom: 6, textTransform: 'uppercase' }}>Phone Number</label>
-            <input type="tel" placeholder="Phone Number" value={phone} onChange={e => setPhone(e.target.value)} style={{ width: '100%', boxSizing: 'border-box', padding: '12px 16px', borderRadius: 8, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', fontFamily: 'Outfit', fontSize: '0.9rem', outline: 'none' }} />
+            <input type="tel" placeholder="Phone Number" value={phone} onChange={e => setPhone(e.target.value)} style={{ width: '100%', padding: '12px 16px', borderRadius: 8, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', fontFamily: 'Outfit', fontSize: '0.9rem', outline: 'none' }} />
           </div>
 
-          <button type="submit" disabled={loading} className="btn btn-gold" style={{ width: '100%', boxSizing: 'border-box', padding: '16px', justifyContent: 'center', fontSize: '0.9rem', border: 'none', cursor: 'pointer' }}>
+          <button type="submit" disabled={loading} className="btn btn-gold" style={{ width: '100%', padding: '16px', justifyContent: 'center', fontSize: '0.9rem', border: 'none', cursor: 'pointer' }}>
             {loading ? 'Processing...' : `Proceed to Give ₦${(custom ? Number(custom) : Number(amt) || 0).toLocaleString()}`}
           </button>
         </form>
@@ -859,15 +817,7 @@ function Footer({ setActivePage }: { setActivePage: (p: string) => void }) {
   ]
 
   return (
-    <footer style={{ background: '#050509', borderTop: '1px solid var(--border)', padding: '80px 16px 40px', position: 'relative' }}>
-      <style>{`
-        @media (max-width: 768px) {
-          .footer-grid {
-            grid-template-columns: 1fr !important;
-            gap: 32px !important;
-          }
-        }
-      `}</style>
+    <footer style={{ background: '#050509', borderTop: '1px solid var(--border)', padding: '80px 24px 40px', position: 'relative' }}>
       <div style={{ maxWidth: 1100, margin: '0 auto' }}>
         <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr 1fr', gap: 40, marginBottom: 60 }} className="footer-grid">
           <div>
