@@ -285,14 +285,6 @@ img, video, svg, canvas { max-width: 100%; height: auto; }
 
 /* Mobile Layout Fixes for Menu, Cards, and Forms */
 @media (max-width: 768px) {
-  /* Hide mobile menu overlay cleanly when toggled off */
-  .mobile-menu-hidden {
-    display: none !important;
-    visibility: hidden !important;
-    opacity: 0 !important;
-    pointer-events: none !important;
-  }
-
   /* Prevent side clipping on main containers and cards */
   body, html {
     overflow-x: hidden !important;
@@ -303,12 +295,22 @@ img, video, svg, canvas { max-width: 100%; height: auto; }
     box-sizing: border-box !important;
   }
 
-  /* Target content grids while keeping countdown row safe */
-  section > div.grid:not(:has(.cbox)), .card > div.grid:not(:has(.cbox)) {
+  /* Target content grids while excluding countdown timers and navigation drawers */
+  section > div.grid:not(:has(.cbox)), 
+  .card > div.grid:not(:has(.cbox)),
+  div[class*="grid"]:not(:has(.cbox)):not(:has(nav)):not([class*="mobile-menu"]) {
     display: flex !important;
     flex-direction: column !important;
     width: 100% !important;
     gap: 1.5rem !important;
+  }
+
+  /* Fix for form step layouts or multi-column containers spilling out */
+  form div[class*="grid"], .card div[class*="grid"] {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    gap: 1rem !important;
   }
 
   /* Ensure the countdown timer stays horizontal and compact in a single line */
