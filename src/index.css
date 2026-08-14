@@ -276,7 +276,7 @@ img, video, svg, canvas { max-width: 100%; height: auto; }
   transition: border-color 0.3s, box-shadow 0.3s, transform 0.3s;
 }
 .min-card:hover {
-  border-color: border-hi;
+  border-color: var(--border-hi);
   box-shadow: 0 24px 56px rgba(0,0,0,0.55), 0 0 32px rgba(201,168,76,0.08);
   transform: translateY(-6px);
 }
@@ -302,7 +302,7 @@ nav.sticky-header.header-hidden {
   pointer-events: none;
 }
 
-/* Desktop Header Layout (Exact Capsule Match) */
+/* Desktop Header Layout */
 @media (min-width: 769px) {
   header, .site-header, nav.sticky-header {
     width: 92%;
@@ -335,36 +335,41 @@ nav.sticky-header.header-hidden {
   }
 }
 
-/* Mobile Header Layout (Proper Dropdown Menu Behavior) */
+/* Mobile Header Layout (Proper Centered Capsule & Dropdown) */
 @media (max-width: 768px) {
   header, .site-header, nav.sticky-header {
-    width: 94%;
-    top: 0.75rem;
+    width: 92%;
+    max-width: 480px;
+    top: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: rgba(15, 15, 24, 0.85);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    background: rgba(15, 15, 24, 0.88);
+    backdrop-filter: blur(24px) saturate(1.5);
+    -webkit-backdrop-filter: blur(24px) saturate(1.5);
     border: 1px solid var(--border-hi);
-    border-radius: var(--r-md);
-    padding: 0.75rem 1rem;
+    border-radius: 100px;
+    padding: 0.6rem 1rem 0.6rem 1.25rem;
     box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
   }
 
   .nav-links, .nav-menu {
     position: absolute;
-    top: calc(100% + 8px);
+    top: calc(100% + 12px);
     left: 0;
     right: 0;
-    background: var(--bg2);
+    background: rgba(15, 15, 24, 0.95);
+    backdrop-filter: blur(28px);
+    -webkit-backdrop-filter: blur(28px);
     border: 1px solid var(--border-hi);
-    border-radius: var(--r-md);
-    padding: 1.25rem;
+    border-radius: var(--r-lg);
+    padding: 1.5rem;
     display: flex;
     flex-direction: column;
-    gap: 0.85rem;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.85);
+    gap: 1rem;
+    box-shadow: 0 24px 50px rgba(0, 0, 0, 0.9);
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     z-index: 100;
   }
