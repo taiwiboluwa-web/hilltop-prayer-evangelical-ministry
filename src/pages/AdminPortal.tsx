@@ -275,6 +275,7 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
     const existing = ministers.find((m) => (m.display_order ?? m.id) === selectedSlotOrder);
 
     const payload = {
+      ...(existing?.id ? { id: existing.id } : {}),
       name: mName,
       role: mRole,
       desc: mDescText,
@@ -284,20 +285,12 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
       display_order: selectedSlotOrder,
     };
 
-    if (existing && existing.id) {
-      const { error } = await supabase.from('ministers').update(payload).eq('id', existing.id);
-      if (error) alert(error.message);
-      else {
-        alert(`Minister Slot ${selectedSlotOrder} updated successfully`);
-        fetchMinisters();
-      }
+    const { error } = await supabase.from('ministers').upsert(payload, { onConflict: 'display_order' });
+    if (error) {
+      alert(error.message);
     } else {
-      const { error } = await supabase.from('ministers').insert([payload]);
-      if (error) alert(error.message);
-      else {
-        alert(`Minister Slot ${selectedSlotOrder} saved successfully`);
-        fetchMinisters();
-      }
+      alert(`Minister Slot ${selectedSlotOrder} saved successfully`);
+      fetchMinisters();
     }
   };
 
@@ -926,7 +919,7 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
                 <input style={inputStyle} value={aDuration} onChange={(e) => setADuration(e.target.value)} placeholder="42:15" />
 
                 <label style={labelStyle}>Upload Audio Track (MP3/M4A)</label>
-                <input type="file" accept="audio/*" style={fileInputStyle} onChange={(e) => handleFileUpload(e, 'media', aAudioUrl => setAAudioUrl(aAudioUrl))} />
+                <input type="file" accept="audio/*" style={fileInputStyle} onChange={(e) => handleFileUpload(e, 'media', setAAudioUrl)} />
 
                 <label style={labelStyle}>Or Audio MP3 URL</label>
                 <input style={inputStyle} value={aAudioUrl} onChange={(e) => setAAudioUrl(e.target.value)} placeholder="https://..." required />
