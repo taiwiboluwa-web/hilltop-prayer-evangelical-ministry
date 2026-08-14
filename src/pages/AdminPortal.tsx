@@ -50,9 +50,9 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
   const [loading, setLoading] = useState<boolean>(true);
   const [authError, setAuthError] = useState<string>('');
   const [activeTab, setActiveTab] = useState<'ministers' | 'gallery' | 'videos' | 'live' | 'audio'>('ministers');
-  
-  // Sidebar Collapse State (default true for a super clean workspace view)
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(true);
+
+  // Sidebar Collapse State
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
 
   // Deployment States
   const [isDeploying, setIsDeploying] = useState<boolean>(false);
@@ -160,7 +160,9 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
 
   const fetchGallery = async () => {
     const { data } = await supabase.from('gallery_moments').select('*').order('created_at', { ascending: false });
-    if (data) setGalleryItems(data);
+    if (data) {
+      setGalleryItems(data);
+    }
   };
 
   const fetchSermons = async () => {
@@ -206,7 +208,7 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    setUploadProgress('Uploading file to secure cloud storage...');
+    setUploadProgress('Uploading file to cloud storage...');
     try {
       const fileExt = file.name.split('.').pop();
       const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
@@ -230,6 +232,7 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
 
   const handleTriggerDeploy = async () => {
     const deployHookUrl = 'https://api.vercel.com/v1/integrations/deploy/prj_Yij9Z5IGRxiUBFNiVJbzBAqpqqA2/L9JSap9y4V';
+
     if (!deployHookUrl) {
       alert('Deploy Hook URL missing!');
       return;
@@ -238,8 +241,11 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
     setIsDeploying(true);
     try {
       const res = await fetch(deployHookUrl, { method: 'POST' });
-      if (res.ok) alert('Production deployment triggered successfully!');
-      else alert('Failed to trigger deployment.');
+      if (res.ok) {
+        alert('Deployment triggered successfully!');
+      } else {
+        alert('Failed to trigger deployment.');
+      }
     } catch (err: any) {
       alert('Deployment error: ' + err.message);
     } finally {
@@ -265,10 +271,10 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
 
   const handleSaveMinister = async (e: React.FormEvent) => {
     e.preventDefault();
+
     const existing = ministers.find((m) => (m.display_order ?? m.id) === selectedSlotOrder);
 
     const payload = {
-      ...(existing?.id ? { id: existing.id } : {}),
       name: mName,
       role: mRole,
       desc: mDescText,
@@ -278,22 +284,36 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
       display_order: selectedSlotOrder,
     };
 
-    const { error } = await supabase.from('ministers').upsert(payload, { onConflict: 'display_order' });
-    if (error) {
-      alert(error.message);
+    if (existing && existing.id) {
+      const { error } = await supabase.from('ministers').update(payload).eq('id', existing.id);
+      if (error) alert(error.message);
+      else {
+        alert(`Minister Slot ${selectedSlotOrder} updated successfully`);
+        fetchMinisters();
+      }
     } else {
-      alert(`Minister Slot ${selectedSlotOrder} updated successfully`);
-      fetchMinisters();
+      const { error } = await supabase.from('ministers').insert([payload]);
+      if (error) alert(error.message);
+      else {
+        alert(`Minister Slot ${selectedSlotOrder} saved successfully`);
+        fetchMinisters();
+      }
     }
   };
 
   const handleAddGalleryItem = async (e: React.FormEvent) => {
     e.preventDefault();
-    const { error } = await supabase.from('gallery_moments').insert([{ title: gTitle, image_url: gImageUrl }]);
+    const { error } = await supabase.from('gallery_moments').insert([
+      {
+        title: gTitle,
+        image_url: gImageUrl,
+      },
+    ]);
+
     if (error) {
       alert(error.message);
     } else {
-      alert('Gallery moment published successfully!');
+      alert('Gallery photo added successfully!');
       setGTitle('');
       setGImageUrl('');
       fetchGallery();
@@ -301,7 +321,7 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
   };
 
   const handleDeleteGalleryItem = async (id: string | number) => {
-    if (confirm('Are you sure you want to remove this gallery moment?')) {
+    if (confirm('Are you sure you want to remove this gallery photo?')) {
       const { error } = await supabase.from('gallery_moments').delete().eq('id', id);
       if (error) alert(error.message);
       else fetchGallery();
@@ -310,20 +330,22 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
 
   const handleAddSermon = async (e: React.FormEvent) => {
     e.preventDefault();
-    const { error } = await supabase.from('sermons').insert([{
-      title: vTitle,
-      speaker: vSpeaker,
-      scripture: vScripture,
-      category: vCategory,
-      video_url: vVideoUrl,
-      thumbnail_url: vThumbnail,
-      is_featured: vIsFeatured,
-    }]);
+    const { error } = await supabase.from('sermons').insert([
+      {
+        title: vTitle,
+        speaker: vSpeaker,
+        scripture: vScripture,
+        category: vCategory,
+        video_url: vVideoUrl,
+        thumbnail_url: vThumbnail,
+        is_featured: vIsFeatured,
+      },
+    ]);
 
     if (error) {
       alert(error.message);
     } else {
-      alert('Video sermon published successfully');
+      alert('Sermon published successfully');
       setVTitle('');
       setVScripture('');
       setVVideoUrl('');
@@ -351,18 +373,20 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
     });
 
     if (error) alert(error.message);
-    else alert('Live broadcast settings updated');
+    else alert('Live stream settings updated');
   };
 
   const handleAddAudio = async (e: React.FormEvent) => {
     e.preventDefault();
-    const { error } = await supabase.from('audio_sermons').insert([{
-      title: aTitle,
-      speaker: aSpeaker,
-      episode: aEpisode,
-      duration: aDuration,
-      audio_url: aAudioUrl,
-    }]);
+    const { error } = await supabase.from('audio_sermons').insert([
+      {
+        title: aTitle,
+        speaker: aSpeaker,
+        episode: aEpisode,
+        duration: aDuration,
+        audio_url: aAudioUrl,
+      },
+    ]);
 
     if (error) {
       alert(error.message);
@@ -375,7 +399,7 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
   };
 
   const handleDeleteAudio = async (id: string) => {
-    if (confirm('Are you sure you want to delete this audio track?')) {
+    if (confirm('Are you sure you want to delete this audio message?')) {
       const { error } = await supabase.from('audio_sermons').delete().eq('id', id);
       if (error) alert(error.message);
       else fetchAudio();
@@ -384,10 +408,10 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#030305] text-[#dfb755] flex items-center justify-center font-['Outfit',sans-serif]">
+      <div className="min-h-screen bg-[#0a0a0a] text-[#f59e0b] flex items-center justify-center font-sans">
         <div className="text-center">
-          <div className="w-8 h-8 border-[3px] border-[#dfb755]/20 border-t-[#dfb755] rounded-full animate-spin mx-auto mb-3"></div>
-          <p className="text-xs font-medium tracking-widest uppercase text-[#dfb755]/70">Authenticating secure session...</p>
+          <div className="w-8 h-8 border-[3px] border-[#f59e0b]/20 border-t-[#f59e0b] rounded-full animate-spin mx-auto mb-3"></div>
+          <p className="text-sm tracking-wide">Authenticating session...</p>
         </div>
       </div>
     );
@@ -395,37 +419,32 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
 
   if (!isAdmin) {
     return (
-      <div className="min-h-screen bg-[#030305] flex items-center justify-center p-4 font-['Outfit',sans-serif]">
-        <div className="w-full max-w-[420px] bg-[#08080f] border border-[#dfb755]/20 rounded-2xl p-8 shadow-2xl relative overflow-hidden">
-          <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#dfb755] to-transparent"></div>
-          
+      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-4 font-sans">
+        <div className="w-full max-w-[420px] bg-[#121212] border border-[#262626] rounded-2xl p-8 shadow-2xl">
           <div className="flex justify-between items-center mb-7">
-            <div>
-              <span className="text-[9px] font-bold tracking-[0.2em] text-[#dfb755] uppercase block mb-1">Restricted Access</span>
-              <h2 className="text-[#f5f2eb] text-lg font-extrabold m-0 tracking-tight">Admin Portal Login</h2>
-            </div>
-            <button onClick={onBack} className="bg-white/5 border border-white/10 text-[#f5f2eb]/80 px-3 py-1.5 rounded-xl cursor-pointer text-xs font-medium hover:bg-white/10 transition-all">
+            <h2 className="text-white text-center text-xl font-bold m-0 tracking-wide">Admin Portal Access</h2>
+            <button onClick={onBack} className="bg-neutral-900 border border-neutral-800 text-neutral-300 px-3 py-1.5 rounded-lg cursor-pointer text-xs font-medium hover:bg-neutral-800 transition-all">
               ← Back
             </button>
           </div>
           
           {authError && (
-            <div className="bg-red-500/10 border border-red-500/30 text-red-400 p-3.5 rounded-xl text-xs mb-5 leading-relaxed font-medium">
+            <div className="bg-red-500/10 border border-red-500/30 text-red-400 p-3 rounded-xl text-xs mb-5 leading-relaxed">
               {authError}
             </div>
           )}
 
           <form onSubmit={handleLogin} className="flex flex-col gap-4">
             <div>
-              <label className="block text-[#dfb755] text-[10px] font-bold mb-2 tracking-[0.12em] uppercase">Authorized Email</label>
-              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required className="w-full px-4 py-3 bg-[#030305] border border-[#dfb755]/20 rounded-xl text-white outline-none text-xs focus:border-[#dfb755] transition-all font-mono" placeholder="taiwiboluwa@gmail.com" />
+              <label className="block text-[#f59e0b] text-[10px] font-bold mb-2 tracking-[0.1em] uppercase">Email Address</label>
+              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required className="w-full px-4 py-3 bg-neutral-900 border border-neutral-800 rounded-xl text-white box-border outline-none text-sm focus:border-[#f59e0b] transition-all" placeholder="admin@ministry.com" />
             </div>
             <div>
-              <label className="block text-[#dfb755] text-[10px] font-bold mb-2 tracking-[0.12em] uppercase">Password</label>
-              <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required className="w-full px-4 py-3 bg-[#030305] border border-[#dfb755]/20 rounded-xl text-white outline-none text-xs focus:border-[#dfb755] transition-all" placeholder="••••••••••••" />
+              <label className="block text-[#f59e0b] text-[10px] font-bold mb-2 tracking-[0.1em] uppercase">Password</label>
+              <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required className="w-full px-4 py-3 bg-neutral-900 border border-neutral-800 rounded-xl text-white box-border outline-none text-sm focus:border-[#f59e0b] transition-all" placeholder="••••••••" />
             </div>
-            <button type="submit" className="py-3.5 bg-gradient-to-r from-[#dfb755] to-[#c59938] text-[#030305] border-none rounded-xl font-bold cursor-pointer mt-2 text-xs tracking-wider shadow-lg shadow-[#dfb755]/15 hover:brightness-105 transition-all">
-              Authenticate & Enter
+            <button type="submit" className="py-3.5 bg-[#f59e0b] text-[#0a0a0a] border-none rounded-xl font-bold cursor-pointer mt-2 text-sm tracking-wider shadow-lg shadow-amber-500/10 hover:bg-amber-400 transition-all">
+              Sign In to Dashboard
             </button>
           </form>
         </div>
@@ -435,87 +454,78 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
 
   const inputStyle: React.CSSProperties = {
     width: '100%',
-    padding: '11px 14px',
-    backgroundColor: 'rgba(3,3,5,0.7)',
-    border: '1px solid rgba(223,183,85,0.18)',
+    padding: '11px 15px',
+    backgroundColor: '#171717',
+    border: '1px solid #262626',
     borderRadius: '10px',
-    color: '#f5f2eb',
-    fontSize: '12.5px',
+    color: '#f5f5f5',
+    fontSize: '13px',
     boxSizing: 'border-box',
-    marginBottom: '12px',
+    marginBottom: '14px',
     outline: 'none',
     transition: 'all 0.2s ease',
   };
 
   const fileInputStyle: React.CSSProperties = {
     width: '100%',
-    padding: '9px',
-    backgroundColor: '#030305',
-    border: '1px dashed rgba(223,183,85,0.3)',
+    padding: '10px',
+    backgroundColor: '#171717',
+    border: '1px dashed #3f3f46',
     borderRadius: '10px',
-    color: 'rgba(245,242,235,0.6)',
-    fontSize: '11.5px',
+    color: '#a1a1aa',
+    fontSize: '12px',
     boxSizing: 'border-box',
-    marginBottom: '12px',
+    marginBottom: '14px',
     cursor: 'pointer',
   };
 
   const labelStyle: React.CSSProperties = {
     display: 'block',
-    color: 'rgba(223,183,85,0.9)',
-    fontSize: '10px',
+    color: '#a1a1aa',
+    fontSize: '11px',
     fontWeight: '700',
-    marginBottom: '5px',
-    letterSpacing: '0.1em',
+    marginBottom: '6px',
+    letterSpacing: '0.08em',
     textTransform: 'uppercase',
   };
 
   return (
-    <div className="h-screen w-screen overflow-hidden bg-[#030305] text-[#f5f2eb] font-['Outfit',sans-serif] flex">
+    <div className="min-h-screen bg-[#0a0a0a] text-neutral-200 font-sans flex overflow-hidden">
       
-      {/* ULTRA-CLEAN COLLAPSIBLE SIDEBAR */}
-      <aside className={`flex-shrink-0 bg-[#06060a] border-r border-[#dfb755]/10 flex flex-col justify-between h-full select-none transition-all duration-300 ease-in-out relative ${isSidebarCollapsed ? 'w-[72px]' : 'w-[260px]'}`}>
+      {/* LEFT SIDEBAR NAVIGATION (COLLAPSIBLE) */}
+      <aside className={`bg-[#121212] border-r border-[#262626] flex flex-col justify-between fixed top-0 bottom-0 left-0 z-20 transition-all duration-300 ease-in-out ${isSidebarCollapsed ? 'w-20' : 'w-64'}`}>
         <div>
-          {/* Header Branding & Collapse Toggle */}
-          <div className="p-4 border-b border-[#dfb755]/10 flex items-center justify-between gap-2">
-            {!isSidebarCollapsed && (
-              <div className="flex items-center gap-3 overflow-hidden">
-                <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#dfb755] to-[#9a7828] flex items-center justify-center font-black text-[#030305] text-xs shadow-md shadow-[#dfb755]/20 flex-shrink-0">
-                  ✦
-                </div>
-                <div className="min-w-0">
-                  <span className="block font-black text-[9px] tracking-[0.2em] text-[#dfb755] uppercase leading-none mb-0.5">Admin</span>
-                  <span className="block text-xs font-bold text-[#f5f2eb] tracking-tight truncate">Control Center</span>
-                </div>
+          {/* Logo / Header Area */}
+          <div className="h-16 px-4 border-b border-[#262626] flex items-center justify-between">
+            <div className={`flex items-center space-x-3 overflow-hidden ${isSidebarCollapsed ? 'hidden' : ''}`}>
+              <div className="w-9 h-9 rounded-full bg-neutral-900 border border-neutral-800 flex items-center justify-center shrink-0">
+                <svg className="w-4 h-4 text-[#f59e0b]" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
               </div>
-            )}
-            {isSidebarCollapsed && (
-              <div className="w-8 h-8 mx-auto rounded-xl bg-gradient-to-br from-[#dfb755] to-[#9a7828] flex items-center justify-center font-black text-[#030305] text-xs shadow-md shadow-[#dfb755]/20">
-                ✦
+              <div className="truncate">
+                <span className="text-[10px] uppercase tracking-wider text-neutral-500 block font-semibold">Admin Panel</span>
+                <span className="text-sm font-bold text-white tracking-wide">Dashboard</span>
               </div>
-            )}
-            <button
-              onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-              title={isSidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
-              className={`w-7 h-7 rounded-lg bg-white/5 border border-white/10 text-[#dfb755] flex items-center justify-center cursor-pointer hover:bg-[#dfb755]/15 transition-all ${isSidebarCollapsed ? 'mx-auto mt-1' : ''}`}
+            </div>
+            {/* Collapse Toggle Button */}
+            <button 
+              onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)} 
+              className={`w-8 h-8 rounded-lg bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-400 hover:text-white transition ${isSidebarCollapsed ? 'mx-auto' : ''}`}
             >
-              <span className={`transform transition-transform duration-300 text-xs font-black ${isSidebarCollapsed ? 'rotate-180' : ''}`}>
-                ‹
-              </span>
+              <svg className={`w-4 h-4 transition-transform duration-300 ${isSidebarCollapsed ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/></svg>
             </button>
           </div>
 
-          {/* Navigation Section */}
-          <div className="p-3 flex flex-col gap-1.5">
+          {/* Navigation Links with Circular Monochromatic Icon Containers */}
+          <div className="p-3 space-y-1.5 overflow-y-auto">
             {!isSidebarCollapsed && (
-              <span className="px-3 text-[9px] font-extrabold tracking-[0.2em] text-[#dfb755]/40 uppercase mb-1 mt-2">Management Views</span>
+              <span className="px-3 text-[10px] font-semibold uppercase tracking-wider text-neutral-500 mb-2 block">Views</span>
             )}
             {[
-              { id: 'ministers', label: 'Ministers', icon: '⚡' },
-              { id: 'gallery', label: 'Gallery Moments', icon: '🖼️' },
-              { id: 'videos', label: 'Video Sermons', icon: '📺' },
-              { id: 'live', label: 'Live Broadcast', icon: '🔴' },
-              { id: 'audio', label: 'Audio Messages', icon: '🎧' },
+              { id: 'ministers', label: 'Ministers', icon: 'M13 10V3L4 14h7v7l9-11h-7z' },
+              { id: 'gallery', label: 'Gallery Moments', icon: 'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z' },
+              { id: 'videos', label: 'Video Sermons', icon: 'M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z' },
+              { id: 'live', label: 'Live Broadcast', icon: 'M5.636 18.364a9 9 0 010-12.728m12.728 0a9 9 0 010 12.728m-9.9-2.829a5 5 0 010-7.07m7.072 0a5 5 0 010 7.07M13 12a1 1 0 11-2 0 1 1 0 012 0z' },
+              { id: 'audio', label: 'Audio Messages', icon: 'M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 100-6 3 3 0 000 6z' },
             ].map((tab) => {
               const isActive = activeTab === tab.id;
               return (
@@ -523,52 +533,56 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as any)}
                   title={isSidebarCollapsed ? tab.label : undefined}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold text-xs cursor-pointer transition-all ${
+                  className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm transition cursor-pointer ${
                     isActive
-                      ? 'bg-[#dfb755]/15 border border-[#dfb755]/40 text-[#f4d688] shadow-sm shadow-[#dfb755]/10'
-                      : 'bg-transparent border border-transparent text-[#f5f2eb]/60 hover:bg-white/[0.03] hover:text-[#f5f2eb]'
-                  } ${isSidebarCollapsed ? 'justify-center px-0' : ''}`}
+                      ? 'bg-neutral-900 border border-neutral-800 text-[#f59e0b] font-medium'
+                      : 'text-neutral-400 hover:text-white hover:bg-neutral-900/50'
+                  }`}
                 >
-                  <span className="text-sm flex-shrink-0">{tab.icon}</span>
-                  {!isSidebarCollapsed && <span className="truncate">{tab.label}</span>}
+                  <div className={`w-8 h-8 rounded-full border flex items-center justify-center shrink-0 ${isActive ? 'bg-neutral-950 border-neutral-800 text-[#f59e0b]' : 'bg-neutral-900/80 border-neutral-800/60 text-neutral-400'}`}>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={tab.icon}/></svg>
+                  </div>
+                  {!isSidebarCollapsed && <span className="truncate text-xs">{tab.label}</span>}
                 </button>
               );
             })}
           </div>
         </div>
 
-        {/* Footer User & Logout */}
-        <div className="p-3 border-t border-[#dfb755]/10 bg-[#040408]">
-          {!isSidebarCollapsed && (
-            <div className="text-[10px] text-[#f5f2eb]/40 truncate mb-2 px-2 font-mono">
-              {email || 'taiwiboluwa@gmail.com'}
-            </div>
-          )}
-          <button
-            onClick={handleLogout}
-            title={isSidebarCollapsed ? "Sign Out" : undefined}
-            className={`w-full py-2 bg-white/5 border border-white/10 text-[#f5f2eb]/80 rounded-xl font-bold text-xs hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400 transition-all cursor-pointer flex items-center justify-center gap-2 ${isSidebarCollapsed ? 'px-0' : ''}`}
-          >
-            <span>⎋</span>
-            {!isSidebarCollapsed && <span>Sign Out</span>}
-          </button>
+        {/* Bottom User info & Signout */}
+        <div className="p-3 border-t border-[#262626]">
+          <div className={`bg-neutral-900/60 border border-neutral-800/80 rounded-xl p-3 flex items-center justify-between ${isSidebarCollapsed ? 'justify-center p-2' : ''}`}>
+            {!isSidebarCollapsed && (
+              <div className="truncate mr-2">
+                <span className="text-[11px] text-neutral-400 block truncate">{email || 'taiwiboluwa@gmail.com'}</span>
+              </div>
+            )}
+            <button
+              onClick={handleLogout}
+              title="Sign Out"
+              className="w-8 h-8 rounded-lg bg-neutral-900 border border-neutral-800 flex items-center justify-center text-red-400 hover:bg-red-500/10 transition shrink-0 cursor-pointer"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+            </button>
+          </div>
         </div>
       </aside>
 
-      {/* MAIN WORKSPACE AREA */}
-      <main className="flex-1 h-full overflow-y-auto bg-[#030305] flex flex-col">
+      {/* MAIN CONTENT AREA */}
+      <main className={`flex-1 flex flex-col h-screen overflow-hidden bg-[#0a0a0a] transition-all duration-300 ${isSidebarCollapsed ? 'ml-20' : 'ml-64'}`}>
         
-        {/* Top Navbar / Header */}
-        <header className="h-[68px] bg-[#06060a]/95 backdrop-blur-md border-b border-[#dfb755]/10 px-6 md:px-8 flex items-center justify-between sticky top-0 z-20 w-full shadow-sm">
-          <div className="flex items-center gap-4">
+        {/* Top Navbar Header */}
+        <header className="h-16 border-b border-[#262626] bg-[#121212] px-6 flex items-center justify-between shrink-0">
+          <div className="flex items-center space-x-4">
             <button
               onClick={onBack}
-              className="bg-white/5 border border-white/10 text-[#dfb755] px-3.5 py-2 rounded-xl cursor-pointer font-semibold text-xs transition-all hover:bg-[#dfb755]/15 flex items-center gap-1.5 shadow-sm"
+              className="text-xs font-semibold text-neutral-400 hover:text-white transition flex items-center space-x-1.5 cursor-pointer bg-neutral-900 border border-neutral-800 px-3 py-1.5 rounded-lg"
             >
-              <span>←</span> Back to Home
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+              <span>Back to Home</span>
             </button>
-            <div className="h-4 w-[1px] bg-white/10"></div>
-            <h1 className="text-xs md:text-sm font-black m-0 text-[#f5f2eb] tracking-wider uppercase">
+            <span className="text-neutral-700">/</span>
+            <h1 className="text-xs font-bold tracking-wider text-white uppercase">
               {activeTab === 'ministers' && 'Ministers Management'}
               {activeTab === 'gallery' && 'Fellowship Gallery Moments'}
               {activeTab === 'videos' && 'Video Sermons Repository'}
@@ -581,119 +595,119 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
             <button
               onClick={handleTriggerDeploy}
               disabled={isDeploying}
-              className={`px-4 py-2.5 rounded-xl border-none font-bold cursor-pointer flex items-center gap-2 text-xs transition-all shadow-md ${
-                isDeploying ? 'bg-gray-800 cursor-not-allowed opacity-60' : 'bg-gradient-to-r from-[#10b981] to-[#059669] text-white hover:brightness-110 shadow-emerald-900/20'
+              className={`px-3.5 py-1.5 rounded-lg font-bold cursor-pointer flex items-center gap-2 text-xs transition-all border ${
+                isDeploying ? 'bg-neutral-800 border-neutral-700 text-neutral-500 cursor-not-allowed' : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20'
               }`}
             >
-              <span>⚡</span> {isDeploying ? 'Deploying...' : 'Deploy Live Site'}
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span>{isDeploying ? 'Deploying...' : 'Deploy Live Site'}</span>
             </button>
           </div>
         </header>
 
         {/* Content Body Container */}
-        <div className="p-6 md:p-8 max-w-[1400px] w-full mx-auto flex-1">
+        <div className="p-6 overflow-y-auto flex-1">
           
           {uploadProgress && (
-            <div className="bg-[#dfb755]/10 border border-[#dfb755] text-[#f4d688] p-3 rounded-xl text-xs mb-6 text-center font-medium shadow-md">
+            <div className="bg-[#f59e0b]/10 border border-[#f59e0b]/30 text-[#f59e0b] p-3 rounded-xl text-xs mb-6 text-center font-medium shadow-md">
               {uploadProgress}
             </div>
           )}
 
-          {/* TAB 1: MINISTERS MANAGEMENT (Refined, Professional, Smart Grid) */}
+          {/* TAB 1: MINISTERS MANAGEMENT */}
           {activeTab === 'ministers' && (
-            <div className="grid grid-cols-1 lg:grid-cols-[1.15fr_1fr] gap-8 items-start">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
               
-              {/* Form Card */}
-              <form onSubmit={handleSaveMinister} className="bg-[#08080f] border border-[#dfb755]/15 p-6 md:p-7 rounded-2xl shadow-xl relative overflow-hidden">
-                <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#dfb755]/50 to-transparent"></div>
+              {/* Form Section */}
+              <form onSubmit={handleSaveMinister} className="lg:col-span-7 bg-[#121212] border border-[#262626] p-6 rounded-2xl shadow-xl flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between pb-4 mb-6 border-b border-[#262626]">
+                    <h2 className="text-xs font-bold text-white tracking-wide uppercase flex items-center space-x-2">
+                      <span className="w-1.5 h-4 bg-[#f59e0b] rounded-full"></span>
+                      <span>Edit Minister Slot #{selectedSlotOrder}</span>
+                    </h2>
+                  </div>
 
-                <div className="flex items-center justify-between mb-5 pb-3 border-b border-white/5">
-                  <h3 className="text-xs font-black m-0 text-[#f4d688] flex items-center gap-2 tracking-wide uppercase">
-                    <span>✦</span> Edit Minister Slot #{selectedSlotOrder}
-                  </h3>
-                  <span className="text-[10px] bg-[#dfb755]/15 text-[#dfb755] px-2.5 py-1 rounded-lg font-extrabold tracking-wider">
-                    SLOT {selectedSlotOrder} OF 5
-                  </span>
+                  <label style={labelStyle}>Select Minister Slot</label>
+                  <select
+                    style={{ ...inputStyle, cursor: 'pointer' }}
+                    value={selectedSlotOrder}
+                    onChange={(e) => handleSlotChange(Number(e.target.value))}
+                  >
+                    {[1, 2, 3, 4, 5].map((slotNum) => {
+                      const m = ministers.find((item) => (item.display_order ?? item.id) === slotNum);
+                      return (
+                        <option key={slotNum} value={slotNum} style={{ background: '#121212', color: '#fff' }}>
+                          Slot {slotNum}: {m ? m.name : '(Open Slot)'}
+                        </option>
+                      );
+                    })}
+                  </select>
+
+                  <label style={labelStyle}>Full Name</label>
+                  <input
+                    style={inputStyle}
+                    value={mName}
+                    onChange={(e) => setMName(e.target.value)}
+                    placeholder="e.g. Pst. Emmanuel Oloya"
+                    required
+                  />
+
+                  <label style={labelStyle}>Role / Title</label>
+                  <input
+                    style={inputStyle}
+                    value={mRole}
+                    onChange={(e) => setMRole(e.target.value)}
+                    placeholder="e.g. Resident Pastor"
+                  />
+
+                  <label style={labelStyle}>About Me (Biography)</label>
+                  <textarea
+                    style={{ ...inputStyle, resize: 'none' }}
+                    rows={3}
+                    value={mDescText}
+                    onChange={(e) => setMDescText(e.target.value)}
+                    placeholder="Write full biography or brief description..."
+                  />
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label style={labelStyle}>Upload Picture</label>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        style={fileInputStyle}
+                        onChange={(e) => handleFileUpload(e, 'media', setMImageUrl)}
+                      />
+                    </div>
+                    <div>
+                      <label style={labelStyle}>Or Picture URL</label>
+                      <input
+                        style={inputStyle}
+                        value={mImageUrl}
+                        onChange={(e) => setMImageUrl(e.target.value)}
+                        placeholder="https://..."
+                      />
+                    </div>
+                  </div>
                 </div>
 
-                <label style={labelStyle}>Select Minister Slot</label>
-                <select
-                  style={{ ...inputStyle, backgroundColor: '#06060a', color: '#f4d688', fontWeight: '700', cursor: 'pointer' }}
-                  value={selectedSlotOrder}
-                  onChange={(e) => handleSlotChange(Number(e.target.value))}
-                >
-                  {[1, 2, 3, 4, 5].map((slotNum) => {
-                    const m = ministers.find((item) => (item.display_order ?? item.id) === slotNum);
-                    return (
-                      <option key={slotNum} value={slotNum}>
-                        Slot {slotNum}: {m ? m.name : '(Open Slot)'}
-                      </option>
-                    );
-                  })}
-                </select>
-
-                <label style={labelStyle}>Full Name</label>
-                <input
-                  style={inputStyle}
-                  value={mName}
-                  onChange={(e) => setMName(e.target.value)}
-                  placeholder="e.g. Pst. Emmanuel Oloya"
-                  required
-                />
-
-                <label style={labelStyle}>Role / Title</label>
-                <input
-                  style={inputStyle}
-                  value={mRole}
-                  onChange={(e) => setMRole(e.target.value)}
-                  placeholder="e.g. Resident Pastor"
-                />
-
-                <label style={labelStyle}>About Me (Biography / Profile Description)</label>
-                <textarea
-                  style={{ ...inputStyle, resize: 'vertical', minHeight: '90px' }}
-                  rows={3}
-                  value={mDescText}
-                  onChange={(e) => setMDescText(e.target.value)}
-                  placeholder="Write full biography or brief description..."
-                />
-
-                <label style={labelStyle}>Upload Picture</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  style={fileInputStyle}
-                  onChange={(e) => handleFileUpload(e, 'media', setMImageUrl)}
-                />
-
-                <label style={labelStyle}>Or Picture URL</label>
-                <input
-                  style={inputStyle}
-                  value={mImageUrl}
-                  onChange={(e) => setMImageUrl(e.target.value)}
-                  placeholder="https://..."
-                />
-
-                <button
-                  type="submit"
-                  className="w-full py-3.5 bg-gradient-to-r from-[#dfb755] to-[#c59938] text-[#030305] border-none rounded-xl font-extrabold cursor-pointer mt-3 text-xs tracking-wider shadow-lg shadow-[#dfb755]/15 hover:brightness-105 transition-all"
-                >
-                  Save Changes to Slot {selectedSlotOrder}
-                </button>
+                <div className="pt-6 mt-6 border-t border-[#262626]">
+                  <button
+                    type="submit"
+                    className="w-full bg-[#f59e0b] text-[#0a0a0a] font-bold text-xs uppercase tracking-wider py-3 rounded-xl hover:bg-amber-400 transition shadow-lg shadow-amber-500/10 cursor-pointer"
+                  >
+                    Save Changes to Slot {selectedSlotOrder}
+                  </button>
+                </div>
               </form>
 
               {/* Slots Overview List */}
-              <div className="bg-[#08080f] border border-[#dfb755]/15 p-6 md:p-7 rounded-2xl shadow-xl relative overflow-hidden">
-                <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#dfb755]/50 to-transparent"></div>
-
-                <div className="flex items-center justify-between mb-5 pb-3 border-b border-white/5">
-                  <h3 className="text-xs font-black m-0 text-[#f5f2eb] tracking-wide uppercase">
-                    Minister Slots Overview
-                  </h3>
-                  <span className="text-[10px] text-[#dfb755]/70 font-bold">5 Active Slots</span>
+              <div className="lg:col-span-5 bg-[#121212] border border-[#262626] p-6 rounded-2xl shadow-xl flex flex-col">
+                <div className="pb-4 mb-4 border-b border-[#262626]">
+                  <h2 className="text-xs font-bold text-white tracking-wide uppercase">Minister Slots Overview</h2>
                 </div>
-
-                <div className="flex flex-col gap-3">
+                <div className="space-y-3 overflow-y-auto pr-1 max-h-[500px]">
                   {[1, 2, 3, 4, 5].map((slotNum) => {
                     const m = ministers.find((item) => (item.display_order ?? item.id) === slotNum);
                     const isSelected = selectedSlotOrder === slotNum;
@@ -702,130 +716,107 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
                       <div
                         key={slotNum}
                         onClick={() => handleSlotChange(slotNum)}
-                        className={`p-3.5 rounded-xl flex items-center gap-3.5 cursor-pointer transition-all ${
-                          isSelected 
-                            ? 'bg-[#dfb755]/15 border border-[#dfb755] shadow-md shadow-[#dfb755]/10' 
-                            : 'bg-[#030305] border border-[#dfb755]/15 hover:border-[#dfb755]/40'
+                        className={`p-3.5 rounded-xl flex items-center justify-between cursor-pointer transition ${
+                          isSelected ? 'bg-neutral-900/90 border border-[#f59e0b]/60' : 'bg-neutral-900/40 border border-neutral-800/80 hover:border-neutral-700'
                         }`}
                       >
-                        <img
-                          src={m?.image_url || m?.img || 'https://via.placeholder.com/60?text=No+Photo'}
-                          alt={m?.name || 'Open Slot'}
-                          className="w-11 h-11 rounded-xl object-cover border border-[#dfb755]/40 flex-shrink-0 shadow-sm"
-                        />
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-0.5">
-                            <span className="text-[9px] bg-[#dfb755]/25 text-[#f4d688] px-2 py-0.5 rounded font-black tracking-wider flex-shrink-0">
-                              SLOT {slotNum}
-                            </span>
-                            <span className="font-extrabold text-xs text-[#f5f2eb] truncate">
-                              {m?.name || 'Open Slot'}
-                            </span>
+                        <div className="flex items-center space-x-3 min-w-0 mr-3">
+                          <div className="w-10 h-10 rounded-full bg-neutral-950 border border-neutral-800 flex items-center justify-center shrink-0 overflow-hidden">
+                            {m?.image_url || m?.img ? (
+                              <img src={m.image_url || m.img} alt="" className="w-full h-full object-cover" />
+                            ) : (
+                              <svg className="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                            )}
                           </div>
-                          <p className="m-0 text-[11px] text-[#f5f2eb]/60 truncate font-normal">
-                            {m?.desc_text || m?.desc || 'No description provided.'}
-                          </p>
+                          <div className="truncate">
+                            <span className={`text-[10px] font-bold uppercase tracking-wider block ${isSelected ? 'text-[#f59e0b]' : 'text-neutral-500'}`}>Slot {slotNum}</span>
+                            <h3 className="text-xs font-semibold text-white truncate">{m?.name || 'Open Slot'}</h3>
+                            <p className="text-[11px] text-neutral-500 truncate max-w-[160px]">{m?.desc_text || m?.desc || 'No description provided.'}</p>
+                          </div>
                         </div>
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleSlotChange(slotNum);
-                          }}
-                          className={`px-3 py-1.5 rounded-lg text-[10px] cursor-pointer font-extrabold flex-shrink-0 transition-all ${
-                            isSelected ? 'bg-[#dfb755] text-[#030305] border-none shadow' : 'bg-[#dfb755]/10 border border-[#dfb755]/30 text-[#f4d688]'
-                          }`}
-                        >
+                        <span className={`px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider transition shrink-0 ${
+                          isSelected ? 'bg-[#f59e0b]/10 border border-[#f59e0b]/30 text-[#f59e0b]' : 'bg-neutral-800 text-neutral-300 hover:bg-neutral-700'
+                        }`}>
                           {isSelected ? 'Editing' : 'Select'}
-                        </button>
+                        </span>
                       </div>
                     );
                   })}
                 </div>
               </div>
-
             </div>
           )}
 
-          {/* TAB 2: GALLERY MOMENTS */}
+          {/* TAB 2: GALLERY & MOMENTS MANAGEMENT */}
           {activeTab === 'gallery' && (
-            <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.2fr] gap-8 items-start">
-              <form onSubmit={handleAddGalleryItem} className="bg-[#08080f] border border-[#dfb755]/15 p-6 md:p-7 rounded-2xl shadow-xl relative overflow-hidden">
-                <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#dfb755]/50 to-transparent"></div>
-                <h3 className="text-xs font-black m-0 mb-1 text-[#f4d688] uppercase tracking-wide">
-                  Add New Gallery Moment
-                </h3>
-                <p className="text-[11.5px] text-[#f5f2eb]/60 mb-5 leading-relaxed">
-                  Publish high-resolution photography moments directly to the fellowship gallery feed.
-                </p>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              <form onSubmit={handleAddGalleryItem} className="lg:col-span-7 bg-[#121212] border border-[#262626] p-6 rounded-2xl shadow-xl flex flex-col justify-between">
+                <div>
+                  <div className="pb-4 mb-6 border-b border-[#262626]">
+                    <h2 className="text-xs font-bold text-white tracking-wide uppercase flex items-center space-x-2">
+                      <span className="w-1.5 h-4 bg-[#f59e0b] rounded-full"></span>
+                      <span>Add New Gallery Photo</span>
+                    </h4>
+                  </div>
 
-                <label style={labelStyle}>Caption / Title</label>
-                <input
-                  style={inputStyle}
-                  value={gTitle}
-                  onChange={(e) => setGTitle(e.target.value)}
-                  placeholder="e.g. Fervent Worship Experience"
-                  required
-                />
+                  <label style={labelStyle}>Caption / Title</label>
+                  <input
+                    style={inputStyle}
+                    value={gTitle}
+                    onChange={(e) => setGTitle(e.target.value)}
+                    placeholder="e.g. Fervent Worship, Prayer & Intercession"
+                    required
+                  />
 
-                <label style={labelStyle}>Upload Picture</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  style={fileInputStyle}
-                  onChange={(e) => handleFileUpload(e, 'media', setGImageUrl)}
-                />
+                  <label style={labelStyle}>Upload Picture</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    style={fileInputStyle}
+                    onChange={(e) => handleFileUpload(e, 'media', setGImageUrl)}
+                  />
 
-                <label style={labelStyle}>Or Picture URL</label>
-                <input
-                  style={inputStyle}
-                  value={gImageUrl}
-                  onChange={(e) => setGImageUrl(e.target.value)}
-                  placeholder="https://..."
-                  required
-                />
+                  <label style={labelStyle}>Or Picture URL</label>
+                  <input
+                    style={inputStyle}
+                    value={gImageUrl}
+                    onChange={(e) => setGImageUrl(e.target.value)}
+                    placeholder="https://..."
+                    required
+                  />
+                </div>
 
-                <button
-                  type="submit"
-                  className="w-full py-3.5 bg-gradient-to-r from-[#dfb755] to-[#c59938] text-[#030305] border-none rounded-xl font-extrabold cursor-pointer mt-2 text-xs tracking-wider shadow-lg shadow-[#dfb755]/15 hover:brightness-105 transition-all"
-                >
-                  Publish Gallery Moment
-                </button>
+                <div className="pt-6 mt-6 border-t border-[#262626]">
+                  <button
+                    type="submit"
+                    className="w-full bg-[#f59e0b] text-[#0a0a0a] font-bold text-xs uppercase tracking-wider py-3 rounded-xl hover:bg-amber-400 transition shadow-lg shadow-amber-500/10 cursor-pointer"
+                  >
+                    Add Gallery Photo
+                  </button>
+                </div>
               </form>
 
-              <div className="bg-[#08080f] border border-[#dfb755]/15 p-6 md:p-7 rounded-2xl shadow-xl relative overflow-hidden">
-                <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#dfb755]/50 to-transparent"></div>
-                <h3 className="text-xs font-black mb-5 text-[#f5f2eb] uppercase tracking-wide">
-                  Gallery Library ({galleryItems.length})
-                </h3>
-                <div className="flex flex-col gap-3 max-h-[540px] overflow-y-auto pr-1">
+              <div className="lg:col-span-5 bg-[#121212] border border-[#262626] p-6 rounded-2xl shadow-xl flex flex-col">
+                <div className="pb-4 mb-4 border-b border-[#262626]">
+                  <h2 className="text-xs font-bold text-white tracking-wide uppercase">Gallery Library ({galleryItems.length})</h2>
+                </div>
+                <div className="space-y-3 overflow-y-auto max-h-[500px] pr-1">
                   {galleryItems.length === 0 ? (
-                    <p className="text-[#f5f2eb]/40 text-xs py-8 text-center">No gallery items published yet.</p>
+                    <p className="text-neutral-500 text-xs py-8 text-center">No gallery photos added yet.</p>
                   ) : (
                     galleryItems.map((item, index) => (
-                      <div
-                        key={item.id}
-                        className="bg-[#030305] border border-[#dfb755]/15 p-3.5 rounded-xl flex items-center gap-4"
-                      >
-                        <img
-                          src={item.image_url || 'https://via.placeholder.com/80?text=Photo'}
-                          alt={item.title || 'Gallery item'}
-                          className="w-14 h-10 rounded-lg object-cover border border-[#dfb755]/40 flex-shrink-0 shadow-sm"
-                        />
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <span className="text-[9px] bg-[#dfb755]/20 text-[#f4d688] px-2 py-0.5 rounded font-black flex-shrink-0">
-                              #{index + 1}
-                            </span>
-                            <span className="font-extrabold text-xs text-[#f5f2eb] truncate">
-                              {item.title}
-                            </span>
+                      <div key={item.id} className="bg-neutral-900/60 border border-neutral-800/80 p-3 rounded-xl flex items-center justify-between gap-3">
+                        <div className="flex items-center space-x-3 min-w-0">
+                          <img src={item.image_url} alt="" className="w-12 h-10 rounded-lg object-cover border border-neutral-800 shrink-0" />
+                          <div className="truncate">
+                            <span className="text-[10px] text-neutral-500 block">#{index + 1}</span>
+                            <p className="text-xs font-semibold text-white truncate">{item.title}</p>
                           </div>
                         </div>
                         <button
                           type="button"
                           onClick={() => handleDeleteGalleryItem(item.id)}
-                          className="bg-red-500/10 border border-red-500/30 text-red-400 px-3 py-1.5 rounded-lg text-xs cursor-pointer font-bold flex-shrink-0 hover:bg-red-500/20 transition-all"
+                          className="bg-red-500/10 border border-red-500/30 text-red-400 px-3 py-1 rounded-lg text-[10px] font-bold uppercase hover:bg-red-500/20 transition cursor-pointer shrink-0"
                         >
                           Remove
                         </button>
@@ -839,67 +830,86 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
 
           {/* TAB 3: VIDEO SERMONS */}
           {activeTab === 'videos' && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-              <form onSubmit={handleAddSermon} className="bg-[#08080f] border border-[#dfb755]/15 p-6 md:p-7 rounded-2xl shadow-xl relative overflow-hidden">
-                <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#dfb755]/50 to-transparent"></div>
-                <h3 className="text-xs font-black mb-5 text-[#f4d688] uppercase tracking-wide">Upload Video Sermon</h3>
-                
-                <label style={labelStyle}>Sermon Title</label>
-                <input style={inputStyle} value={vTitle} onChange={(e) => setVTitle(e.target.value)} placeholder="e.g. The Power of Persistent Prayer" required />
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              <form onSubmit={handleAddSermon} className="lg:col-span-7 bg-[#121212] border border-[#262626] p-6 rounded-2xl shadow-xl flex flex-col justify-between">
+                <div>
+                  <div className="pb-4 mb-6 border-b border-[#262626]">
+                    <h2 className="text-xs font-bold text-white tracking-wide uppercase flex items-center space-x-2">
+                      <span className="w-1.5 h-4 bg-[#f59e0b] rounded-full"></span>
+                      <span>Upload New Video Sermon</span>
+                    </h2>
+                  </div>
 
-                <label style={labelStyle}>Preacher / Speaker</label>
-                <input style={inputStyle} value={vSpeaker} onChange={(e) => setVSpeaker(e.target.value)} required />
+                  <label style={labelStyle}>Sermon Title</label>
+                  <input style={inputStyle} value={vTitle} onChange={(e) => setVTitle(e.target.value)} placeholder="e.g. The Power of Persistent Prayer" required />
 
-                <label style={labelStyle}>Scripture Reference</label>
-                <input style={inputStyle} value={vScripture} onChange={(e) => setVScripture(e.target.value)} placeholder="e.g. Luke 18:1-8" />
+                  <label style={labelStyle}>Preacher / Speaker</label>
+                  <input style={inputStyle} value={vSpeaker} onChange={(e) => setVSpeaker(e.target.value)} required />
 
-                <label style={labelStyle}>Category</label>
-                <select style={{ ...inputStyle, backgroundColor: '#030305', cursor: 'pointer', fontWeight: '600' }} value={vCategory} onChange={(e) => setVCategory(e.target.value)}>
-                  <option value="Faith">Faith</option>
-                  <option value="Prayer">Prayer</option>
-                  <option value="Healing">Healing</option>
-                  <option value="Deliverance">Deliverance</option>
-                  <option value="Evangelism">Evangelism</option>
-                </select>
+                  <label style={labelStyle}>Scripture Reference</label>
+                  <input style={inputStyle} value={vScripture} onChange={(e) => setVScripture(e.target.value)} placeholder="e.g. Luke 18:1-8" />
 
-                <label style={labelStyle}>Upload Video File</label>
-                <input type="file" accept="video/*" style={fileInputStyle} onChange={(e) => handleFileUpload(e, 'media', setVVideoUrl)} />
+                  <label style={labelStyle}>Category</label>
+                  <select style={{ ...inputStyle, cursor: 'pointer' }} value={vCategory} onChange={(e) => setVCategory(e.target.value)}>
+                    <option value="Faith" style={{ background: '#121212' }}>Faith</option>
+                    <option value="Prayer" style={{ background: '#121212' }}>Prayer</option>
+                    <option value="Healing" style={{ background: '#121212' }}>Healing</option>
+                    <option value="Deliverance" style={{ background: '#121212' }}>Deliverance</option>
+                    <option value="Evangelism" style={{ background: '#121212' }}>Evangelism</option>
+                  </select>
 
-                <label style={labelStyle}>Or YouTube / Embed URL</label>
-                <input style={inputStyle} value={vVideoUrl} onChange={(e) => setVVideoUrl(e.target.value)} placeholder="https://www.youtube.com/embed/..." required />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label style={labelStyle}>Upload Video File</label>
+                      <input type="file" accept="video/*" style={fileInputStyle} onChange={(e) => handleFileUpload(e, 'media', setVVideoUrl)} />
+                    </div>
+                    <div>
+                      <label style={labelStyle}>Or YouTube Embed URL</label>
+                      <input style={inputStyle} value={vVideoUrl} onChange={(e) => setVVideoUrl(e.target.value)} placeholder="https://..." required />
+                    </div>
+                  </div>
 
-                <label style={labelStyle}>Upload Thumbnail Image</label>
-                <input type="file" accept="image/*" style={fileInputStyle} onChange={(e) => handleFileUpload(e, 'media', setVThumbnail)} />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label style={labelStyle}>Upload Thumbnail</label>
+                      <input type="file" accept="image/*" style={fileInputStyle} onChange={(e) => handleFileUpload(e, 'media', setVThumbnail)} />
+                    </div>
+                    <div>
+                      <label style={labelStyle}>Or Thumbnail URL</label>
+                      <input style={inputStyle} value={vThumbnail} onChange={(e) => setVThumbnail(e.target.value)} placeholder="https://..." />
+                    </div>
+                  </div>
 
-                <label style={labelStyle}>Thumbnail URL</label>
-                <input style={inputStyle} value={vThumbnail} onChange={(e) => setVThumbnail(e.target.value)} placeholder="https://..." />
+                  <label className="flex items-center space-x-2.5 text-neutral-300 text-xs cursor-pointer mt-2">
+                    <input type="checkbox" checked={vIsFeatured} onChange={(e) => setVIsFeatured(e.target.checked)} className="w-4 h-4 accent-[#f59e0b] rounded cursor-pointer" />
+                    <span>Mark as Main Featured Sermon</span>
+                  </label>
+                </div>
 
-                <label className="flex items-center gap-2.5 text-[#f5f2eb]/85 text-xs mb-5 cursor-pointer font-semibold">
-                  <input type="checkbox" checked={vIsFeatured} onChange={(e) => setVIsFeatured(e.target.checked)} className="w-4 h-4 accent-[#dfb755] cursor-pointer" />
-                  Mark as Main Featured Sermon
-                </label>
-
-                <button type="submit" className="w-full py-3.5 bg-gradient-to-r from-[#dfb755] to-[#c59938] text-[#030305] border-none rounded-xl font-extrabold cursor-pointer text-xs tracking-wider shadow-lg shadow-[#dfb755]/15 hover:brightness-105 transition-all">
-                  Publish Video Sermon
-                </button>
+                <div className="pt-6 mt-6 border-t border-[#262626]">
+                  <button type="submit" className="w-full bg-[#f59e0b] text-[#0a0a0a] font-bold text-xs uppercase tracking-wider py-3 rounded-xl hover:bg-amber-400 transition shadow-lg shadow-amber-500/10 cursor-pointer">
+                    Publish Sermon
+                  </button>
+                </div>
               </form>
 
-              <div className="bg-[#08080f] border border-[#dfb755]/15 p-6 md:p-7 rounded-2xl shadow-xl relative overflow-hidden">
-                <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#dfb755]/50 to-transparent"></div>
-                <h3 className="text-xs font-black mb-5 text-[#f5f2eb] uppercase tracking-wide">Video Sermons Repository ({sermons.length})</h3>
-                <div className="flex flex-col gap-3 max-h-[540px] overflow-y-auto pr-1">
+              <div className="lg:col-span-5 bg-[#121212] border border-[#262626] p-6 rounded-2xl shadow-xl flex flex-col">
+                <div className="pb-4 mb-4 border-b border-[#262626]">
+                  <h2 className="text-xs font-bold text-white tracking-wide uppercase">Existing Video Sermons ({sermons.length})</h2>
+                </div>
+                <div className="space-y-3 overflow-y-auto max-h-[500px] pr-1">
                   {sermons.length === 0 ? (
-                    <p className="text-[#f5f2eb]/40 text-xs py-8 text-center">No video sermons available.</p>
+                    <p className="text-neutral-500 text-xs py-8 text-center">No video sermons uploaded yet.</p>
                   ) : (
                     sermons.map((s) => (
-                      <div key={s.id} className="bg-[#030305] border border-[#dfb755]/15 p-3.5 rounded-xl flex justify-between items-center gap-3">
-                        <div className="min-w-0 flex-1">
-                          <p className={`m-0 font-extrabold text-xs truncate ${s.is_featured ? 'text-[#f4d688]' : 'text-[#f5f2eb]'}`}>
+                      <div key={s.id} className="bg-neutral-900/60 border border-neutral-800/80 p-3.5 rounded-xl flex justify-between items-center gap-3">
+                        <div className="min-w-0 truncate">
+                          <p className={`m-0 font-bold text-xs truncate ${s.is_featured ? 'text-[#f59e0b]' : 'text-white'}`}>
                             {s.is_featured ? '★ ' : ''}{s.title}
                           </p>
-                          <p className="m-0 text-[11px] text-[#f5f2eb]/50 truncate mt-1">{s.speaker} • {s.category}</p>
+                          <p className="m-0 text-[11px] text-neutral-500 truncate mt-0.5">{s.speaker} • {s.category}</p>
                         </div>
-                        <button onClick={() => handleDeleteSermon(s.id)} className="bg-red-500/10 border border-red-500/30 text-red-400 px-3 py-1.5 rounded-lg text-xs cursor-pointer font-bold flex-shrink-0 hover:bg-red-500/20 transition-all">
+                        <button onClick={() => handleDeleteSermon(s.id)} className="bg-red-500/10 border border-red-500/30 text-red-400 px-3 py-1 rounded-lg text-[10px] font-bold uppercase hover:bg-red-500/20 transition cursor-pointer shrink-0">
                           Remove
                         </button>
                       </div>
@@ -912,23 +922,27 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
 
           {/* TAB 4: LIVE STREAM */}
           {activeTab === 'live' && (
-            <div className="bg-[#08080f] border border-[#dfb755]/15 p-6 md:p-7 rounded-2xl shadow-xl max-w-[700px] relative overflow-hidden">
-              <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#dfb755]/50 to-transparent"></div>
-              <h3 className="text-xs font-black mb-5 text-[#f4d688] uppercase tracking-wide">Configure Live Broadcast</h3>
+            <div className="max-w-xl mx-auto bg-[#121212] border border-[#262626] p-8 rounded-2xl shadow-xl">
+              <div className="pb-4 mb-6 border-b border-[#262626]">
+                <h2 className="text-xs font-bold text-white tracking-wide uppercase flex items-center space-x-2">
+                  <span className="w-1.5 h-4 bg-[#f59e0b] rounded-full"></span>
+                  <span>Configure Live Broadcast</span>
+                </h2>
+              </div>
               <form onSubmit={handleUpdateLive}>
                 <label style={labelStyle}>Live Event Title</label>
                 <input style={inputStyle} value={liveTitle} onChange={(e) => setLiveTitle(e.target.value)} required />
 
                 <label style={labelStyle}>YouTube Live Stream Embed URL</label>
-                <input style={inputStyle} value={liveUrl} onChange={(e) => setLiveUrl(e.target.value)} placeholder="https://www.youtube.com/embed/live_stream?channel=..." required />
+                <input style={inputStyle} value={liveUrl} onChange={(e) => setLiveUrl(e.target.value)} placeholder="https://www.youtube.com/embed/..." required />
 
-                <label className="flex items-center gap-2.5 text-[#f5f2eb]/85 text-xs mb-6 cursor-pointer font-semibold">
-                  <input type="checkbox" checked={isLiveActive} onChange={(e) => setIsLiveActive(e.target.checked)} className="w-4 h-4 accent-[#10b981] cursor-pointer" />
-                  Service is Currently LIVE (Displays Live Pulse Badge on Website)
+                <label className="flex items-center space-x-2.5 text-neutral-300 text-xs mb-6 cursor-pointer">
+                  <input type="checkbox" checked={isLiveActive} onChange={(e) => setIsLiveActive(e.target.checked)} className="w-4 h-4 accent-emerald-500 rounded cursor-pointer" />
+                  <span>Service is Currently LIVE (Displays Live Badge on Website)</span>
                 </label>
 
-                <button type="submit" className="w-full py-3.5 bg-gradient-to-r from-[#10b981] to-[#059669] text-white border-none rounded-xl font-extrabold cursor-pointer text-xs tracking-wider shadow-lg shadow-emerald-900/20 hover:brightness-105 transition-all">
-                  Save Broadcast Settings
+                <button type="submit" className="w-full py-3 bg-emerald-500 text-neutral-950 font-bold text-xs uppercase tracking-wider rounded-xl hover:bg-emerald-400 transition shadow-lg shadow-emerald-500/10 cursor-pointer">
+                  Save Live Stream Settings
                 </button>
               </form>
             </div>
@@ -936,48 +950,67 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
 
           {/* TAB 5: AUDIO SERMONS */}
           {activeTab === 'audio' && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-              <form onSubmit={handleAddAudio} className="bg-[#08080f] border border-[#dfb755]/15 p-6 md:p-7 rounded-2xl shadow-xl relative overflow-hidden">
-                <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#dfb755]/50 to-transparent"></div>
-                <h3 className="text-xs font-black mb-5 text-[#f4d688] uppercase tracking-wide">Add Audio Sermon</h3>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              <form onSubmit={handleAddAudio} className="lg:col-span-7 bg-[#121212] border border-[#262626] p-6 rounded-2xl shadow-xl flex flex-col justify-between">
+                <div>
+                  <div className="pb-4 mb-6 border-b border-[#262626]">
+                    <h2 className="text-xs font-bold text-white tracking-wide uppercase flex items-center space-x-2">
+                      <span className="w-1.5 h-4 bg-[#f59e0b] rounded-full"></span>
+                      <span>Add Audio Sermon</span>
+                    </h2>
+                  </div>
 
-                <label style={labelStyle}>Audio Title</label>
-                <input style={inputStyle} value={aTitle} onChange={(e) => setATitle(e.target.value)} placeholder="e.g. Praying the Word of God" required />
+                  <label style={labelStyle}>Audio Title</label>
+                  <input style={inputStyle} value={aTitle} onChange={(e) => setATitle(e.target.value)} placeholder="e.g. Praying the Word of God" required />
 
-                <label style={labelStyle}>Speaker</label>
-                <input style={inputStyle} value={aSpeaker} onChange={(e) => setASpeaker(e.target.value)} required />
+                  <label style={labelStyle}>Speaker</label>
+                  <input style={inputStyle} value={aSpeaker} onChange={(e) => setASpeaker(e.target.value)} required />
 
-                <label style={labelStyle}>Episode Label</label>
-                <input style={inputStyle} value={aEpisode} onChange={(e) => setAEpisode(e.target.value)} placeholder="Ep. 1" />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label style={labelStyle}>Episode Label</label>
+                      <input style={inputStyle} value={aEpisode} onChange={(e) => setAEpisode(e.target.value)} placeholder="Ep. 1" />
+                    </div>
+                    <div>
+                      <label style={labelStyle}>Duration</label>
+                      <input style={inputStyle} value={aDuration} onChange={(e) => setADuration(e.target.value)} placeholder="42:15" />
+                    </div>
+                  </div>
 
-                <label style={labelStyle}>Duration</label>
-                <input style={inputStyle} value={aDuration} onChange={(e) => setADuration(e.target.value)} placeholder="42:15" />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label style={labelStyle}>Upload Audio File</label>
+                      <input type="file" accept="audio/*" style={fileInputStyle} onChange={(e) => handleFileUpload(e, 'media', setAAudioUrl)} />
+                    </div>
+                    <div>
+                      <label style={labelStyle}>Or MP3 URL</label>
+                      <input style={inputStyle} value={aAudioUrl} onChange={(e) => setAAudioUrl(e.target.value)} placeholder="https://..." required />
+                    </div>
+                  </div>
+                </div>
 
-                <label style={labelStyle}>Upload Audio Track (MP3/M4A)</label>
-                <input type="file" accept="audio/*" style={fileInputStyle} onChange={(e) => handleFileUpload(e, 'media', setAAudioUrl)} />
-
-                <label style={labelStyle}>Or Audio MP3 URL</label>
-                <input style={inputStyle} value={aAudioUrl} onChange={(e) => setAAudioUrl(e.target.value)} placeholder="https://..." required />
-
-                <button type="submit" className="w-full py-3.5 bg-gradient-to-r from-[#dfb755] to-[#c59938] text-[#030305] border-none rounded-xl font-extrabold cursor-pointer text-xs tracking-wider shadow-lg shadow-[#dfb755]/15 hover:brightness-105 transition-all">
-                  Add Audio Track
-                </button>
+                <div className="pt-6 mt-6 border-t border-[#262626]">
+                  <button type="submit" className="w-full bg-[#f59e0b] text-[#0a0a0a] font-bold text-xs uppercase tracking-wider py-3 rounded-xl hover:bg-amber-400 transition shadow-lg shadow-amber-500/10 cursor-pointer">
+                    Add Audio Track
+                  </button>
+                </div>
               </form>
 
-              <div className="bg-[#08080f] border border-[#dfb755]/15 p-6 md:p-7 rounded-2xl shadow-xl relative overflow-hidden">
-                <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#dfb755]/50 to-transparent"></div>
-                <h3 className="text-xs font-black mb-5 text-[#f5f2eb] uppercase tracking-wide">Audio Library ({audioList.length})</h3>
-                <div className="flex flex-col gap-3 max-h-[540px] overflow-y-auto pr-1">
+              <div className="lg:col-span-5 bg-[#121212] border border-[#262626] p-6 rounded-2xl shadow-xl flex flex-col">
+                <div className="pb-4 mb-4 border-b border-[#262626]">
+                  <h2 className="text-xs font-bold text-white tracking-wide uppercase">Audio Library ({audioList.length})</h2>
+                </div>
+                <div className="space-y-3 overflow-y-auto max-h-[500px] pr-1">
                   {audioList.length === 0 ? (
-                    <p className="text-[#f5f2eb]/40 text-xs py-8 text-center">No audio tracks uploaded yet.</p>
+                    <p className="text-neutral-500 text-xs py-8 text-center">No audio tracks uploaded yet.</p>
                   ) : (
                     audioList.map((a) => (
-                      <div key={a.id} className="bg-[#030305] border border-[#dfb755]/15 p-3.5 rounded-xl flex justify-between items-center gap-3">
-                        <div className="min-w-0 flex-1">
-                          <p className="m-0 font-extrabold text-xs text-[#f5f2eb] truncate">{a.title}</p>
-                          <p className="m-0 text-[11px] text-[#f5f2eb]/50 truncate mt-1">{a.episode} • {a.duration}</p>
+                      <div key={a.id} className="bg-neutral-900/60 border border-neutral-800/80 p-3.5 rounded-xl flex justify-between items-center gap-3">
+                        <div className="min-w-0 truncate">
+                          <p className="m-0 font-bold text-xs text-white truncate">{a.title}</p>
+                          <p className="m-0 text-[11px] text-neutral-500 truncate mt-0.5">{a.episode} • {a.duration}</p>
                         </div>
-                        <button onClick={() => handleDeleteAudio(a.id)} className="bg-red-500/10 border border-red-500/30 text-red-400 px-3 py-1.5 rounded-lg text-xs cursor-pointer font-bold flex-shrink-0 hover:bg-red-500/20 transition-all">
+                        <button onClick={() => handleDeleteAudio(a.id)} className="bg-red-500/10 border border-red-500/30 text-red-400 px-3 py-1 rounded-lg text-[10px] font-bold uppercase hover:bg-red-500/20 transition cursor-pointer shrink-0">
                           Remove
                         </button>
                       </div>
