@@ -3,10 +3,13 @@ import { supabase } from '../supabase'
 
 const INACTIVITY_LIMIT = 5 * 60 * 1000
 
+const eyeIcon = (open: boolean) => open
+  ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="17" height="17" aria-hidden="true"><path d="M2.5 12s3.4-6 9.5-6 9.5 6 9.5 6-3.4 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.5"/></svg>'
+  : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="17" height="17" aria-hidden="true"><path d="M3 3l18 18"/><path d="M10.6 6.2A10.8 10.8 0 0 1 12 6c6.1 0 9.5 6 9.5 6a16.6 16.6 0 0 1-3.1 3.8M6.1 6.8C3.8 8.4 2.5 12 2.5 12s3.4 6 9.5 6a9.8 9.8 0 0 0 3.1-.5"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>'
+
 export function AdminSecurity() {
   useEffect(() => {
     let timer: ReturnType<typeof window.setTimeout> | null = null
-    let revealCleanup: (() => void) | null = null
     let mounted = true
 
     const signOutForInactivity = async () => {
@@ -24,46 +27,43 @@ export function AdminSecurity() {
 
     const setupPasswordReveal = () => {
       const inputs = Array.from(document.querySelectorAll<HTMLInputElement>('input[type="password"]'))
-      if (!inputs.length) return
-
-      const cleanups: Array<() => void> = []
 
       inputs.forEach((input) => {
         if (input.dataset.passwordRevealReady === 'true') return
         input.dataset.passwordRevealReady = 'true'
 
-        const wrapper = input.parentElement
-        if (!wrapper) return
-
-        wrapper.style.position = wrapper.style.position || 'relative'
+        const wrapper = document.createElement('div')
+        wrapper.style.cssText = 'position:relative;width:100%;'
+        input.parentElement?.insertBefore(wrapper, input)
+        wrapper.appendChild(input)
 
         const button = document.createElement('button')
         button.type = 'button'
         button.setAttribute('aria-label', 'Show password')
         button.setAttribute('title', 'Show password')
-        button.textContent = '◉'
+        button.innerHTML = eyeIcon(false)
         button.style.cssText = [
           'position:absolute',
-          'right:10px',
+          'right:8px',
           'top:50%',
           'transform:translateY(-50%)',
-          'width:32px',
-          'height:32px',
+          'width:34px',
+          'height:34px',
           'display:flex',
           'align-items:center',
           'justify-content:center',
           'border:0',
+          'border-radius:8px',
           'background:transparent',
           'color:#8d897f',
           'cursor:pointer',
-          'font-size:13px',
           'padding:0',
           'z-index:2',
         ].join(';')
 
         const update = () => {
           const visible = input.type === 'text'
-          button.textContent = visible ? '◉' : '◌'
+          button.innerHTML = eyeIcon(visible)
           button.setAttribute('aria-label', visible ? 'Hide password' : 'Show password')
           button.setAttribute('title', visible ? 'Hide password' : 'Show password')
           button.style.color = visible ? '#d5aa49' : '#8d897f'
@@ -79,26 +79,15 @@ export function AdminSecurity() {
         button.addEventListener('click', toggle)
         wrapper.appendChild(button)
         update()
-
-        cleanups.push(() => {
-          button.removeEventListener('click', toggle)
-          button.remove()
-          delete input.dataset.passwordRevealReady
-        })
       })
-
-      revealCleanup = () => {
-        cleanups.forEach((cleanup) => cleanup())
-        revealCleanup = null
-      }
     }
 
-    const observer = new MutationObserver(() => setupPasswordReveal())
+    const observer = new MutationObserver(setupPasswordReveal)
     observer.observe(document.body, { childList: true, subtree: true })
     setupPasswordReveal()
 
-    // Admin authentication is the only authenticated area of this site.
-    // Reset the five-minute inactivity window on normal user interaction.
+    // The admin portal is the site's authenticated area. A session expires
+    // after five minutes without user activity, even if the page remains open.
     supabase.auth.getSession().then(({ data }) => {
       if (data.session) resetTimer()
     })
@@ -109,7 +98,6 @@ export function AdminSecurity() {
     return () => {
       mounted = false
       observer.disconnect()
-      revealCleanup?.()
       if (timer) window.clearTimeout(timer)
       activityEvents.forEach((event) => window.removeEventListener(event, handleActivity))
     }
