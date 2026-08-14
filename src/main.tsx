@@ -7,6 +7,7 @@ import './admin-login.css'
 import App from './App'
 import { Analytics } from './components/Analytics'
 import { LocationDirections } from './components/LocationDirections'
+import { AdminSecurity } from './components/AdminSecurity'
 
 function Site() {
   const [locationHost, setLocationHost] = useState<HTMLElement | null>(null)
@@ -28,6 +29,7 @@ function Site() {
   return (
     <>
       <Analytics />
+      <AdminSecurity />
       <App />
       {locationHost && createPortal(<LocationDirections />, locationHost)}
     </>
