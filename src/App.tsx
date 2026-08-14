@@ -34,7 +34,7 @@ const SERMONS = [
 const SERMON_TAGS = ['All','Faith','Prayer','Healing','Deliverance','Evangelism']
 
 const EVENTS = [
-  { date: '24 AUG', title: '21 Days of Prayer & Fasting', desc: 'Focused intercession, fasting, and seeking God face together as a family.', time: '6:00 AM Daily', venue: 'Hilltop Auditorium, Ipaja', img: IMGS.prayer },
+  { date: '24 AUG', title: '21 Days of Prayer & Fasting', desc: 'Focused intercession, fasting, and seeking God together as a family.', time: '6:00 AM Daily', venue: 'Hilltop Auditorium, Ipaja', img: IMGS.prayer },
   { date: '07 SEP', title: 'Hilltop Youth Summit 2026', desc: 'A powerful gathering of young people encountering God and being sent forth.', time: '10:00 AM - 6:00 PM', venue: 'Hilltop Auditorium, Ipaja', img: IMGS.raising },
   { date: '19 SEP', title: 'Community Outreach Drive', desc: 'Taking the love of Christ into the streets and markets of Ipaja.', time: '8:00 AM - 2:00 PM', venue: 'Ipaja Community, Lagos', img: IMGS.mission },
 ]
@@ -290,11 +290,11 @@ function Hero({ setActivePage }: { setActivePage: (p: string) => void }) {
         </AnimatedText>
 
         <AnimatedText tag="p" className="gold-text serif" style={{ fontFamily: 'Instrument Serif', fontSize: 'clamp(1.3rem,3.5vw,2.4rem)', fontStyle: 'italic', marginBottom: 20 }}>
-          Pray. Believe. Serve. Go.
+          Pray, Believe, Serve, Go
         </AnimatedText>
 
         <AnimatedText tag="p" style={{ fontFamily: 'Outfit', fontWeight: 300, fontSize: 'clamp(0.95rem,1.8vw,1.1rem)', color: 'var(--muted)', lineHeight: 1.7, maxWidth: 520, margin: '0 auto 40px' }}>
-          A people called to pray, believe God Word, serve with love, and carry His Gospel to the ends of the earth.
+          A people called to pray, believe God word, serve with love, and carry His Gospel to the ends of the earth.
         </AnimatedText>
 
         <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
@@ -463,7 +463,7 @@ function AboutPage() {
               Our Mission
             </AnimatedText>
             <AnimatedText tag="p" style={{ fontFamily: 'Outfit', fontSize: '0.92rem', color: 'var(--muted)', lineHeight: 1.75 }}>
-              To equip believers through fervent prayer, sound teaching of God Word, and active works of service, fulfilling the Great Commission by carrying the Gospel into Lagos and to the ends of the earth.
+              To equip believers through fervent prayer, sound teaching of God word, and active works of service, fulfilling the Great Commission by carrying the Gospel into Lagos and to the ends of the earth.
             </AnimatedText>
           </div>
 
@@ -816,7 +816,7 @@ function Giving() {
             Give Online
           </AnimatedText>
           <p style={{ fontFamily: 'Outfit', color: 'var(--muted)', fontSize: '1rem', maxWidth: 500, margin: '0 auto' }}>
-            Bring ye all the tithes into the storehouse... and prove me now herewith, saith the Lord. (Malachi 3:10)
+            Bring ye all the tithes into the storehouse, and prove me now herewith, saith the Lord. (Malachi 3:10)
           </p>
         </div>
 
