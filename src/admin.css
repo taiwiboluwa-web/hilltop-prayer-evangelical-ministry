@@ -1,53 +1,39 @@
 /* Hilltop Admin — premium visual system matching the public site */
-
-body:has(aside) { background: var(--bg) !important; }
-body:has(aside) aside { width:248px !important; min-width:248px !important; flex:0 0 248px !important; background:rgba(8,8,14,.92) !important; border-right:1px solid var(--border) !important; backdrop-filter:blur(24px) !important; -webkit-backdrop-filter:blur(24px) !important; box-shadow:18px 0 50px rgba(0,0,0,.18) !important; transition:width .25s ease,min-width .25s ease,flex-basis .25s ease !important; }
-body:has(aside.w-\[72px\]) aside,body:has(aside.w-20) aside,body:has(aside.w-\[68px\]) aside { width:68px !important; min-width:68px !important; flex-basis:68px !important; }
-body:has(aside) aside > div:first-child > div:first-child { height:78px !important; padding:0 20px !important; border-bottom:1px solid var(--border) !important; }
-body:has(aside) aside .rounded-full { background:rgba(201,168,76,.08) !important; border-color:var(--border-hi) !important; }
-body:has(aside) aside .rounded-full svg { color:var(--gold-light) !important; }
-body:has(aside) aside .text-neutral-500 { color:var(--dimmed) !important; }
-body:has(aside) aside button { border-radius:12px !important; }
-body:has(aside) aside .p-3 button { min-height:48px !important; padding:6px 10px !important; border:1px solid transparent !important; background:transparent !important; color:var(--muted) !important; }
-body:has(aside) aside .p-3 button > div { width:34px !important; height:34px !important; background:transparent !important; border:0 !important; color:currentColor !important; }
-body:has(aside) aside .p-3 button > div svg { width:16px !important; height:16px !important; }
-body:has(aside) aside .p-3 button:hover { background:rgba(255,255,255,.035) !important; color:var(--ivory) !important; }
-body:has(aside) aside .p-3 button.bg-neutral-900 { background:linear-gradient(90deg,rgba(201,168,76,.12),rgba(201,168,76,.035)) !important; border-color:var(--border) !important; color:var(--gold-light) !important; }
-body:has(aside) aside > div:last-child { border-top-color:var(--border) !important; background:rgba(255,255,255,.01) !important; }
-body:has(aside) main { min-width:0 !important; flex:1 1 auto !important; width:auto !important; background:radial-gradient(circle at 78% 0%,rgba(201,168,76,.07),transparent 30%),var(--bg) !important; transition:width .25s ease,margin-left .25s ease !important; }
-body:has(aside) main > header { height:78px !important; padding:0 34px !important; background:rgba(8,8,14,.78) !important; border-bottom:1px solid var(--border) !important; backdrop-filter:blur(24px) !important; }
-body:has(aside) main > header h1 { font-family:'Outfit',sans-serif !important; font-size:11px !important; letter-spacing:.18em !important; color:var(--ivory) !important; }
-body:has(aside) main > header button:first-child { background:rgba(255,255,255,.035) !important; border:1px solid rgba(255,255,255,.09) !important; color:var(--muted) !important; border-radius:999px !important; padding:9px 15px !important; }
-body:has(aside) main > header button:last-child { border-radius:999px !important; padding:9px 16px !important; background:rgba(201,168,76,.09) !important; border:1px solid var(--border-hi) !important; color:var(--gold-light) !important; }
-body:has(aside) main > div.p-6 { padding:34px !important; max-width:1500px !important; width:100% !important; box-sizing:border-box !important; margin:0 auto !important; }
-body:has(aside) main form,body:has(aside) main > div.p-6 > div > div { background:rgba(15,15,24,.72) !important; border:1px solid var(--border) !important; border-radius:22px !important; box-shadow:0 24px 70px rgba(0,0,0,.28) !important; backdrop-filter:blur(18px) !important; }
-body:has(aside) main form h2,body:has(aside) main > div.p-6 h2 { font-family:'Outfit',sans-serif !important; font-size:11px !important; letter-spacing:.16em !important; color:var(--ivory) !important; }
-body:has(aside) main label { color:var(--muted) !important; letter-spacing:.14em !important; font-size:9px !important; }
-body:has(aside) main input:not([type="checkbox"]):not([type="file"]),body:has(aside) main textarea,body:has(aside) main select { background:rgba(255,255,255,.035) !important; border:1px solid rgba(255,255,255,.08) !important; border-radius:12px !important; color:var(--ivory) !important; font-family:'Outfit',sans-serif !important; box-shadow:none !important; }
-body:has(aside) main input:not([type="checkbox"]):not([type="file"]):focus,body:has(aside) main textarea:focus,body:has(aside) main select:focus { border-color:var(--border-hi) !important; box-shadow:0 0 0 3px rgba(201,168,76,.07) !important; }
-body:has(aside) main button.bg-\[\#f59e0b\],body:has(aside) main button.bg-amber-500 { background:linear-gradient(135deg,#c9a84c,#e4c76b,#c9a84c) !important; color:#08080e !important; border-radius:999px !important; box-shadow:0 10px 30px rgba(201,168,76,.12) !important; letter-spacing:.14em !important; }
-body:has(aside) main .bg-neutral-900\/60 { background:rgba(255,255,255,.025) !important; border-color:rgba(255,255,255,.07) !important; border-radius:14px !important; }
-
-/* Login screen: editorial, compact, and deliberately close to the supplied reference. */
-body:has(.max-w-\[420px\]) { background:#090a08 !important; }
-body:has(.max-w-\[420px\]) .max-w-\[420px\] { position:relative !important; width:320px !important; max-width:calc(100vw - 28px) !important; padding:32px !important; background:#0d0f0c !important; border:1px solid rgba(201,168,76,.28) !important; border-radius:0 !important; box-shadow:none !important; box-sizing:border-box !important; }
-body:has(.max-w-\[420px\]) .max-w-\[420px\]::before { content:'' !important; display:block !important; width:52px !important; height:52px !important; margin:0 auto 22px !important; background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M32 5 59 56H5Z' fill='none' stroke='%23c9a84c' stroke-width='2.2'/%3E%3Cpath d='M32 9v42M18 50h28' stroke='%23c9a84c' stroke-width='1.2' opacity='.55'/%3E%3Ccircle cx='32' cy='35' r='4' fill='%23c9a84c'/%3E%3C/svg%3E") center/contain no-repeat !important; opacity:.95 !important; }
-body:has(.max-w-\[420px\]) .max-w-\[420px\] > div:first-child { display:block !important; margin:0 0 28px !important; padding:0 !important; position:relative !important; }
-body:has(.max-w-\[420px\]) .max-w-\[420px\] h2 { margin:0 !important; padding:0 !important; color:#f2ede4 !important; font-family:'Outfit',sans-serif !important; font-size:0 !important; line-height:1 !important; text-align:left !important; }
-body:has(.max-w-\[420px\]) .max-w-\[420px\] h2::before { content:'ADMIN ACCESS' !important; display:block !important; margin-bottom:12px !important; color:#c9a84c !important; font-family:'Outfit',sans-serif !important; font-size:8px !important; font-weight:600 !important; letter-spacing:.2em !important; }
-body:has(.max-w-\[420px\]) .max-w-\[420px\] h2::after { content:'Sign In' !important; display:block !important; color:#f2ede4 !important; font-family:Georgia,'Times New Roman',serif !important; font-size:25px !important; font-weight:500 !important; line-height:1.1 !important; letter-spacing:-.02em !important; }
-body:has(.max-w-\[420px\]) .max-w-\[420px\] button:not([type="submit"]) { position:absolute !important; top:34px !important; right:32px !important; padding:0 !important; background:transparent !important; border:0 !important; color:rgba(242,237,228,.42) !important; border-radius:0 !important; font-size:0 !important; }
-body:has(.max-w-\[420px\]) .max-w-\[420px\] button:not([type="submit"])::after { content:'← Back' !important; font-family:'Outfit',sans-serif !important; font-size:10px !important; }
-body:has(.max-w-\[420px\]) .max-w-\[420px\] form { margin:0 !important; padding:0 !important; }
-body:has(.max-w-\[420px\]) .max-w-\[420px\] label { display:block !important; margin:0 0 8px !important; color:rgba(242,237,228,.52) !important; font-family:'Outfit',sans-serif !important; font-size:8px !important; font-weight:500 !important; letter-spacing:.16em !important; text-transform:uppercase !important; }
-body:has(.max-w-\[420px\]) .max-w-\[420px\] input:not([type="checkbox"]) { width:100% !important; height:38px !important; box-sizing:border-box !important; padding:0 12px !important; margin:0 0 20px !important; background:#151714 !important; border:1px solid rgba(201,168,76,.24) !important; border-radius:0 !important; color:#f2ede4 !important; caret-color:#c9a84c !important; outline:none !important; box-shadow:none !important; font-family:'Outfit',sans-serif !important; font-size:11px !important; }
-body:has(.max-w-\[420px\]) .max-w-\[420px\] input:not([type="checkbox"]):focus { border-color:rgba(201,168,76,.65) !important; box-shadow:0 0 0 1px rgba(201,168,76,.12) !important; }
-body:has(.max-w-\[420px\]) .max-w-\[420px\] input:-webkit-autofill,body:has(.max-w-\[420px\]) .max-w-\[420px\] input:-webkit-autofill:hover,body:has(.max-w-\[420px\]) .max-w-\[420px\] input:-webkit-autofill:focus { -webkit-text-fill-color:#f2ede4 !important; -webkit-box-shadow:0 0 0 1000px #151714 inset !important; box-shadow:0 0 0 1000px #151714 inset !important; }
-body:has(.max-w-\[420px\]) .max-w-\[420px\] input::placeholder { color:rgba(242,237,228,.28) !important; }
-body:has(.max-w-\[420px\]) .max-w-\[420px\] form button[type="submit"] { width:100% !important; height:38px !important; margin:0 !important; padding:0 !important; border:0 !important; border-radius:0 !important; background:#d5ae4c !important; color:#090a08 !important; font-family:'Outfit',sans-serif !important; font-size:0 !important; font-weight:700 !important; letter-spacing:.14em !important; text-transform:uppercase !important; box-shadow:none !important; }
-body:has(.max-w-\[420px\]) .max-w-\[420px\] form button[type="submit"]::after { content:'ACCESS DASHBOARD' !important; font-size:9px !important; }
-body:has(.max-w-\[420px\]) .max-w-\[420px\] .bg-red-500\/10 { margin-bottom:18px !important; background:rgba(180,55,55,.08) !important; border:1px solid rgba(180,55,55,.22) !important; border-radius:0 !important; color:#d98b8b !important; }
-body:has(.max-w-\[420px\]) .max-w-\[420px\]::after { content:'Hilltop Prayer & Evangelical Ministry  ·  Restricted Access' !important; display:block !important; position:absolute !important; top:calc(100% + 18px) !important; left:0 !important; right:0 !important; text-align:center !important; font-family:'Outfit',sans-serif !important; font-size:7px !important; letter-spacing:.16em !important; color:rgba(242,237,228,.25) !important; }
-
-@media (max-width:900px) { body:has(aside) aside { width:68px !important; min-width:68px !important; flex-basis:68px !important; } body:has(aside) aside .p-3 > span,body:has(aside) aside .p-3 button span,body:has(aside) aside > div:last-child span { display:none !important; } body:has(aside) main > header { padding:0 18px !important; } body:has(aside) main > div.p-6 { padding:20px 14px !important; } }
-@media (max-width:640px) { body:has(aside) aside { width:64px !important; min-width:64px !important; flex-basis:64px !important; } body:has(aside) main > header h1 { display:none !important; } body:has(aside) main > header { height:68px !important; } body:has(.max-w-\[420px\]) .max-w-\[420px\] { width:calc(100vw - 24px) !important; padding:26px 24px !important; } body:has(.max-w-\[420px\]) .max-w-\[420px\] button:not([type="submit"]) { right:24px !important; top:29px !important; } }
+body:has(aside){background:var(--bg)!important}
+body:has(aside) aside{width:248px!important;background:rgba(8,8,14,.92)!important;border-right:1px solid var(--border)!important;backdrop-filter:blur(24px)!important;-webkit-backdrop-filter:blur(24px)!important;box-shadow:18px 0 50px rgba(0,0,0,.18)!important}
+body:has(aside) aside>div:first-child>div:first-child{height:78px!important;padding:0 20px!important;border-bottom:1px solid var(--border)!important}
+body:has(aside) aside .rounded-full{background:rgba(201,168,76,.08)!important;border-color:var(--border-hi)!important}
+body:has(aside) aside .rounded-full svg{color:var(--gold-light)!important}
+body:has(aside) aside .text-neutral-500{color:var(--dimmed)!important}
+body:has(aside) aside button{border-radius:12px!important}
+body:has(aside) aside .p-3 button{min-height:48px!important;padding:6px 10px!important;border:1px solid transparent!important;background:transparent!important;color:var(--muted)!important}
+body:has(aside) aside .p-3 button>div{width:34px!important;height:34px!important;background:transparent!important;border:0!important;color:currentColor!important}
+body:has(aside) aside .p-3 button>div svg{width:16px!important;height:16px!important}
+body:has(aside) aside .p-3 button:hover{background:rgba(255,255,255,.035)!important;color:var(--ivory)!important}
+body:has(aside) aside .p-3 button.bg-neutral-900{background:linear-gradient(90deg,rgba(201,168,76,.12),rgba(201,168,76,.035))!important;border-color:var(--border)!important;color:var(--gold-light)!important}
+body:has(aside) aside .p-3 button.bg-neutral-900>div{color:var(--gold-light)!important}
+body:has(aside) aside>div:last-child{border-top-color:var(--border)!important;background:rgba(255,255,255,.01)!important}
+body:has(aside) main{background:radial-gradient(circle at 78% 0%,rgba(201,168,76,.07),transparent 30%),var(--bg)!important}
+body:has(aside) main>header{height:78px!important;padding:0 34px!important;background:rgba(8,8,14,.78)!important;border-bottom:1px solid var(--border)!important;backdrop-filter:blur(24px)!important;-webkit-backdrop-filter:blur(24px)!important}
+body:has(aside) main>header h1{font-family:'Outfit',sans-serif!important;font-size:11px!important;letter-spacing:.18em!important;color:var(--ivory)!important}
+body:has(aside) main>header button:first-child{background:rgba(255,255,255,.035)!important;border:1px solid rgba(255,255,255,.09)!important;color:var(--muted)!important;border-radius:999px!important;padding:9px 15px!important}
+body:has(aside) main>header button:first-child:hover{color:var(--ivory)!important;border-color:var(--border-hi)!important}
+body:has(aside) main>header button:last-child{border-radius:999px!important;padding:9px 16px!important;background:rgba(201,168,76,.09)!important;border:1px solid var(--border-hi)!important;color:var(--gold-light)!important}
+body:has(aside) main>div.p-6{padding:34px!important;max-width:1500px!important;width:100%!important;margin:0 auto!important}
+body:has(aside) main form,body:has(aside) main>div.p-6>div>div,body:has(aside) main>div.p-6 .bg-\[\#121212\]{background:rgba(15,15,24,.72)!important;border:1px solid var(--border)!important;border-radius:22px!important;box-shadow:0 24px 70px rgba(0,0,0,.28)!important;backdrop-filter:blur(18px)!important;-webkit-backdrop-filter:blur(18px)!important}
+body:has(aside) main form:hover,body:has(aside) main>div.p-6>div>div:hover{border-color:rgba(201,168,76,.22)!important}
+body:has(aside) main form h2,body:has(aside) main>div.p-6 h2{font-family:'Outfit',sans-serif!important;font-size:11px!important;letter-spacing:.16em!important;color:var(--ivory)!important}
+body:has(aside) main form h2 span:first-child{width:3px!important;height:18px!important;background:linear-gradient(180deg,var(--gold-light),var(--gold))!important;border-radius:999px!important}
+body:has(aside) main label{color:var(--muted)!important;letter-spacing:.14em!important;font-size:9px!important}
+body:has(aside) main input:not([type="checkbox"]):not([type="file"]),body:has(aside) main textarea,body:has(aside) main select{background:rgba(255,255,255,.035)!important;border:1px solid rgba(255,255,255,.08)!important;border-radius:12px!important;color:var(--ivory)!important;font-family:'Outfit',sans-serif!important;box-shadow:none!important}
+body:has(aside) main input:not([type="checkbox"]):not([type="file"]):focus,body:has(aside) main textarea:focus,body:has(aside) main select:focus{border-color:var(--border-hi)!important;box-shadow:0 0 0 3px rgba(201,168,76,.07)!important}
+body:has(aside) main input::placeholder,body:has(aside) main textarea::placeholder{color:rgba(242,237,228,.25)!important}
+body:has(aside) main input[type="file"]{background:rgba(255,255,255,.025)!important;border:1px dashed rgba(201,168,76,.22)!important;border-radius:12px!important}
+body:has(aside) main button.bg-\[\#f59e0b\],body:has(aside) main button.bg-amber-500{background:linear-gradient(135deg,#c9a84c,#e4c76b,#c9a84c)!important;color:#08080e!important;border-radius:999px!important;box-shadow:0 10px 30px rgba(201,168,76,.12)!important;letter-spacing:.14em!important}
+body:has(aside) main button.bg-\[\#f59e0b\]:hover,body:has(aside) main button.bg-amber-500:hover{filter:brightness(1.06)!important;transform:translateY(-1px)!important}
+body:has(aside) main .bg-neutral-900\/60{background:rgba(255,255,255,.025)!important;border-color:rgba(255,255,255,.07)!important;border-radius:14px!important}
+body:has(aside) main .bg-neutral-900\/60:hover{background:rgba(255,255,255,.045)!important;border-color:var(--border)!important}
+body:has(aside) main button.bg-red-500\/10{background:transparent!important;border-color:rgba(239,68,68,.22)!important;border-radius:999px!important}
+body:has(aside) main button.bg-emerald-500,body:has(aside) main button.bg-emerald-500\/10{border-radius:999px!important}
+@media(max-width:900px){body:has(aside) aside{width:76px!important}body:has(aside) aside .p-3>span,body:has(aside) aside .p-3 button span,body:has(aside) aside>div:last-child span{display:none!important}body:has(aside) main>header{padding:0 18px!important}body:has(aside) main>div.p-6{padding:20px 14px!important}}
+@media(max-width:640px){body:has(aside) aside{width:64px!important}body:has(aside) main>header h1{display:none!important}body:has(aside) main>header{height:68px!important}body:has(aside) main>div.p-6>div>div,body:has(aside) main form{border-radius:18px!important}}
