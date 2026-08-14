@@ -282,3 +282,31 @@ img, video, svg, canvas { max-width: 100%; height: auto; }
 }
 .min-card img { transition: transform 0.55s ease; }
 .min-card:hover img { transform: scale(1.07); }
+
+/* Mobile Layout Fixes for Menu (1) and Footer/Content (2) */
+@media (max-width: 768px) {
+  /* Hide mobile menu overlay cleanly when toggled off */
+  .mobile-menu-hidden {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+
+  /* Ensure footer elements and columns (2) stack properly and display fully without overlapping */
+  footer, .footer-container, .footer-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 2rem !important;
+    width: 100% !important;
+    overflow: hidden !important;
+  }
+
+  .footer-links, .footer-col, .social-icons-container {
+    width: 100% !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: flex-start !important;
+    gap: 1rem !important;
+  }
+}
