@@ -283,58 +283,58 @@ img, video, svg, canvas { max-width: 100%; height: auto; }
 .min-card img { transition: transform 0.55s ease; }
 .min-card:hover img { transform: scale(1.07); }
 
-/* Mobile Layout Fixes for Inline Grids, Menus, and Containers */
+/* Mobile Layout Fixes for Menu, Cards, and Forms */
 @media (max-width: 768px) {
+  /* Hide mobile menu overlay cleanly when toggled off */
+  .mobile-menu-hidden {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+
+  /* Prevent side clipping on main containers and cards */
   body, html {
     overflow-x: hidden !important;
   }
 
-  /* Force inline-styled multi-column grids in App.tsx to stack cleanly into single columns on mobile */
-  div[style*="grid-template-columns"], 
-  main div[style*="grid"], 
-  section div[style*="grid"] {
+  .card, form, .glass, .glass-hi {
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Force multi-column sections (like the contact form view) to stack vertically on mobile */
+  .grid, [class*="grid-cols-"] {
     display: flex !important;
     flex-direction: column !important;
-    grid-template-columns: none !important;
-    width: 100% !important;
-    gap: 1.5rem !important;
   }
 
-  /* Exclude and protect the Navbar header and dropdown drawer layouts */
-  header, header *, header div[style*="grid"], header div[style*="flex"] {
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    justify-content: space-between !important;
-    align-items: center !important;
-  }
-
-  /* Ensure the mobile dropdown menu itself stays as a vertical dropdown container */
-  header div.glass-hi, header div[style*="position: absolute"] {
-    flex-direction: column !important;
-    align-items: stretch !important;
-  }
-
-  /* Keep countdown boxes horizontal */
-  div:has(.cbox) {
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    justify-content: space-between !important;
-    gap: 4px !important;
-    width: 100% !important;
-  }
-
-  .cbox {
-    min-width: 0 !important;
-    flex: 1 !important;
-    padding: 8px 4px !important;
-    text-align: center !important;
-  }
-
+  /* Add safe horizontal breathing room to prevent edge bleeding */
   section, .container, div[class*="max-w-"] {
     padding-left: 1rem !important;
     padding-right: 1rem !important;
-    box-sizing: border-box !important;
+  }
+
+  /* Ensure countdown and service cards handle mobile spacing cleanly */
+  .cbox {
+    min-width: 54px !important;
+    padding: 8px 10px !important;
+  }
+
+  /* Ensure footer elements and columns stack properly and display fully without overlapping */
+  footer, .footer-container, .footer-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 2rem !important;
+    width: 100% !important;
+    overflow: hidden !important;
+  }
+
+  .footer-links, .footer-col, .social-icons-container {
+    width: 100% !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: flex-start !important;
+    gap: 1rem !important;
   }
 }
