@@ -77,7 +77,7 @@ function getNextServiceDate(now: Date = new Date()): Date {
 
   const getNthSaturday = (y: number, m: number, nth: number): Date => {
     let count = 0
-    const date = new Date(y, m, 1, 9, 0, 0)
+    const date = new Date(y, m, 1, 17, 30, 0)
     while (date.getMonth() === m) {
       if (date.getDay() === 6) {
         count++
@@ -431,7 +431,7 @@ function AboutPage() {
               </p>
 
               <p style={{ fontFamily: 'Outfit', color: 'var(--muted)', fontSize: '0.85rem', marginBottom: 24 }}>
-                9:00 AM, 3 Kola Ojedeji Street, Ipaja, Lagos
+                5:30 PM, 3 Kola Ojedeji Street, Ipaja, Lagos
               </p>
             </div>
             <div>
