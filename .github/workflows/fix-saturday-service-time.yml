@@ -1,0 +1,41 @@
+name: Fix Saturday Service Time
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  fix-service-time:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Update service time
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('src/App.tsx')
+          text = path.read_text()
+          updated = text.replace(
+              "const date = new Date(y, m, 1, 9, 0, 0)",
+              "const date = new Date(y, m, 1, 17, 30, 0)"
+          ).replace(
+              "9:00 AM, 3 Kola Ojedeji Street, Ipaja, Lagos",
+              "5:30 PM, 3 Kola Ojedeji Street, Ipaja, Lagos"
+          )
+          if updated == text:
+              raise SystemExit('No service-time change was necessary.')
+          path.write_text(updated)
+          PY
+
+      - name: Commit and push fix
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/App.tsx
+          git commit -m "fix: set Saturday service to 5:30 PM"
+          git push
