@@ -54,14 +54,7 @@
           { "@type": "Place", "name": "Alimosho" },
           { "@type": "City", "name": "Lagos" }
         ],
-        "knowsAbout": [
-          "Prayer",
-          "Christian worship",
-          "Evangelism",
-          "Discipleship",
-          "Bible teaching",
-          "Christian fellowship"
-        ],
+        "knowsAbout": ["Prayer", "Christian worship", "Evangelism", "Discipleship", "Bible teaching", "Christian fellowship"],
         "sameAs": []
       }
     </script>
@@ -148,7 +141,7 @@
 
           document.querySelectorAll('a, p, div, span').forEach((el) => {
             if (el.children.length === 0 && /\+?234\s*809\s*044\s*1087|08090441087/.test(el.textContent.trim())) {
-              el.textContent = phone;
+              if (el.textContent.trim() !== phone) el.textContent = phone;
             }
           });
         };
