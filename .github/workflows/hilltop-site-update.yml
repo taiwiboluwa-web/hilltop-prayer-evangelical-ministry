@@ -1,0 +1,180 @@
+name: Apply Hilltop Site Updates
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  update-site:
+    if: ${{ !contains(github.event.head_commit.message, '[hilltop-auto-update]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Update Hilltop content and forms
+        env:
+          PYTHONIOENCODING: utf-8
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          path = Path('src/App.tsx')
+          text = path.read_text(encoding='utf-8')
+
+          old_mission = "To equip believers through fervent prayer, sound teaching of God word, and active works of service, fulfilling the Great Commission by carrying the Gospel into Lagos and to the ends of the earth."
+          new_mission = "To inculcate a lifestyle of dominion into Christian individuals through consistent intensive study of God's Word (the Bible) and faith-based prayer lifestyle."
+          if old_mission in text:
+              text = text.replace(old_mission, new_mission, 1)
+
+          old_vision = "To be a beacon of spiritual awakening, raising a generation of joyful, grace-filled ambassadors who transform their families, workplaces, and cities through the power of God."
+          new_vision = "To raise restored Christians who will exercise divine dominion on earth, walking in the original purpose, image, and plan of God."
+          if old_vision in text:
+              text = text.replace(old_vision, new_vision, 1)
+
+          slogan_card = '''\n\n          <div className="glass-hi" style={{ borderRadius: 20, padding: '40px 36px', border: '1px solid rgba(201,168,76,0.25)', position: 'relative', overflow: 'hidden' }}>\n            <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'rgba(201,168,76,0.12)', border: '1px solid var(--gold)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20, color: 'var(--gold-light)', fontSize: '1.2rem', fontWeight: 800 }}>✦</div>\n            <AnimatedText tag="h3" className="serif" style={{ fontFamily: 'Instrument Serif', fontSize: '2rem', color: 'var(--ivory)', marginBottom: 12 }}>\n              Our Slogan\n            </AnimatedText>\n            <AnimatedText tag="p" style={{ fontFamily: 'Instrument Serif', fontStyle: 'italic', fontSize: '1.2rem', color: 'var(--gold-light)', lineHeight: 1.7 }}>\n              “…a city set on a hill cannot be hidden.”\n            </AnimatedText>\n            <div style={{ fontFamily: 'Outfit', fontSize: '0.72rem', color: 'var(--dimmed)', marginTop: 12, letterSpacing: '0.08em', textTransform: 'uppercase' }}>Matthew 5:14</div>\n          </div>'''
+
+          if 'Our Slogan' not in text:
+              marker = '''          </div>\n        </div>\n\n        <div style={{ marginBottom: 72 }}>'''
+              if marker in text:
+                  text = text.replace(marker, '''          </div>''' + slogan_card + '''\n        </div>\n\n        <div style={{ marginBottom: 72 }}>''', 1)
+
+          text = text.replace('info@hilltopministry.org', 'Hilltopprayerministry@gmail.com')
+
+          new_member_component = r'''function BecomeMember() {
+  const endpoint = import.meta.env.VITE_HILLTOP_FORMS_ENDPOINT || ''
+  const [activeForm, setActiveForm] = useState<'member' | 'prayer'>('member')
+  const [memberData, setMemberData] = useState({ name: '', email: '', phone: '' })
+  const [prayerData, setPrayerData] = useState({ name: '', email: '', phone: '', prayerPoint: '' })
+  const [submitted, setSubmitted] = useState<'member' | 'prayer' | null>(null)
+  const [sending, setSending] = useState(false)
+  const [error, setError] = useState('')
+
+  const submitToHilltop = async (type: 'member' | 'prayer') => {
+    setError('')
+    setSending(true)
+    const payload = type === 'member'
+      ? { type: 'member', ...memberData }
+      : { type: 'prayer_point', ...prayerData }
+
+    try {
+      if (!endpoint) {
+        throw new Error('The Hilltop submission connection has not been configured yet.')
+      }
+
+      await fetch(endpoint, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload),
+      })
+
+      setSubmitted(type)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unable to submit right now. Please try again.')
+    } finally {
+      setSending(false)
+    }
+  }
+
+  return (
+    <section id="become-member" style={{ minHeight: '100vh', background: '#08080e', display: 'flex', flexDirection: 'column', position: 'relative' }}>
+      <div style={{ position: 'relative', width: '100%', height: '42vh', minHeight: 320, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <img src={IMGS.diverse} alt="Welcome" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', filter: 'brightness(0.32) saturate(0.7)' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(8,8,14,0.4) 0%, #08080e 100%)' }} />
+        <div style={{ position: 'relative', zIndex: 2, textAlign: 'center', padding: '0 20px', marginTop: 40 }}>
+          <AnimatedText tag="h1" className="display" style={{ fontSize: 'clamp(2.4rem, 5vw, 4rem)', marginBottom: 12, color: '#f9f6f0' }}>Welcome</AnimatedText>
+          <AnimatedText tag="p" style={{ fontFamily: 'Outfit', fontSize: 'clamp(0.88rem, 1.5vw, 1.05rem)', color: 'rgba(242,237,228,0.85)', maxWidth: 700, margin: '0 auto', lineHeight: 1.6, fontWeight: 300 }}>
+            At Hilltop Prayer & Evangelical Ministry, our doors and hearts are always open. Whether you are joining the family or asking us to stand with you in prayer, we are here to walk with you in faith and fellowship.
+          </AnimatedText>
+        </div>
+      </div>
+
+      <div style={{ flex: 1, background: '#f5f0e6', padding: '60px 24px 80px', display: 'flex', flexDirection: 'column', alignItems: 'center', color: '#1a1a1a' }}>
+        <div style={{ width: '100%', maxWidth: 960, margin: '0 auto' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 10, marginBottom: 38, flexWrap: 'wrap' }}>
+            <button onClick={() => { setActiveForm('member'); setSubmitted(null); setError('') }} style={{ padding: '12px 20px', borderRadius: 999, border: activeForm === 'member' ? '1px solid #8c6d26' : '1px solid #d4cebe', background: activeForm === 'member' ? '#8c6d26' : '#fff', color: activeForm === 'member' ? '#fff' : '#554c3e', fontFamily: 'Outfit', fontWeight: 700, cursor: 'pointer' }}>Become a Member</button>
+            <button onClick={() => { setActiveForm('prayer'); setSubmitted(null); setError('') }} style={{ padding: '12px 20px', borderRadius: 999, border: activeForm === 'prayer' ? '1px solid #8c6d26' : '1px solid #d4cebe', background: activeForm === 'prayer' ? '#8c6d26' : '#fff', color: activeForm === 'prayer' ? '#fff' : '#554c3e', fontFamily: 'Outfit', fontWeight: 700, cursor: 'pointer' }}>Submit a Prayer Point</button>
+          </div>
+
+          <div style={{ textAlign: 'center', marginBottom: 44 }}>
+            <AnimatedText tag="h2" style={{ fontFamily: 'Instrument Serif', fontSize: 'clamp(2rem, 3.5vw, 2.8rem)', fontWeight: 400, color: '#1f1c16', marginBottom: 8 }}>
+              {activeForm === 'member' ? 'We Would Love to Hear from You' : 'Share Your Prayer Point'}
+            </AnimatedText>
+            <AnimatedText tag="p" style={{ fontFamily: 'Outfit', fontSize: '0.85rem', color: '#665e52', letterSpacing: '0.02em' }}>
+              {activeForm === 'member' ? 'Kindly fill out the form below and take your next step to being part of the Hilltop family.' : 'Share what you are trusting God for. Our prayer team will stand with you in faith.'}
+            </AnimatedText>
+          </div>
+
+          <div style={{ background: '#fcf9f2', padding: '48px 40px', borderRadius: 24, boxShadow: '0 20px 50px rgba(0,0,0,0.06)', border: '1px solid rgba(201,168,76,0.2)' }}>
+            {submitted ? (
+              <div style={{ textAlign: 'center', padding: '30px 20px' }}>
+                <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'rgba(46,125,50,0.1)', color: '#2e7d32', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.6rem', margin: '0 auto 16px' }}>✓</div>
+                <AnimatedText tag="h3" style={{ fontFamily: 'Instrument Serif', fontSize: '1.8rem', color: '#1f1c16', marginBottom: 8 }}>
+                  {submitted === 'member' ? 'Welcome to the Family!' : 'Prayer Point Received'}
+                </AnimatedText>
+                <p style={{ fontFamily: 'Outfit', fontSize: '0.88rem', color: '#554c3e', lineHeight: 1.6 }}>
+                  {submitted === 'member' ? `Thank you, ${memberData.name}. We have received your details and our team will reach out to welcome you warmly.` : `Thank you, ${prayerData.name || 'friend'}. Your prayer point has been received and our prayer team will stand with you in faith.`}
+                </p>
+                <button onClick={() => setSubmitted(null)} style={{ marginTop: 20, padding: '11px 18px', borderRadius: 8, border: '1px solid #d4cebe', background: '#fff', color: '#554c3e', fontFamily: 'Outfit', cursor: 'pointer' }}>Submit another</button>
+              </div>
+            ) : (
+              <form onSubmit={e => { e.preventDefault(); submitToHilltop(activeForm) }} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+                <div>
+                  <label style={{ display: 'block', fontFamily: 'Outfit', fontSize: '0.68rem', fontWeight: 700, letterSpacing: '0.12em', color: '#776d5e', textTransform: 'uppercase', marginBottom: 6 }}>Name</label>
+                  <input type="text" required placeholder="Enter your full name" value={activeForm === 'member' ? memberData.name : prayerData.name} onChange={e => activeForm === 'member' ? setMemberData({ ...memberData, name: e.target.value }) : setPrayerData({ ...prayerData, name: e.target.value })} style={{ width: '100%', padding: '12px 16px', borderRadius: 8, border: '1px solid #d4cebe', background: '#fff', fontFamily: 'Outfit', fontSize: '0.9rem', color: '#1f1c16', outline: 'none' }} />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontFamily: 'Outfit', fontSize: '0.68rem', fontWeight: 700, letterSpacing: '0.12em', color: '#776d5e', textTransform: 'uppercase', marginBottom: 6 }}>Email</label>
+                  <input type="email" required placeholder="Enter your email address" value={activeForm === 'member' ? memberData.email : prayerData.email} onChange={e => activeForm === 'member' ? setMemberData({ ...memberData, email: e.target.value }) : setPrayerData({ ...prayerData, email: e.target.value })} style={{ width: '100%', padding: '12px 16px', borderRadius: 8, border: '1px solid #d4cebe', background: '#fff', fontFamily: 'Outfit', fontSize: '0.9rem', color: '#1f1c16', outline: 'none' }} />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontFamily: 'Outfit', fontSize: '0.68rem', fontWeight: 700, letterSpacing: '0.12em', color: '#776d5e', textTransform: 'uppercase', marginBottom: 6 }}>Phone Number</label>
+                  <input type="tel" placeholder="Enter your phone number" value={activeForm === 'member' ? memberData.phone : prayerData.phone} onChange={e => activeForm === 'member' ? setMemberData({ ...memberData, phone: e.target.value }) : setPrayerData({ ...prayerData, phone: e.target.value })} style={{ width: '100%', padding: '12px 16px', borderRadius: 8, border: '1px solid #d4cebe', background: '#fff', fontFamily: 'Outfit', fontSize: '0.9rem', color: '#1f1c16', outline: 'none' }} />
+                </div>
+
+                {activeForm === 'prayer' && (
+                  <div>
+                    <label style={{ display: 'block', fontFamily: 'Outfit', fontSize: '0.68rem', fontWeight: 700, letterSpacing: '0.12em', color: '#776d5e', textTransform: 'uppercase', marginBottom: 6 }}>Prayer Point</label>
+                    <textarea required rows={6} placeholder="Write your prayer point here..." value={prayerData.prayerPoint} onChange={e => setPrayerData({ ...prayerData, prayerPoint: e.target.value })} style={{ width: '100%', padding: '12px 16px', borderRadius: 8, border: '1px solid #d4cebe', background: '#fff', fontFamily: 'Outfit', fontSize: '0.9rem', color: '#1f1c16', outline: 'none', resize: 'vertical' }} />
+                  </div>
+                )}
+
+                {error && <div style={{ padding: '12px 14px', borderRadius: 8, background: '#fff0f0', color: '#8a2f2f', fontFamily: 'Outfit', fontSize: '0.82rem' }}>{error}</div>}
+
+                <button type="submit" disabled={sending} style={{ marginTop: 8, padding: '14px 24px', borderRadius: 8, border: 'none', background: sending ? '#b4a98f' : '#8c6d26', color: '#fff', fontFamily: 'Outfit', fontWeight: 600, fontSize: '0.85rem', letterSpacing: '0.08em', cursor: sending ? 'wait' : 'pointer', textTransform: 'uppercase' }}>
+                  {sending ? 'Sending…' : activeForm === 'member' ? 'Join the Family' : 'Send Prayer Point'}
+                </button>
+              </form>
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+'''
+
+          text = re.sub(r'function BecomeMember\(\) \{.*?\n\}\n\nfunction AboutPage', new_member_component + '\nfunction AboutPage', text, count=1, flags=re.S)
+
+          path.write_text(text, encoding='utf-8')
+          print('Updated', path)
+          PY
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/App.tsx
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git commit -m "Update Hilltop mission, slogan, vision and submission forms [hilltop-auto-update]"
+          git push
