@@ -1,31 +1,52 @@
 import { useEffect } from 'react'
 
-const ICONS: Record<string, 'target' | 'sparkles'> = {
+type IconType = 'target' | 'sparkles' | 'mountain'
+
+const ICONS: Record<string, IconType> = {
   '🎯': 'target',
   '✨': 'sparkles',
+  '⛰️': 'mountain',
 }
 
-function Icon({ type }: { type: 'target' | 'sparkles' }) {
-  if (type === 'target') {
-    return (
-      <span aria-hidden="true" style={{ display: 'inline-flex', width: 24, height: 24, alignItems: 'center', justifyContent: 'center', color: 'currentColor' }}>
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="12" cy="12" r="9" />
-          <circle cx="12" cy="12" r="5" />
-          <circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none" />
-        </svg>
-      </span>
-    )
+function iconSvg(type: IconType, size = 24) {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+  svg.setAttribute('width', String(size))
+  svg.setAttribute('height', String(size))
+  svg.setAttribute('viewBox', '0 0 24 24')
+  svg.setAttribute('fill', 'none')
+  svg.setAttribute('stroke', 'currentColor')
+  svg.setAttribute('stroke-width', '1.6')
+  svg.setAttribute('stroke-linecap', 'round')
+  svg.setAttribute('stroke-linejoin', 'round')
+
+  const paths: Record<IconType, string> = {
+    target: '<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none"/>',
+    sparkles: '<path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.64 5.64l2.83 2.83M15.53 15.53l2.83 2.83M18.36 5.64l-2.83 2.83M8.47 15.53l-2.83 2.83"/><circle cx="12" cy="12" r="2.2"/>',
+    mountain: '<path d="m3 18 6.5-9 3.2 4.2 2-2.7L21 18H3Z"/><path d="m13.7 12.8 1-1.3 1.3 1.7"/>',
   }
 
-  return (
-    <span aria-hidden="true" style={{ display: 'inline-flex', width: 24, height: 24, alignItems: 'center', justifyContent: 'center', color: 'currentColor' }}>
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
-        <circle cx="12" cy="12" r="2.5" />
-      </svg>
-    </span>
-  )
+  svg.innerHTML = paths[type]
+  return svg
+}
+
+function createIcon(type: IconType) {
+  const holder = document.createElement('span')
+  holder.setAttribute('aria-hidden', 'true')
+  holder.style.display = 'inline-flex'
+  holder.style.width = '30px'
+  holder.style.height = '30px'
+  holder.style.minWidth = '30px'
+  holder.style.alignItems = 'center'
+  holder.style.justifyContent = 'center'
+  holder.style.verticalAlign = 'middle'
+  holder.style.lineHeight = '1'
+  holder.style.borderRadius = '50%'
+  holder.style.background = 'rgba(17,17,22,0.9)'
+  holder.style.border = '1px solid rgba(201,168,76,0.28)'
+  holder.style.color = 'currentColor'
+  holder.style.boxSizing = 'border-box'
+  holder.appendChild(iconSvg(type, 17))
+  return holder
 }
 
 function replaceEmojiText(root: Node) {
@@ -35,23 +56,19 @@ function replaceEmojiText(root: Node) {
 
   while ((node = walker.nextNode())) {
     const text = node.textContent || ''
-    if ([...ICONS.keys()].some(icon => text.includes(icon))) nodes.push(node as Text)
+    if ([...Object.keys(ICONS)].some(icon => text.includes(icon))) nodes.push(node as Text)
   }
 
   nodes.forEach(textNode => {
     const text = textNode.textContent || ''
-    const parts = text.split(/(🎯|✨)/g)
+    const parts = text.split(/(🎯|✨|⛰️)/g)
     if (parts.length === 1) return
 
     const fragment = document.createDocumentFragment()
     parts.forEach(part => {
-      if (ICONS[part]) {
-        const holder = document.createElement('span')
-        holder.style.display = 'inline-flex'
-        holder.style.verticalAlign = 'middle'
-        holder.style.lineHeight = '1'
-        holder.appendChild(part === '🎯' ? createTargetIcon() : createSparkleIcon())
-        fragment.appendChild(holder)
+      const type = ICONS[part]
+      if (type) {
+        fragment.appendChild(createIcon(type))
       } else if (part) {
         fragment.appendChild(document.createTextNode(part))
       }
@@ -59,50 +76,6 @@ function replaceEmojiText(root: Node) {
 
     textNode.parentNode?.replaceChild(fragment, textNode)
   })
-}
-
-function createTargetIcon() {
-  const span = document.createElement('span')
-  span.setAttribute('aria-hidden', 'true')
-  span.style.display = 'inline-flex'
-  span.style.width = '24px'
-  span.style.height = '24px'
-  span.style.alignItems = 'center'
-  span.style.justifyContent = 'center'
-  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
-  svg.setAttribute('width', '24')
-  svg.setAttribute('height', '24')
-  svg.setAttribute('viewBox', '0 0 24 24')
-  svg.setAttribute('fill', 'none')
-  svg.setAttribute('stroke', 'currentColor')
-  svg.setAttribute('stroke-width', '1.7')
-  svg.setAttribute('stroke-linecap', 'round')
-  svg.setAttribute('stroke-linejoin', 'round')
-  svg.innerHTML = '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/>'
-  span.appendChild(svg)
-  return span
-}
-
-function createSparkleIcon() {
-  const span = document.createElement('span')
-  span.setAttribute('aria-hidden', 'true')
-  span.style.display = 'inline-flex'
-  span.style.width = '24px'
-  span.style.height = '24px'
-  span.style.alignItems = 'center'
-  span.style.justifyContent = 'center'
-  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
-  svg.setAttribute('width', '24')
-  svg.setAttribute('height', '24')
-  svg.setAttribute('viewBox', '0 0 24 24')
-  svg.setAttribute('fill', 'none')
-  svg.setAttribute('stroke', 'currentColor')
-  svg.setAttribute('stroke-width', '1.7')
-  svg.setAttribute('stroke-linecap', 'round')
-  svg.setAttribute('stroke-linejoin', 'round')
-  svg.innerHTML = '<path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/><circle cx="12" cy="12" r="2.5"/>'
-  span.appendChild(svg)
-  return span
 }
 
 export function EmojiIconReplacer() {
