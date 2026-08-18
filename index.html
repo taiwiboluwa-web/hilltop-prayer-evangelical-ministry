@@ -13,9 +13,7 @@
     <meta name="publisher" content="Hilltop Prayer & Evangelical Ministry" />
     <link rel="canonical" href="https://hilltop-prayer-evangelical-ministry.vercel.app/" />
     <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
-
     <title>Hilltop Prayer & Evangelical Ministry | Church in Ipaja, Lagos</title>
-
     <meta property="og:site_name" content="Hilltop Prayer & Evangelical Ministry" />
     <meta property="og:title" content="Hilltop Prayer & Evangelical Ministry | Church in Ipaja, Lagos" />
     <meta property="og:description" content="A Christian church in Ipaja, Lagos, committed to prayer, evangelism, worship, discipleship and the teaching of God's Word." />
@@ -24,13 +22,11 @@
     <meta property="og:locale" content="en_NG" />
     <meta property="og:image" content="https://images.unsplash.com/photo-1510590124886-dc2653b48bf0?w=1200&h=630&fit=crop&auto=format" />
     <meta property="og:image:alt" content="Hilltop Prayer & Evangelical Ministry in Ipaja, Lagos" />
-
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Hilltop Prayer & Evangelical Ministry | Church in Ipaja, Lagos" />
     <meta name="twitter:description" content="Prayer, worship, evangelism, discipleship, sermons and Christian fellowship in Ipaja, Lagos, Nigeria." />
     <meta name="twitter:image" content="https://images.unsplash.com/photo-1510590124886-dc2653b48bf0?w=1200&h=630&fit=crop&auto=format" />
     <meta name="twitter:image:alt" content="Hilltop Prayer & Evangelical Ministry" />
-
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -81,6 +77,52 @@
         <p>Find sermons, ministry events, prayer gatherings, Christian fellowship and community outreach from Hilltop Prayer & Evangelical Ministry.</p>
       </main>
     </noscript>
+    <script>
+      (() => {
+        const mission = "To inculcate a lifestyle of dominion into Christian individuals through consistent intensive study of God's word (the Bible) and faith based prayer lifestyle.";
+        const vision = "To raise restored Christians who will exercise divine dominion on earth, walking in the original purpose, image, and plan of God.";
+        const slogan = "... a city set on a hill cannot be hidden.";
+
+        const updateAboutContent = () => {
+          const headings = Array.from(document.querySelectorAll('h3'));
+          const findCard = (label) => {
+            const heading = headings.find((el) => el.textContent.trim() === label);
+            return heading ? heading.closest('.glass-hi') : null;
+          };
+
+          const missionCard = findCard('Our Mission');
+          const visionCard = findCard('Our Vision');
+
+          if (missionCard) {
+            const p = missionCard.querySelector('p');
+            if (p && p.textContent.trim() !== mission) p.textContent = mission;
+          }
+
+          if (visionCard) {
+            const p = visionCard.querySelector('p');
+            if (p && p.textContent.trim() !== vision) p.textContent = vision;
+          }
+
+          const grid = missionCard && missionCard.parentElement;
+          if (grid && visionCard && !grid.querySelector('[data-hilltop-slogan]')) {
+            const card = document.createElement('div');
+            card.setAttribute('data-hilltop-slogan', 'true');
+            card.className = 'glass-hi';
+            card.style.cssText = 'border-radius:20px;padding:40px 36px;border:1px solid rgba(201,168,76,0.25);position:relative;overflow:hidden;';
+            card.innerHTML = `
+              <div style="width:48px;height:48px;border-radius:50%;background:rgba(201,168,76,0.12);border:1px solid var(--gold);display:flex;align-items:center;justify-content:center;margin-bottom:20px;color:var(--gold-light);font-size:1.2rem;font-weight:800">⛰️</div>
+              <h3 class="serif" style="font-family:'Instrument Serif';font-size:2rem;color:var(--ivory);margin-bottom:12px">Our Slogan</h3>
+              <p style="font-family:'Outfit';font-size:0.92rem;color:var(--muted);line-height:1.75">${slogan}</p>
+            `;
+            grid.appendChild(card);
+          }
+        };
+
+        const observer = new MutationObserver(updateAboutContent);
+        observer.observe(document.getElementById('root'), { childList: true, subtree: true, characterData: true });
+        updateAboutContent();
+      })();
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
