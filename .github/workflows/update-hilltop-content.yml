@@ -1,0 +1,86 @@
+name: Update Hilltop church content
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  update-content:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Update Mission, Vision, Slogan and church email
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+
+          app = Path('src/App.tsx')
+          text = app.read_text(encoding='utf-8')
+
+          old_mission = "To equip believers through fervent prayer, sound teaching of God word, and active works of service, fulfilling the Great Commission by carrying the Gospel into Lagos and to the ends of the earth."
+          new_mission = "To inculcate a lifestyle of dominion into Christian individuals through consistent intensive study of God's Word (the Bible) and a faith-based prayer lifestyle."
+          old_vision = "To be a beacon of spiritual awakening, raising a generation of joyful, grace-filled ambassadors who transform their families, workplaces, and cities through the power of God."
+          new_vision = "To raise restored Christians who will exercise divine dominion on earth, walking in the original purpose, image, and plan of God."
+
+          text = text.replace(old_mission, new_mission)
+          text = text.replace(old_vision, new_vision)
+
+          # Add the slogan card directly after the existing Vision card.
+          vision_block = '''          <div className="glass-hi" style={{ borderRadius: 20, padding: '40px 36px', border: '1px solid rgba(201,168,76,0.25)', position: 'relative', overflow: 'hidden' }}>
+            <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'rgba(201,168,76,0.12)', border: '1px solid var(--gold)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20, color: 'var(--gold-light)', fontSize: '1.2rem', fontWeight: 800 }}>✨</div>
+            <AnimatedText tag="h3" className="serif" style={{ fontFamily: 'Instrument Serif', fontSize: '2rem', color: 'var(--ivory)', marginBottom: 12 }}>
+              Our Vision
+            </AnimatedText>
+            <AnimatedText tag="p" style={{ fontFamily: 'Outfit', fontSize: '0.92rem', color: 'var(--muted)', lineHeight: 1.75 }}>
+              To raise restored Christians who will exercise divine dominion on earth, walking in the original purpose, image, and plan of God.
+            </AnimatedText>
+          </div>'''
+
+          slogan_card = '''
+
+          <div className="glass-hi" style={{ borderRadius: 20, padding: '40px 36px', border: '1px solid rgba(201,168,76,0.25)', position: 'relative', overflow: 'hidden' }}>
+            <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'rgba(201,168,76,0.12)', border: '1px solid var(--gold)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20, color: 'var(--gold-light)', fontSize: '1.2rem', fontWeight: 800 }}>✦</div>
+            <AnimatedText tag="h3" className="serif" style={{ fontFamily: 'Instrument Serif', fontSize: '2rem', color: 'var(--ivory)', marginBottom: 12 }}>
+              Our Slogan
+            </AnimatedText>
+            <AnimatedText tag="p" style={{ fontFamily: 'Outfit', fontSize: '0.92rem', color: 'var(--muted)', lineHeight: 1.75 }}>
+              …a city set on a hill cannot be hidden.
+            </AnimatedText>
+          </div>'''
+
+          if 'Our Slogan' not in text:
+              if vision_block not in text:
+                  raise SystemExit('Could not locate the Vision card safely; no partial update made.')
+              text = text.replace(vision_block, vision_block + slogan_card, 1)
+
+          # Make the church email available wherever the App already has mailto links.
+          text = re.sub(r'mailto:[^\"\'\\)<>\s]+', 'mailto:Hilltopprayerministry@gmail.com', text)
+          app.write_text(text, encoding='utf-8')
+
+          # Update the visible admin email placeholder to the church email.
+          admin = Path('src/pages/AdminPortal.tsx')
+          if admin.exists():
+              a = admin.read_text(encoding='utf-8')
+              a = a.replace('admin@hilltopministry.org', 'Hilltopprayerministry@gmail.com')
+              admin.write_text(a, encoding='utf-8')
+
+      - name: Commit changes and remove one-time workflow
+        shell: bash
+        run: |
+          rm -f .github/workflows/update-hilltop-content.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/App.tsx src/pages/AdminPortal.tsx .github/workflows/update-hilltop-content.yml
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git commit -m "Update church mission, vision, slogan and email"
+          git push
