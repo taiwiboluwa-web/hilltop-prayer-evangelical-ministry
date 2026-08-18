@@ -37,6 +37,7 @@
         "description": "Hilltop Prayer & Evangelical Ministry is a Christian church in Ipaja, Lagos State, Nigeria, committed to prayer, evangelism, worship and the teaching of God's Word.",
         "image": "https://images.unsplash.com/photo-1510590124886-dc2653b48bf0?w=1200&h=630&fit=crop&auto=format",
         "telephone": "+2348068483718",
+        "email": "Hilltopprayerministry@gmail.com",
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "3 Kola Ojedeji Street",
@@ -73,6 +74,13 @@
         <h2>Christian Church in Ipaja, Lagos State, Nigeria</h2>
         <p>Hilltop Prayer & Evangelical Ministry is a Christian church in Ipaja, Lagos State, Nigeria, committed to prayer, evangelism, worship and the teaching of God's Word.</p>
         <p>Visit us at 3 Kola Ojedeji Street, Ipaja, Lagos State, Nigeria. We welcome people from Ipaja, Iyana Ipaja, Egbeda, Abule Egba, Alimosho and surrounding communities.</p>
+        <p>Email: Hilltopprayerministry@gmail.com</p>
+        <h2>Our Mission</h2>
+        <p>To inculcate a lifestyle of dominion into Christian individuals through consistent intensive study of God's word (the Bible) and faith based prayer lifestyle.</p>
+        <h2>Our Vision</h2>
+        <p>To raise restored Christians who will exercise divine dominion on earth, walking in the original purpose, image, and plan of God.</p>
+        <h2>Our Slogan</h2>
+        <p>... a city set on a hill cannot be hidden.</p>
         <h2>Prayer, Worship, Evangelism and Discipleship</h2>
         <p>Find sermons, ministry events, prayer gatherings, Christian fellowship and community outreach from Hilltop Prayer & Evangelical Ministry.</p>
       </main>
@@ -82,6 +90,7 @@
         const mission = "To inculcate a lifestyle of dominion into Christian individuals through consistent intensive study of God's word (the Bible) and faith based prayer lifestyle.";
         const vision = "To raise restored Christians who will exercise divine dominion on earth, walking in the original purpose, image, and plan of God.";
         const slogan = "... a city set on a hill cannot be hidden.";
+        const email = "Hilltopprayerministry@gmail.com";
 
         const updateAboutContent = () => {
           const headings = Array.from(document.querySelectorAll('h3'));
@@ -116,6 +125,11 @@
             `;
             grid.appendChild(card);
           }
+
+          document.querySelectorAll('a[href^="mailto:"]').forEach((a) => {
+            a.setAttribute('href', `mailto:${email}`);
+            if (!a.textContent.trim() || /email/i.test(a.textContent)) a.textContent = email;
+          });
         };
 
         const observer = new MutationObserver(updateAboutContent);
