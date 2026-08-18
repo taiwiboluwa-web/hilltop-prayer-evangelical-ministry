@@ -9,6 +9,7 @@ import { Analytics } from './components/Analytics'
 import { LocationDirections } from './components/LocationDirections'
 import { AdminSecurity } from './components/AdminSecurity'
 import { AdminPortal } from './pages/AdminPortal'
+import { EmojiIconReplacer } from './components/EmojiIconReplacer'
 
 function Site() {
   const [locationHost, setLocationHost] = useState<HTMLElement | null>(null)
@@ -51,6 +52,7 @@ function Site() {
     <>
       <Analytics />
       <AdminSecurity />
+      {!isAdminRoute && <EmojiIconReplacer />}
       {isAdminRoute ? (
         <AdminPortal onBack={goHome} />
       ) : (
