@@ -36,7 +36,7 @@
         "url": "https://hilltop-prayer-evangelical-ministry.vercel.app/",
         "description": "Hilltop Prayer & Evangelical Ministry is a Christian church in Ipaja, Lagos State, Nigeria, committed to prayer, evangelism, worship and the teaching of God's Word.",
         "image": "https://images.unsplash.com/photo-1510590124886-dc2653b48bf0?w=1200&h=630&fit=crop&auto=format",
-        "telephone": "+2348068483718",
+        "telephone": "+2348134346180",
         "email": "Hilltopprayerministry@gmail.com",
         "address": {
           "@type": "PostalAddress",
@@ -74,6 +74,7 @@
         <h2>Christian Church in Ipaja, Lagos State, Nigeria</h2>
         <p>Hilltop Prayer & Evangelical Ministry is a Christian church in Ipaja, Lagos State, Nigeria, committed to prayer, evangelism, worship and the teaching of God's Word.</p>
         <p>Visit us at 3 Kola Ojedeji Street, Ipaja, Lagos State, Nigeria. We welcome people from Ipaja, Iyana Ipaja, Egbeda, Abule Egba, Alimosho and surrounding communities.</p>
+        <p>Phone / WhatsApp: +234 813 434 6180</p>
         <p>Email: Hilltopprayerministry@gmail.com</p>
         <h2>Our Mission</h2>
         <p>To inculcate a lifestyle of dominion into Christian individuals through consistent intensive study of God's word (the Bible) and faith based prayer lifestyle.</p>
@@ -91,6 +92,9 @@
         const vision = "To raise restored Christians who will exercise divine dominion on earth, walking in the original purpose, image, and plan of God.";
         const slogan = "... a city set on a hill cannot be hidden.";
         const email = "Hilltopprayerministry@gmail.com";
+        const phone = "+234 813 434 6180";
+        const phoneHref = "tel:+2348134346180";
+        const whatsappHref = "https://wa.me/2348134346180";
 
         const updateAboutContent = () => {
           const headings = Array.from(document.querySelectorAll('h3'));
@@ -129,6 +133,23 @@
           document.querySelectorAll('a[href^="mailto:"]').forEach((a) => {
             a.setAttribute('href', `mailto:${email}`);
             if (!a.textContent.trim() || /email/i.test(a.textContent)) a.textContent = email;
+          });
+
+          document.querySelectorAll('a[href*="wa.me"], a[href*="whatsapp"]').forEach((a) => {
+            a.setAttribute('href', whatsappHref);
+            a.setAttribute('target', '_blank');
+            a.setAttribute('rel', 'noreferrer');
+          });
+
+          document.querySelectorAll('a[href^="tel:"]').forEach((a) => {
+            a.setAttribute('href', phoneHref);
+            if (/08090441087|\+234\s*809\s*044\s*1087|809\s*044\s*1087/.test(a.textContent)) a.textContent = phone;
+          });
+
+          document.querySelectorAll('a, p, div, span').forEach((el) => {
+            if (el.children.length === 0 && /\+?234\s*809\s*044\s*1087|08090441087/.test(el.textContent.trim())) {
+              el.textContent = phone;
+            }
           });
         };
 
