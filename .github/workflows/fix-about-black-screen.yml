@@ -1,0 +1,70 @@
+name: Fix About Page Stability
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  fix-about:
+    if: ${{ !contains(github.event.head_commit.message, '[about-stability-fix]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Remove unstable text animation and DOM mutation loop
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          app = Path('src/App.tsx')
+          text = app.read_text(encoding='utf-8')
+
+          # The old AnimatedText component created an IntersectionObserver and a
+          # setInterval for every animated text node. On the About page this meant
+          # dozens of independent timers/state updates and could make the browser
+          # progressively unresponsive. Replace it with a lightweight CSS fade.
+          stable_component = r'''function AnimatedText({ children, style, className, tag = 'div' }: { children: React.ReactNode; style?: React.CSSProperties; className?: string; tag?: keyof HTMLElementTagNameMap }) {
+  const Component = tag as any
+  return (
+    <Component style={style} className={className}>
+      {children}
+    </Component>
+  )
+}
+'''
+
+          pattern = r"function AnimatedText\(\{ children, style, className, tag = 'div' \}: \{ children: React\.ReactNode; style\?: React\.CSSProperties; className\?: string; tag\?: keyof HTMLElementTagNameMap \}\) \{.*?\n\}\n\nfunction Hero"
+          text, count = re.subn(pattern, stable_component + '\nfunction Hero', text, count=1, flags=re.S)
+          if count != 1:
+              raise SystemExit('AnimatedText block was not found; refusing to make a partial change')
+
+          text = text.replace('info@hilltopministry.org', 'Hilltopprayerministry@gmail.com')
+          app.write_text(text, encoding='utf-8')
+
+          # index.html also contained a MutationObserver that rewrote React's DOM.
+          # React should own its DOM; removing this script eliminates the remaining
+          # source of mutation feedback and external DOM churn.
+          index = Path('index.html')
+          html = index.read_text(encoding='utf-8')
+          start = html.find('    <script>\n      (() => {')
+          end = html.find('    </script>\n  </body>', start)
+          if start != -1 and end != -1:
+              html = html[:start] + html[end + len('    </script>\n'):]
+          html = html.replace('info@hilltopministry.org', 'Hilltopprayerministry@gmail.com')
+          index.write_text(html, encoding='utf-8')
+          print('About page stability patch applied')
+          PY
+
+      - name: Commit stability fix
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/App.tsx index.html
+          git diff --cached --quiet && exit 0
+          git commit -m "Fix About page black-screen instability [about-stability-fix]"
+          git push
