@@ -124,31 +124,46 @@
           }
 
           document.querySelectorAll('a[href^="mailto:"]').forEach((a) => {
-            a.setAttribute('href', `mailto:${email}`);
-            if (!a.textContent.trim() || /email/i.test(a.textContent)) a.textContent = email;
+            if (a.getAttribute('href') !== `mailto:${email}`) a.setAttribute('href', `mailto:${email}`);
+            if ((!a.textContent.trim() || /email/i.test(a.textContent)) && a.textContent.trim() !== email) a.textContent = email;
           });
 
           document.querySelectorAll('a[href*="wa.me"], a[href*="whatsapp"]').forEach((a) => {
-            a.setAttribute('href', whatsappHref);
+            if (a.getAttribute('href') !== whatsappHref) a.setAttribute('href', whatsappHref);
             a.setAttribute('target', '_blank');
             a.setAttribute('rel', 'noreferrer');
           });
 
           document.querySelectorAll('a[href^="tel:"]').forEach((a) => {
-            a.setAttribute('href', phoneHref);
-            if (/08090441087|\+234\s*809\s*044\s*1087|809\s*044\s*1087/.test(a.textContent)) a.textContent = phone;
+            if (a.getAttribute('href') !== phoneHref) a.setAttribute('href', phoneHref);
+            if (/08090441087|\+234\s*809\s*044\s*1087|809\s*044\s*1087/.test(a.textContent) && a.textContent.trim() !== phone) a.textContent = phone;
           });
 
           document.querySelectorAll('a, p, div, span').forEach((el) => {
-            if (el.children.length === 0 && /\+?234\s*809\s*044\s*1087|08090441087/.test(el.textContent.trim())) {
-              if (el.textContent.trim() !== phone) el.textContent = phone;
+            if (el.children.length === 0 && /\+?234\s*809\s*044\s*1087|08090441087/.test(el.textContent.trim()) && el.textContent.trim() !== phone) {
+              el.textContent = phone;
             }
           });
         };
 
-        const observer = new MutationObserver(updateAboutContent);
-        observer.observe(document.getElementById('root'), { childList: true, subtree: true, characterData: true });
-        updateAboutContent();
+        let queued = false;
+        const scheduleUpdate = () => {
+          if (queued) return;
+          queued = true;
+          requestAnimationFrame(() => {
+            queued = false;
+            updateAboutContent();
+          });
+        };
+
+        const root = document.getElementById('root');
+        if (root) {
+          const observer = new MutationObserver(scheduleUpdate);
+          // Do NOT observe characterData: this script changes text nodes itself,
+          // which previously created a mutation feedback loop and could blank the page.
+          observer.observe(root, { childList: true, subtree: true });
+          updateAboutContent();
+        }
       })();
     </script>
     <script type="module" src="/src/main.tsx"></script>
