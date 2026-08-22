@@ -13,19 +13,16 @@ function useScrolled(px = 60) {
 }
 
 export function Logo({ size = 'md' }: { size?: 'sm' | 'md' }) {
-  const s = size === 'sm' ? 28 : 34
+  const width = size === 'sm' ? 94 : 118
+  const height = Math.round(width * 41 / 118)
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-      <svg width={s} height={s} viewBox="0 0 34 34" fill="none">
-        <polygon points="17,2 32,31 2,31" stroke="#c9a84c" strokeWidth="1.6" strokeLinejoin="round" fill="none"/>
-        <line x1="17" y1="2" x2="17" y2="31" stroke="#c9a84c" strokeWidth="1" opacity="0.35"/>
-        <circle cx="17" cy="18" r="2.5" fill="#c9a84c" opacity="0.7"/>
-      </svg>
-      <div>
-        <div style={{ fontFamily: 'Outfit', fontWeight: 800, fontSize: size === 'sm' ? '0.8rem' : '0.9rem', letterSpacing: '0.15em', background: 'linear-gradient(135deg,#c9a84c,#e4c76b,#c9a84c)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>HILLTOP</div>
-        <div style={{ fontFamily: 'Outfit', fontSize: '0.55rem', letterSpacing: '0.18em', color: 'rgba(201,168,76,0.5)', marginTop: '-1px' }}>MINISTRY</div>
-      </div>
-    </div>
+    <img
+      src="/hilltop-logo.svg"
+      alt="Hilltop Ministry"
+      width={width}
+      height={height}
+      style={{ display: 'block', width, height, objectFit: 'contain' }}
+    />
   )
 }
 
@@ -64,7 +61,6 @@ export function Navbar({ activePage, setActivePage }: { activePage: string; setA
           <Logo size="sm" />
         </button>
 
-        {/* Desktop Nav Links (Hidden on Mobile) */}
         {!isMobile && (
           <div style={{ flex: 1, display: 'flex', justifyContent: 'center', gap: 4, flexWrap: 'wrap' }}>
             {NAV_LINKS.map(l => (
@@ -82,12 +78,10 @@ export function Navbar({ activePage, setActivePage }: { activePage: string; setA
           </div>
         )}
 
-        {/* Desktop Give Button (Hidden on Mobile) */}
         {!isMobile && (
           <button onClick={() => handleNavClick('Give')} className="btn btn-gold" style={{ padding: '9px 20px', fontSize: '0.68rem', border: 'none', cursor: 'pointer' }}>Give</button>
         )}
 
-        {/* Mobile Hamburger Button */}
         {isMobile && (
           <button onClick={() => setOpen(o => !o)} style={{ background: 'none', border: 'none', color: '#f2ede4', cursor: 'pointer', padding: 6, display: 'flex', alignItems: 'center', justifyContent: 'center' }} aria-label="Menu">
             <svg width="22" height="16" viewBox="0 0 22 16" fill="currentColor">
@@ -99,7 +93,6 @@ export function Navbar({ activePage, setActivePage }: { activePage: string; setA
         )}
       </nav>
 
-      {/* Mobile Dropdown Menu Drawer */}
       {isMobile && open && (
         <div className="glass-hi" style={{ position: 'absolute', top: 76, left: 20, right: 20, borderRadius: 20, padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 8, background: 'rgba(15,15,24,0.95)', backdropFilter: 'blur(12px)' }}>
           {NAV_LINKS.map(l => (
