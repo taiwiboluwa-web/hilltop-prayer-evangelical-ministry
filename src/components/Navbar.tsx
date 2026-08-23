@@ -13,7 +13,7 @@ function useScrolled(px = 60) {
 }
 
 export function Logo({ size = 'md' }: { size?: 'sm' | 'md' }) {
-  const width = size === 'sm' ? 94 : 118
+  const width = size === 'sm' ? 150 : 210
   const height = Math.round(width * 41 / 118)
   return (
     <img
@@ -21,6 +21,9 @@ export function Logo({ size = 'md' }: { size?: 'sm' | 'md' }) {
       alt="Hilltop Ministry"
       width={width}
       height={height}
+      loading="eager"
+      fetchPriority="high"
+      decoding="async"
       style={{ display: 'block', width, height, objectFit: 'contain' }}
     />
   )
