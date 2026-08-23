@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "node scripts/stabilize-about-build.mjs && node scripts/upgrade-minister-admin.mjs && node scripts/fix-admin-and-minister-sync.mjs && tsc && vite build",
+    "build": "node scripts/stabilize-about-build.mjs && node scripts/upgrade-minister-admin.mjs && node scripts/fix-admin-and-minister-sync.mjs && node scripts/fix-minister-gallery.mjs && tsc && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
