@@ -7,7 +7,7 @@ let source = fs.readFileSync(file, 'utf8')
 if (source.includes('/* DYNAMIC_MINISTER_MANAGER_V2 */')) process.exit(0)
 
 const oldState = "const [ministers,setMinisters]=useState<Minister[]>([]),[selectedMinister,setSelectedMinister]=useState(1),[mName,setMName]=useState(''),[mRole,setMRole]=useState(''),[mDesc,setMDesc]=useState(''),[mImage,setMImage]=useState('');"
-const newState = oldState + "\n  const maxMinisterSlot=Math.max(5,...ministers.map(m=>Number(m.display_order)||0));\n  const ministerSlots=Array.from({length:maxMinisterSlot},(_,i)=>i+1);"
+const newState = oldState + "\n  const maxMinisterSlot=Math.max(3,...ministers.map(m=>Number(m.display_order)||0));\n  const ministerSlots=Array.from({length:maxMinisterSlot},(_,i)=>i+1);"
 if (!source.includes(oldState)) throw new Error('AdminPortal state marker not found')
 source = source.replace(oldState, newState)
 
