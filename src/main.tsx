@@ -10,6 +10,7 @@ import { LocationDirections } from './components/LocationDirections'
 import { AdminSecurity } from './components/AdminSecurity'
 import { AdminPortal } from './pages/AdminPortal'
 import { EmojiIconReplacer } from './components/EmojiIconReplacer'
+import { GalleryMomentsEnhancer } from './components/GalleryMomentsEnhancer'
 
 const PUBLIC_ROUTES: Record<string, string> = {
   '/': 'Home', '/Home': 'Home', '/About': 'About', '/Sermons': 'Sermons', '/Events': 'Events',
@@ -79,7 +80,7 @@ function Site() {
     <Analytics />
     <AdminSecurity />
     {!isAdminRoute && <EmojiIconReplacer />}
-    {isAdminRoute ? <AdminPortal onBack={goHome} /> : <><App />{locationHost && createPortal(<LocationDirections />, locationHost)}</>}
+    {isAdminRoute ? <><AdminPortal onBack={goHome} /><GalleryMomentsEnhancer /></> : <><App />{locationHost && createPortal(<LocationDirections />, locationHost)}{publicPage === 'Events' && <GalleryMomentsEnhancer publicEvents />}</>}
   </>
 }
 
