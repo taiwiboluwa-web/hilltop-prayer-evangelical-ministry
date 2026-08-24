@@ -25,7 +25,7 @@ function Site() {
   const [locationHost, setLocationHost] = useState<HTMLElement | null>(null)
   const [path, setPath] = useState(() => window.location.pathname)
   const normalizedPath = path.replace(/\/+$/, '') || '/'
-  const isAdminRoute = normalizedPath.toLowerCase() === '/admin' || normalizedPath.toLowerCase() === '/adminaccess' || normalizedPath.toLowerCase() === '/adminpanel' || normalizedPath.toLowerCase().startsWith('/admin/')
+  const isAdminRoute = /^\/admin(?:\/.*)?$/i.test(normalizedPath) || /^\/adminaccess$/i.test(normalizedPath) || /^\/adminpanel$/i.test(normalizedPath)
   const publicPage = routeToPage(path)
 
   useLayoutEffect(() => {
