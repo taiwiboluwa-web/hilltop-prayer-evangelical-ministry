@@ -11,9 +11,29 @@ import { AdminSecurity } from './components/AdminSecurity'
 import { AdminPortal } from './pages/AdminPortal'
 import { EmojiIconReplacer } from './components/EmojiIconReplacer'
 
+const PUBLIC_ROUTES: Record<string, string> = {
+  '/': 'Home',
+  '/Home': 'Home',
+  '/About': 'About',
+  '/Sermons': 'Sermons',
+  '/Events': 'Events',
+  '/Ministers': 'Ministers',
+  '/Become%20a%20Member': 'Become a Member',
+  '/Become%20a%20Member/': 'Become a Member',
+  '/Give': 'Give',
+}
+
+function routeToPage(pathname: string) {
+  const normalized = pathname.replace(/\/$/, '') || '/'
+  return PUBLIC_ROUTES[normalized] || PUBLIC_ROUTES[decodeURI(normalized)] || 'Home'
+}
+
 function Site() {
   const [locationHost, setLocationHost] = useState<HTMLElement | null>(null)
   const [path, setPath] = useState(() => window.location.pathname)
+
+  const isAdminRoute = path === '/admin' || path === '/admin/login' || path.startsWith('/admin/')
+  const publicPage = routeToPage(path)
 
   useLayoutEffect(() => {
     const onPopState = () => setPath(window.location.pathname)
@@ -21,7 +41,39 @@ function Site() {
     return () => window.removeEventListener('popstate', onPopState)
   }, [])
 
-  const isAdminRoute = path === '/admin' || path === '/admin/login' || path.startsWith('/admin/')
+  useLayoutEffect(() => {
+    if (isAdminRoute) return
+
+    const syncPage = () => {
+      const buttons = Array.from(document.querySelectorAll('button'))
+      const target = buttons.find(button => button.textContent?.trim() === publicPage)
+      if (target) target.click()
+      window.scrollTo({ top: 0, behavior: 'auto' })
+    }
+
+    const timer = window.setTimeout(syncPage, 0)
+    return () => window.clearTimeout(timer)
+  }, [isAdminRoute, publicPage])
+
+  useLayoutEffect(() => {
+    if (isAdminRoute) return
+
+    const handleClick = (event: MouseEvent) => {
+      const target = event.target as HTMLElement | null
+      const button = target?.closest('button')
+      const label = button?.textContent?.trim()
+      if (!label || !Object.values(PUBLIC_ROUTES).includes(label)) return
+
+      const route = label === 'Home' ? '/' : Object.entries(PUBLIC_ROUTES).find(([, page]) => page === label)?.[0]
+      if (route && window.location.pathname !== route) {
+        window.history.pushState({}, '', route)
+        setPath(route)
+      }
+    }
+
+    document.addEventListener('click', handleClick)
+    return () => document.removeEventListener('click', handleClick)
+  }, [isAdminRoute])
 
   useLayoutEffect(() => {
     if (isAdminRoute) {
