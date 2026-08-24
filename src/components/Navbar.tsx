@@ -17,8 +17,8 @@ export function Logo({ size = 'md' }: { size?: 'sm' | 'md' }) {
   const height = Math.round(width * 41 / 118)
   return (
     <img
-      src="/Hilltop Prayer (2).png"
-      alt="Hilltop Ministry"
+      src="/Hilltop Prayer (3).png"
+      alt="Hilltop Prayer & Evangelical Ministry logo"
       width={width}
       height={height}
       loading="eager"
