@@ -1,0 +1,21 @@
+import fs from 'node:fs'
+import path from 'node:path'
+
+const file = path.resolve('src/App.tsx')
+let source = fs.readFileSync(file, 'utf8')
+if (source.includes('HILLTOP_MINISTER_MOBILE_BIO_V1')) process.exit(0)
+
+const section = "<section id=\"ministers\" style={{ padding: '140px 24px 100px', background: 'var(--bg2)', position: 'relative', minHeight: '80vh' }}>"
+source = source.replace(section, `${section}<style>{\`\n@media (max-width: 700px) {\n  .hilltop-minister-modal { padding: 10px !important; align-items: flex-end !important; }\n  .hilltop-minister-dialog { max-height: 94vh !important; padding: 18px !important; border-radius: 20px 20px 0 0 !important; overflow-y: auto !important; -webkit-overflow-scrolling: touch; }\n  .hilltop-minister-layout { grid-template-columns: 1fr !important; gap: 18px !important; }\n  .hilltop-minister-photo { height: min(52vh, 330px) !important; border-radius: 14px !important; }\n  .hilltop-minister-copy { padding-top: 0 !important; min-width: 0; }\n  .hilltop-minister-copy h3 { font-size: clamp(1.7rem, 8vw, 2.25rem) !important; line-height: 1.08 !important; margin-bottom: 16px !important; padding-right: 34px !important; overflow-wrap: anywhere; }\n  .hilltop-minister-bio { font-size: .96rem !important; line-height: 1.75 !important; overflow-wrap: anywhere; white-space: pre-line; }\n  .hilltop-minister-close { top: 12px !important; right: 12px !important; width: 36px !important; height: 36px !important; }\n}\n@media (max-width: 380px) {\n  .hilltop-minister-dialog { padding: 14px !important; }\n  .hilltop-minister-photo { height: 250px !important; }\n  .hilltop-minister-bio { font-size: .92rem !important; line-height: 1.7 !important; }\n}\n\`}</style>`)
+
+source = source.replace("<div style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(8,8,14,0.88)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}", "<div className=\"hilltop-minister-modal\" style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(8,8,14,0.88)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}")
+source = source.replace("<div style={{ background: '#12121c', border: '1px solid var(--border-hi)', borderRadius: 24, width: '100%', maxWidth: 820, maxHeight: '88vh', overflowY: 'auto', padding: '32px', position: 'relative', boxShadow: '0 25px 70px rgba(0,0,0,0.65)' }}", "<div className=\"hilltop-minister-dialog\" style={{ background: '#12121c', border: '1px solid var(--border-hi)', borderRadius: 24, width: '100%', maxWidth: 820, maxHeight: '88vh', overflowY: 'auto', padding: '32px', position: 'relative', boxShadow: '0 25px 70px rgba(0,0,0,0.65)' }}")
+source = source.replace("<button onClick={() => setSelectedMinister(null)} aria-label=\"Close minister details\"", "<button className=\"hilltop-minister-close\" onClick={() => setSelectedMinister(null)} aria-label=\"Close minister details\"")
+source = source.replace("<div style={{ display: 'grid', gridTemplateColumns: 'minmax(260px, .9fr) minmax(0, 1.1fr)', gap: 30, alignItems: 'start' }}>", "<div className=\"hilltop-minister-layout\" style={{ display: 'grid', gridTemplateColumns: 'minmax(260px, .9fr) minmax(0, 1.1fr)', gap: 30, alignItems: 'start' }}>")
+source = source.replace("<div style={{ position: 'relative', height: 360, borderRadius: 18, overflow: 'hidden', background: '#0f0f18' }}>", "<div className=\"hilltop-minister-photo\" style={{ position: 'relative', height: 360, borderRadius: 18, overflow: 'hidden', background: '#0f0f18' }}>")
+source = source.replace("<div style={{ paddingTop: 10 }}>", "<div className=\"hilltop-minister-copy\" style={{ paddingTop: 10 }}>")
+source = source.replace("<div style={{ fontFamily: 'Outfit', fontSize: '0.92rem', color: 'var(--muted)', lineHeight: 1.8, whiteSpace: 'pre-line' }}>{selectedMinister.desc}</div>", "<div className=\"hilltop-minister-bio\" style={{ fontFamily: 'Outfit', fontSize: '0.92rem', color: 'var(--muted)', lineHeight: 1.8, whiteSpace: 'pre-line', overflowWrap: 'anywhere' }}>{selectedMinister.desc}</div>")
+
+source = source.replace('/* MINISTER_PHOTO_POSITIONING_V1 */', '/* MINISTER_PHOTO_POSITIONING_V1 */\n/* HILLTOP_MINISTER_MOBILE_BIO_V1 */')
+fs.writeFileSync(file, source)
+console.log('Mobile minister bio layout applied')
