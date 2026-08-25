@@ -1,0 +1,28 @@
+import fs from 'node:fs'
+import path from 'node:path'
+
+const file = path.resolve('src/pages/AdminContentManager.tsx')
+let source = fs.readFileSync(file, 'utf8')
+if (source.includes('GALLERY_LIVE_PREVIEW_V2')) process.exit(0)
+
+source = source.replace(
+  "image_url:'',stream_url:'',is_live:false})",
+  "image_url:'',stream_url:'',is_live:false,image_fit:'cover',image_zoom:1,image_position_x:50,image_position_y:50})"
+)
+source = source.replace(
+  "const edit=(x:any)=>{setEditing(x);setForm({...x});setPreview(x.image_url||x.thumbnail_url||'')}",
+  "const edit=(x:any)=>{setEditing(x);setForm({...x,image_fit:x.image_fit||'cover',image_zoom:Number(x.image_zoom)||1,image_position_x:Number(x.image_position_x??50),image_position_y:Number(x.image_position_y??50)});setPreview(x.image_url||x.thumbnail_url||'')}"
+)
+source = source.replace(
+  "const payload={...form};delete payload.id;delete payload.created_at;delete payload.updated_at;",
+  "const payload={...form};delete payload.id;delete payload.created_at;delete payload.updated_at;if(kind==='gallery'){payload.image_fit=payload.image_fit==='contain'?'contain':'cover';payload.image_zoom=Math.max(1,Math.min(3,Number(payload.image_zoom)||1));payload.image_position_x=Math.max(0,Math.min(100,Number(payload.image_position_x??50)));payload.image_position_y=Math.max(0,Math.min(100,Number(payload.image_position_y??50)))}"
+)
+source = source.replace(
+  "{kind==='gallery'&&<>{field('Title','title','Gallery title')}{field('Image URL','image_url','https://…')}<div className=\"admin-field\"><label>Or upload image</label><input className={input} type=\"file\" accept=\"image/*\" onChange={e=>upload(e,'image_url','gallery')}/></div></>}",
+  "{kind==='gallery'&&<>{field('Title','title','Gallery title')}{field('Image URL','image_url','https://…')}<div className=\"admin-field\"><label>Or upload image</label><input className={input} type=\"file\" accept=\"image/*\" onChange={e=>upload(e,'image_url','gallery')}/></div><div className=\"admin-field\"><label>Image fit</label><select className=\"admin-select\" value={form.image_fit||'cover'} onChange={e=>setForm((f:any)=>({...f,image_fit:e.target.value}))}><option value=\"cover\">Fill / Cover</option><option value=\"contain\">Fit / Contain</option></select></div><div className=\"admin-field\"><label>Size / Zoom: {Number(form.image_zoom||1).toFixed(2)}×</label><input type=\"range\" min=\"1\" max=\"3\" step=\"0.01\" value={form.image_zoom||1} onChange={e=>setForm((f:any)=>({...f,image_zoom:Number(e.target.value)}))}/></div><div className=\"admin-form-grid\"><div className=\"admin-field\"><label>Horizontal: {form.image_position_x??50}%</label><input type=\"range\" min=\"0\" max=\"100\" value={form.image_position_x??50} onChange={e=>setForm((f:any)=>({...f,image_position_x:Number(e.target.value)}))}/></div><div className=\"admin-field\"><label>Vertical: {form.image_position_y??50}%</label><input type=\"range\" min=\"0\" max=\"100\" value={form.image_position_y??50} onChange={e=>setForm((f:any)=>({...f,image_position_y:Number(e.target.value)}))}/></div></div></>}")
+source = source.replace(
+  "{preview&&<div className=\"admin-field\"><label>Live image preview</label><img src={preview} className=\"admin-preview\" alt=\"Upload preview\"/></div>}",
+  "{preview&&<div className=\"admin-field\"><label>Live image preview — exactly how it will appear</label><div style={{width:'100%',aspectRatio:'16/10',overflow:'hidden',background:'#000',borderRadius:14,position:'relative'}}><img src={preview} className=\"admin-preview\" alt=\"Upload preview\" style={{width:'100%',height:'100%',objectFit:kind==='gallery'?(form.image_fit||'cover'):'cover',objectPosition:kind==='gallery'?`${form.image_position_x??50}% ${form.image_position_y??50}%`:'center',transform:kind==='gallery'?`scale(${form.image_zoom||1})`:'none',transformOrigin:'center center',display:'block'}}/></div></div>}")
+source = source.replace('export function AdminContentManager', '/* GALLERY_LIVE_PREVIEW_V2 */\nexport function AdminContentManager')
+fs.writeFileSync(file, source)
+console.log('Gallery admin live preview controls applied')
