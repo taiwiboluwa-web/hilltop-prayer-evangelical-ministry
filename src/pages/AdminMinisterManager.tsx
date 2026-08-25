@@ -1,13 +1,122 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../supabase'
-type Minister=any
-const slots=[1,2,3,4,5]; const imgFields=[['image_url','image_fit','image_zoom','image_position_x','image_position_y'],['image_url_2','image_2_fit','image_2_zoom','image_2_position_x','image_2_position_y'],['image_url_3','image_3_fit','image_3_zoom','image_3_position_x','image_3_position_y']]
-export function AdminMinisterManager(){
- const [items,setItems]=useState<Minister[]>([]),[slot,setSlot]=useState(1),[form,setForm]=useState<any>({}),[photo,setPhoto]=useState(0),[saving,setSaving]=useState(false),[preview,setPreview]=useState('')
- const load=async()=>{const {data,error}=await supabase.from('ministers').select('*').order('display_order',{ascending:true});if(error){alert(error.message);return}setItems(data||[]);const m=(data||[]).find((x:any)=>(x.display_order??x.id)===slot);setForm(m||{display_order:slot,image_fit:'cover',image_zoom:1,image_position_x:50,image_position_y:50,image_2_fit:'cover',image_2_zoom:1,image_2_position_x:50,image_2_position_y:50,image_3_fit:'cover',image_3_zoom:1,image_3_position_x:50,image_3_position_y:50})}
- useEffect(()=>{load()},[slot]); const f=imgFields[photo]; const url=form[f[0]]||''; const update=(k:string,v:any)=>setForm((x:any)=>({...x,[k]:v})
- const upload=async(e:React.ChangeEvent<HTMLInputElement>)=>{const file=e.target.files?.[0];if(!file)return;setPreview(URL.createObjectURL(file));const ext=file.name.split('.').pop()||'jpg';const path=`ministers/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;const {error}=await supabase.storage.from('media').upload(path,file,{cacheControl:'3600',upsert:false});if(error){alert(error.message);return}update(f[0],supabase.storage.from('media').getPublicUrl(path).data.publicUrl)}
- const save=async(e:React.FormEvent)=>{e.preventDefault();if(!form.name?.trim()||!form.role?.trim()){alert('Enter the minister name and role.');return}setSaving(true);const d=form.desc||form.desc_text||'';const p:any={name:form.name.trim(),role:form.role.trim(),desc:d,desc_text:d,display_order:slot,image_url:form.image_url||null,img:form.image_url||null,image_url_2:form.image_url_2||null,image_url_3:form.image_url_3||null,image_fit:form.image_fit||'cover',image_zoom:Number(form.image_zoom||1),image_position_x:Number(form.image_position_x??50),image_position_y:Number(form.image_position_y??50),image_2_fit:form.image_2_fit||'cover',image_2_zoom:Number(form.image_2_zoom||1),image_2_position_x:Number(form.image_2_position_x??50),image_2_position_y:Number(form.image_2_position_y??50),image_3_fit:form.image_3_fit||'cover',image_3_zoom:Number(form.image_3_zoom||1),image_3_position_x:Number(form.image_3_position_x??50),image_3_position_y:Number(form.image_3_position_y??50)};const existing=items.find((x:any)=>(x.display_order??x.id)===slot);const q=existing?supabase.from('ministers').update(p).eq('id',existing.id):supabase.from('ministers').insert(p);const {error}=await q;setSaving(false);if(error){alert(error.message);return}await load();alert('Minister saved with all three photo slots.')}
- const remove=async()=>{const m=items.find((x:any)=>(x.display_order??x.id)===slot);if(!m||!confirm(`Delete ${m.name}?`))return;const {error}=await supabase.from('ministers').delete().eq('id',m.id);if(error)alert(error.message);else await load()}
- return <div><div className="admin-heading-row"><div className="admin-heading"><h1>Ministers</h1><p>Add, edit, delete and manage up to three photos per minister with live crop positioning.</p></div></div><div className="admin-slotbar">{slots.map(n=><button key={n} className={slot===n?'active':''} onClick={()=>setSlot(n)}>Minister {n}</button>)}</div><div className="admin-grid"><section className="admin-panel"><div className="admin-panel-head"><div><h2>Minister details</h2><span>Slot {slot}</span></div><button className="admin-btn danger" onClick={remove}>Delete</button></div><div className="admin-panel-body"><form onSubmit={save}><div className="admin-form-grid"><div><div className="admin-field"><label>Name</label><input className="admin-input" value={form.name||''} onChange={e=>update('name',e.target.value)}/></div><div className="admin-field"><label>Role</label><input className="admin-input" value={form.role||''} onChange={e=>update('role',e.target.value)}/></div><div className="admin-field"><label>Biography</label><textarea className="admin-textarea" value={form.desc||form.desc_text||''} onChange={e=>update('desc',e.target.value)}/></div></div><div><div className="admin-slotbar">{imgFields.map((_,i)=><button type="button" key={i} className={photo===i?'active':''} onClick={()=>setPhoto(i)}>Photo {i+1}</button>)}</div><div className="admin-field"><label>Upload photo {photo+1}</label><input className="admin-input" type="file" accept="image/*" onChange={upload}/></div><div className="admin-field"><label>Photo URL</label><input className="admin-input" value={url} onChange={e=>update(f[0],e.target.value)}/></div>{(preview||url)&&<><div className="admin-field"><label>Live preview</label><div style={{height:260,overflow:'hidden',background:'#111'}}><img src={preview||url} alt="Preview" style={{width:'100%',height:'100%',objectFit:(form[f[1]]||'cover') as any,objectPosition:`${form[f[3]]??50}% ${form[f[4]]??50}%`,transform:`scale(${form[f[2]]??1})`}}/></div></div><div className="admin-field"><label>Fit</label><select className="admin-select" value={form[f[1]]||'cover'} onChange={e=>update(f[1],e.target.value)}><option value="cover">Cover</option><option value="contain">Contain</option></select></div><div className="admin-field"><label>Zoom: {Number(form[f[2]]||1).toFixed(2)}×</label><input type="range" min="1" max="2.5" step="0.01" value={form[f[2]]||1} onChange={e=>update(f[2],Number(e.target.value))}/></div><div className="admin-form-grid"><div className="admin-field"><label>Position X: {form[f[3]]??50}%</label><input type="range" min="0" max="100" value={form[f[3]]??50} onChange={e=>update(f[3],Number(e.target.value))}/></div><div className="admin-field"><label>Position Y: {form[f[4]]??50}%</label><input type="range" min="0" max="100" value={form[f[4]]??50} onChange={e=>update(f[4],Number(e.target.value))}/></div></div></>}</div></div><div className="admin-form-actions"><button type="submit" className="admin-btn gold" disabled={saving}>{saving?'Saving…':'Save minister'}</button></div></form></div></section><section className="admin-panel"><div className="admin-panel-head"><div><h2>Photo gallery</h2><span>Three images per minister</span></div></div><div className="admin-panel-body"><div className="admin-list">{imgFields.map((x,i)=><div className="admin-list-item" key={i}>{form[x[0]]?<img src={form[x[0]]} alt=""/>:<div className="admin-thumb"/>}<div className="admin-list-main"><b>Photo {i+1}</b><span>{form[x[0]]?'Uploaded':'Empty'}</span></div><button className="admin-mini" onClick={()=>setPhoto(i)}>Edit</button></div>)}</div></div></section></div></div>
+
+type Minister = any
+const slots = [1, 2, 3, 4, 5]
+const imgFields = [
+  ['image_url', 'image_fit', 'image_zoom', 'image_position_x', 'image_position_y'],
+  ['image_url_2', 'image_2_fit', 'image_2_zoom', 'image_2_position_x', 'image_2_position_y'],
+  ['image_url_3', 'image_3_fit', 'image_3_zoom', 'image_3_position_x', 'image_3_position_y'],
+]
+
+export function AdminMinisterManager() {
+  const [items, setItems] = useState<Minister[]>([])
+  const [slot, setSlot] = useState(1)
+  const [form, setForm] = useState<any>({})
+  const [photo, setPhoto] = useState(0)
+  const [saving, setSaving] = useState(false)
+  const [preview, setPreview] = useState('')
+
+  const load = async () => {
+    const { data, error } = await supabase.from('ministers').select('*').order('display_order', { ascending: true })
+    if (error) { alert(error.message); return }
+    setItems(data || [])
+    const m = (data || []).find((x: any) => (x.display_order ?? x.id) === slot)
+    setForm(m || {
+      display_order: slot,
+      image_fit: 'cover', image_zoom: 1, image_position_x: 50, image_position_y: 50,
+      image_2_fit: 'cover', image_2_zoom: 1, image_2_position_x: 50, image_2_position_y: 50,
+      image_3_fit: 'cover', image_3_zoom: 1, image_3_position_x: 50, image_3_position_y: 50,
+    })
+    setPreview('')
+  }
+
+  useEffect(() => { load() }, [slot])
+
+  const f = imgFields[photo]
+  const url = form[f[0]] || ''
+  const update = (k: string, v: any) => setForm((x: any) => ({ ...x, [k]: v }))
+
+  const upload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setPreview(URL.createObjectURL(file))
+    const ext = file.name.split('.').pop() || 'jpg'
+    const path = `ministers/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`
+    const { error } = await supabase.storage.from('media').upload(path, file, { cacheControl: '3600', upsert: false })
+    if (error) { alert(error.message); return }
+    update(f[0], supabase.storage.from('media').getPublicUrl(path).data.publicUrl)
+  }
+
+  const save = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!form.name?.trim() || !form.role?.trim()) { alert('Enter the minister name and role.'); return }
+    setSaving(true)
+    const d = form.desc || form.desc_text || ''
+    const p: any = {
+      name: form.name.trim(), role: form.role.trim(), desc: d, desc_text: d, display_order: slot,
+      image_url: form.image_url || null, img: form.image_url || null,
+      image_url_2: form.image_url_2 || null, image_url_3: form.image_url_3 || null,
+      image_fit: form.image_fit || 'cover', image_zoom: Number(form.image_zoom || 1),
+      image_position_x: Number(form.image_position_x ?? 50), image_position_y: Number(form.image_position_y ?? 50),
+      image_2_fit: form.image_2_fit || 'cover', image_2_zoom: Number(form.image_2_zoom || 1),
+      image_2_position_x: Number(form.image_2_position_x ?? 50), image_2_position_y: Number(form.image_2_position_y ?? 50),
+      image_3_fit: form.image_3_fit || 'cover', image_3_zoom: Number(form.image_3_zoom || 1),
+      image_3_position_x: Number(form.image_3_position_x ?? 50), image_3_position_y: Number(form.image_3_position_y ?? 50),
+    }
+    const existing = items.find((x: any) => (x.display_order ?? x.id) === slot)
+    const q = existing
+      ? supabase.from('ministers').update(p).eq('id', existing.id)
+      : supabase.from('ministers').insert(p)
+    const { error } = await q
+    setSaving(false)
+    if (error) { alert(error.message); return }
+    await load()
+    alert('Minister saved with all three photo slots.')
+  }
+
+  const remove = async () => {
+    const m = items.find((x: any) => (x.display_order ?? x.id) === slot)
+    if (!m || !confirm(`Delete ${m.name}?`)) return
+    const { error } = await supabase.from('ministers').delete().eq('id', m.id)
+    if (error) alert(error.message); else await load()
+  }
+
+  return <div>
+    <div className="admin-heading-row"><div className="admin-heading"><h1>Ministers</h1><p>Add, edit, delete and manage up to three photos per minister with live crop positioning.</p></div></div>
+    <div className="admin-slotbar">{slots.map(n => <button key={n} className={slot === n ? 'active' : ''} onClick={() => setSlot(n)}>Minister {n}</button>)}</div>
+    <div className="admin-grid">
+      <section className="admin-panel">
+        <div className="admin-panel-head"><div><h2>Minister details</h2><span>Slot {slot}</span></div><button className="admin-btn danger" onClick={remove}>Delete</button></div>
+        <div className="admin-panel-body"><form onSubmit={save}>
+          <div className="admin-form-grid">
+            <div>
+              <div className="admin-field"><label>Name</label><input className="admin-input" value={form.name || ''} onChange={e => update('name', e.target.value)} /></div>
+              <div className="admin-field"><label>Role</label><input className="admin-input" value={form.role || ''} onChange={e => update('role', e.target.value)} /></div>
+              <div className="admin-field"><label>Biography</label><textarea className="admin-textarea" value={form.desc || form.desc_text || ''} onChange={e => update('desc', e.target.value)} /></div>
+            </div>
+            <div>
+              <div className="admin-slotbar">{imgFields.map((_, i) => <button type="button" key={i} className={photo === i ? 'active' : ''} onClick={() => setPhoto(i)}>Photo {i + 1}</button>)}</div>
+              <div className="admin-field"><label>Upload photo {photo + 1}</label><input className="admin-input" type="file" accept="image/*" onChange={upload} /></div>
+              <div className="admin-field"><label>Photo URL</label><input className="admin-input" value={url} onChange={e => update(f[0], e.target.value)} /></div>
+              {(preview || url) && <>
+                <div className="admin-field"><label>Live preview</label><div style={{ height: 260, overflow: 'hidden', background: '#111' }}><img src={preview || url} alt="Preview" style={{ width: '100%', height: '100%', objectFit: (form[f[1]] || 'cover') as any, objectPosition: `${form[f[3]] ?? 50}% ${form[f[4]] ?? 50}%`, transform: `scale(${form[f[2]] ?? 1})` }} /></div></div>
+                <div className="admin-field"><label>Fit</label><select className="admin-select" value={form[f[1]] || 'cover'} onChange={e => update(f[1], e.target.value)}><option value="cover">Cover</option><option value="contain">Contain</option></select></div>
+                <div className="admin-field"><label>Zoom: {Number(form[f[2]] || 1).toFixed(2)}×</label><input type="range" min="1" max="2.5" step="0.01" value={form[f[2]] || 1} onChange={e => update(f[2], Number(e.target.value))} /></div>
+                <div className="admin-form-grid">
+                  <div className="admin-field"><label>Position X: {form[f[3]] ?? 50}%</label><input type="range" min="0" max="100" value={form[f[3]] ?? 50} onChange={e => update(f[3], Number(e.target.value))} /></div>
+                  <div className="admin-field"><label>Position Y: {form[f[4]] ?? 50}%</label><input type="range" min="0" max="100" value={form[f[4]] ?? 50} onChange={e => update(f[4], Number(e.target.value))} /></div>
+                </div>
+              </>}
+            </div>
+          </div>
+          <div className="admin-form-actions"><button type="submit" className="admin-btn gold" disabled={saving}>{saving ? 'Saving…' : 'Save minister'}</button></div>
+        </form></div>
+      </section>
+      <section className="admin-panel">
+        <div className="admin-panel-head"><div><h2>Photo gallery</h2><span>Three images per minister</span></div></div>
+        <div className="admin-panel-body"><div className="admin-list">{imgFields.map((x, i) => <div className="admin-list-item" key={i}>{form[x[0]] ? <img src={form[x[0]]} alt="" /> : <div className="admin-thumb" />}<div className="admin-list-main"><b>Photo {i + 1}</b><span>{form[x[0]] ? 'Uploaded' : 'Empty'}</span></div><button type="button" className="admin-mini" onClick={() => setPhoto(i)}>Edit</button></div>)}</div></div>
+      </section>
+    </div>
+  </div>
 }
