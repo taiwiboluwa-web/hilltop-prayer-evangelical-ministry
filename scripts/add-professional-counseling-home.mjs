@@ -4,24 +4,29 @@ const path = 'src/App.tsx'
 let source = await readFile(path, 'utf8')
 const importLine = "import { ProfessionalCounseling } from './components/ProfessionalCounseling'"
 
-// Keep the counseling import stable and avoid duplicate imports.
+// Normalize the import so repeated Vercel builds never create duplicates.
 source = source.replace(/\n?import \{ ProfessionalCounseling \} from '\.\/components\/ProfessionalCounseling'\n?/g, '\n')
-source = source.replace("import { Navbar, Logo } from './components/Navbar'", "import { Navbar, Logo } from './components/Navbar'\n" + importLine)
-
-// Render Home content as one explicit JSX parent. This prevents TS2657 when
-// the build runs repeatedly and a previous generated insertion is present.
-const homePattern = /\{activePage === 'Home' && \(<Hero setActivePage=\{setActivePage\} \/>\)\}/g
-source = source.replace(homePattern, "{activePage === 'Home' && (\n        <>\n          <Hero setActivePage={setActivePage} />\n          <ProfessionalCounseling />\n        </>\n      )}")
-
-// Remove any legacy standalone generated counseling line left by an older build patch.
-source = source.replace(/\n\s*<ProfessionalCounseling \/>\n/g, '\n')
-
-// Re-add the stable Home fragment if it was removed by the cleanup above.
-if (!source.includes('<ProfessionalCounseling />')) {
-  source = source.replace(homePattern, "{activePage === 'Home' && (\n        <>\n          <Hero setActivePage={setActivePage} />\n          <ProfessionalCounseling />\n        </>\n      )}")
+if (!source.includes(importLine)) {
+  source = source.replace("import { Navbar, Logo } from './components/Navbar'", "import { Navbar, Logo } from './components/Navbar'\n" + importLine)
 }
 
-// Add the requested recurring/ministry events once. These are displayed under Events.
+// Remove old generated counseling render lines/fragments before rebuilding the Home expression.
+source = source.replace(/\n\s*<ProfessionalCounseling \/>\n/g, '\n')
+source = source.replace(/\{activePage === 'Home' && \(\s*<>\s*<Hero setActivePage=\{setActivePage\} \/>\s*<ProfessionalCounseling \/>\s*<\/>\s*\)\}/g, '')
+
+const homeMarker = '{activePage === \'Home\' && <Hero setActivePage={setActivePage} />}'
+const homeFragment = `{activePage === 'Home' && (\n        <>\n          <Hero setActivePage={setActivePage} />\n          <ProfessionalCounseling />\n        </>\n      )}`
+
+if (source.includes(homeMarker)) {
+  source = source.replace(homeMarker, homeFragment)
+  console.log('Professional counseling section added to Home')
+} else if (!source.includes('<ProfessionalCounseling />')) {
+  throw new Error('Home render marker not found in src/App.tsx')
+} else {
+  console.log('Professional counseling Home integration already present')
+}
+
+// Add the requested ministry events once. They are displayed on the Events page.
 const eventEntries = [
   "  { date: 'EVERY JULY', title: 'Annual Prayer Conference', desc: 'Our annual prayer gathering every July for focused prayer, worship, teaching, and spiritual renewal.', time: 'Every July', venue: 'Hilltop Prayer & Evangelical Ministry', img: IMGS.prayer },",
   "  { date: 'TBA', title: 'Men Alone with God', desc: 'A dedicated time for men to seek God, pray, reflect, and grow in faith and purpose.', time: 'Date to be announced', venue: 'Hilltop Prayer & Evangelical Ministry', img: IMGS.raising },",
