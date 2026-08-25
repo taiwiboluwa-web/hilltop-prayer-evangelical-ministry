@@ -56,7 +56,3 @@ footer a[aria-label="Instagram"]:hover svg, footer a[aria-label="Facebook"]:hove
   .cbox { min-width: 54px !important; padding: 8px 10px !important; } footer, .footer-container, .footer-grid { display: flex !important; flex-direction: column !important; gap: 2rem !important; width: 100% !important; overflow: hidden !important; }
   .footer-links, .footer-col, .social-icons-container { width: 100% !important; display: flex !important; flex-wrap: wrap !important; justify-content: flex-start !important; gap: 1rem !important; }
 }
-
-/* Become a Member: use the official Hilltop logo instead of the old text crest */
-.member-crest-col > div { visibility: hidden; }
-.member-crest-col::before { content: ''; display: block; width: 220px; height: 140px; margin: 0 auto 20px; background-image: url("/Hilltop%20Prayer%20%283%29.png"); background-repeat: no-repeat; background-position: center; background-size: contain; visibility: visible; }
