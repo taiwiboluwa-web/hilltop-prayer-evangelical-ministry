@@ -1,26 +1,28 @@
 import { readFile, writeFile } from 'node:fs/promises'
 
 const path = 'src/App.tsx'
-const source = await readFile(path, 'utf8')
+let source = await readFile(path, 'utf8')
 
-const replacements = [
-  ['Hilltop Prayer & Evangelical Ministry', 'HILLTOP PRAYER & EVANGELICAL MINISTRY'],
-  ['HILLTOP PRAYER & EVANGELICAL MINISTRY', 'HILLTOP PRAYER & EVANGELICAL MINISTRY'],
-  ['3012 345 678', '1229905996'],
-  ['5074529651', '1229905996'],
-  ['First Bank of Nigeria', 'ZENITH BANK'],
-]
+// Keep the ministry's bank-transfer information consistent everywhere this
+// build patch runs. Both official Zenith Bank accounts must remain visible.
+source = source
+  .split('Hilltop Prayer & Evangelical Ministry').join('HILLTOP PRAYER & EVANGELICAL MINISTRY')
+  .split('First Bank of Nigeria').join('ZENITH BANK')
+  .split('3012 345 678').join('1229905996')
 
-let updated = source
-for (const [from, to] of replacements) updated = updated.split(from).join(to)
+const oldTransferBlock = `              {activeTab === 'transfer' ? (\n                <div style={{ display: 'flex', flexDirection: 'column', gap: 16, fontFamily: 'Outfit' }}>\n                  <div>\n                    <div style={{ fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--gold-light)', marginBottom: 4, fontWeight: 600 }}>Account Name</div>\n                    <div style={{ fontSize: '1rem', color: 'var(--ivory)', fontWeight: 600 }}>HILLTOP PRAYER & EVANGELICAL MINISTRY</div>\n                  </div>\n                  <div style={{ paddingTop: 12, borderTop: '1px solid rgba(255,255,255,0.06)' }}>\n                    <div style={{ fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--gold-light)', marginBottom: 4, fontWeight: 600 }}>Bank</div>\n                    <div style={{ fontSize: '1rem', color: 'var(--ivory)', fontWeight: 600 }}>ZENITH BANK</div>\n                  </div>\n                  <div style={{ paddingTop: 12, borderTop: '1px solid rgba(255,255,255,0.06)' }}>\n                    <div style={{ fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--gold-light)', marginBottom: 4, fontWeight: 600 }}>Account No.</div>\n                    <div style={{ fontSize: '1.2rem', color: 'var(--ivory)', fontWeight: 700, fontFamily: 'monospace', letterSpacing: '0.05em' }}>1229905996</div>\n                  </div>\n                </div>\n              ) : (`
 
-// Ensure the payment details shown on the public site use the current
-// ministry account information supplied by the ministry.
-updated = updated.replace(/Account\s*(?:No\.?|Number)\s*[:\-]?\s*(?:1229905996|5074529651|3012\s*345\s*678)/gi, 'Account No.: 1229905996')
+const newTransferBlock = `              {activeTab === 'transfer' ? (\n                <div style={{ display: 'flex', flexDirection: 'column', gap: 18, fontFamily: 'Outfit' }}>\n                  <div style={{ paddingBottom: 14, borderBottom: '1px solid rgba(255,255,255,0.06)' }}>\n                    <div style={{ fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--gold-light)', marginBottom: 4, fontWeight: 600 }}>Account Name</div>\n                    <div style={{ fontSize: '1rem', color: 'var(--ivory)', fontWeight: 600 }}>HILLTOP PRAYER & EVANGELICAL MINISTRY</div>\n                    <div style={{ fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--gold-light)', marginTop: 12, marginBottom: 4, fontWeight: 600 }}>Bank</div>\n                    <div style={{ fontSize: '1rem', color: 'var(--ivory)', fontWeight: 600 }}>ZENITH BANK</div>\n                    <div style={{ fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--gold-light)', marginTop: 12, marginBottom: 4, fontWeight: 600 }}>Account No.</div>\n                    <div style={{ fontSize: '1.2rem', color: 'var(--ivory)', fontWeight: 700, fontFamily: 'monospace', letterSpacing: '0.05em' }}>1229905996</div>\n                  </div>\n                  <div>\n                    <div style={{ fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--gold-light)', marginBottom: 4, fontWeight: 600 }}>Account Name</div>\n                    <div style={{ fontSize: '1rem', color: 'var(--ivory)', fontWeight: 600 }}>HILLTOP PRAYER & EVANGELICAL MINISTRY</div>\n                    <div style={{ fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--gold-light)', marginTop: 12, marginBottom: 4, fontWeight: 600 }}>Bank</div>\n                    <div style={{ fontSize: '1rem', color: 'var(--ivory)', fontWeight: 600 }}>ZENITH BANK</div>\n                    <div style={{ fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--gold-light)', marginTop: 12, marginBottom: 4, fontWeight: 600 }}>Account No.</div>\n                    <div style={{ fontSize: '1.2rem', color: 'var(--ivory)', fontWeight: 700, fontFamily: 'monospace', letterSpacing: '0.05em' }}>5074529651</div>\n                  </div>\n                </div>\n              ) : (`
 
-if (updated === source) {
-  console.log('Hilltop bank transfer details already up to date')
+if (source.includes(oldTransferBlock)) {
+  source = source.replace(oldTransferBlock, newTransferBlock)
 } else {
-  await writeFile(path, updated, 'utf8')
-  console.log('Hilltop bank transfer details updated')
+  // Handles a previously patched version that contains only the first account.
+  const firstAccount = /<div style=\{\{ fontSize: '1\.2rem', color: 'var\(--ivory\)', fontWeight: 700, fontFamily: 'monospace', letterSpacing: '0\.05em' \}\}>1229905996<\/div>/
+  if (firstAccount.test(source) && !source.includes('5074529651')) {
+    source = source.replace(firstAccount, `<div style={{ fontSize: '1.2rem', color: 'var(--ivory)', fontWeight: 700, fontFamily: 'monospace', letterSpacing: '0.05em' }}>1229905996</div>\n                  </div>\n                  <div style={{ paddingTop: 12, borderTop: '1px solid rgba(255,255,255,0.06)' }}>\n                    <div style={{ fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--gold-light)', marginBottom: 4, fontWeight: 600 }}>Account Name</div>\n                    <div style={{ fontSize: '1rem', color: 'var(--ivory)', fontWeight: 600 }}>HILLTOP PRAYER & EVANGELICAL MINISTRY</div>\n                    <div style={{ fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--gold-light)', marginTop: 12, marginBottom: 4, fontWeight: 600 }}>Bank</div>\n                    <div style={{ fontSize: '1rem', color: 'var(--ivory)', fontWeight: 600 }}>ZENITH BANK</div>\n                    <div style={{ fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--gold-light)', marginTop: 12, marginBottom: 4, fontWeight: 600 }}>Account No.</div>\n                    <div style={{ fontSize: '1.2rem', color: 'var(--ivory)', fontWeight: 700, fontFamily: 'monospace', letterSpacing: '0.05em' }}>5074529651</div>`)
+  }
 }
+
+await writeFile(path, source, 'utf8')
+console.log('Hilltop bank transfer details updated: two Zenith Bank accounts')
