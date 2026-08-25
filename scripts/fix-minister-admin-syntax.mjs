@@ -5,17 +5,17 @@ if (!fs.existsSync(file)) process.exit(0)
 
 let source = fs.readFileSync(file, 'utf8')
 
-// This file has historically been rewritten by other build patches. Always
-// normalize the updater expression immediately before TypeScript runs.
+// Some earlier build patches have left the updater with one missing closing
+// parenthesis. Repair the exact malformed form before TypeScript runs.
 source = source.replace(
-  /const update=\(k:string,v:any\)=>setForm\(\(x:any\)=>\(\{\.\.\.x,\[k\]:v\}\)\)?/,
-  "const update=(k:string,v:any)=>setForm((x:any)=>({...x,[k]:v}))"
+  /const update=\(k:string,v:any\)=>setForm\(\(x:any\)=>\(\{\.\.\.x,\[k\]:v\}\)\s*\n/,
+  'const update=(k:string,v:any)=>setForm((x:any)=>({...x,[k]:v}))\n'
 )
 
-// Also repair the exact malformed form if a previous patch omitted the final ')'.
+// Defensive fallback for the same expression when formatting differs.
 source = source.replace(
-  "const update=(k:string,v:any)=>setForm((x:any)=>({...x,[k]:v})",
-  "const update=(k:string,v:any)=>setForm((x:any)=>({...x,[k]:v}))"
+  'const update=(k:string,v:any)=>setForm((x:any)=>({...x,[k]:v})',
+  'const update=(k:string,v:any)=>setForm((x:any)=>({...x,[k]:v}))'
 )
 
 fs.writeFileSync(file, source)
