@@ -59,4 +59,4 @@ footer a[aria-label="Instagram"]:hover svg, footer a[aria-label="Facebook"]:hove
 
 /* Become a Member: use the official Hilltop logo instead of the old text crest */
 .member-crest-col > div { visibility: hidden; }
-.member-crest-col::before { content: ''; display: block; width: 220px; height: 140px; margin: 0 auto 20px; background-image: url('/Hilltop%20Prayer%20%283%29.png'); background-repeat: no-repeat; background-position: center; background-size: contain; visibility: visible; }
+.member-crest-col::before { content: ''; display: block; width: 220px; height: 140px; margin: 0 auto 20px; background-image: url("/Hilltop%20Prayer%20%283%29.png"); background-repeat: no-repeat; background-position: center; background-size: contain; visibility: visible; }
