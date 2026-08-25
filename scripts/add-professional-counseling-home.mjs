@@ -10,20 +10,29 @@ if (!source.includes(importLine)) {
   source = source.replace("import { Navbar, Logo } from './components/Navbar'", "import { Navbar, Logo } from './components/Navbar'\n" + importLine)
 }
 
-// Remove old generated counseling render lines/fragments before rebuilding the Home expression.
-source = source.replace(/\n\s*<ProfessionalCounseling \/>\n/g, '\n')
-source = source.replace(/\{activePage === 'Home' && \(\s*<>\s*<Hero setActivePage=\{setActivePage\} \/>\s*<ProfessionalCounseling \/>\s*<\/>\s*\)\}/g, '')
-
-const homeMarker = '{activePage === \'Home\' && <Hero setActivePage={setActivePage} />}'
+const homeMarker = "{activePage === 'Home' && <Hero setActivePage={setActivePage} />}"
 const homeFragment = `{activePage === 'Home' && (\n        <>\n          <Hero setActivePage={setActivePage} />\n          <ProfessionalCounseling />\n        </>\n      )}`
+
+// Remove any previously generated Home counseling block in a tolerant way,
+// then rebuild it once. This makes the script safe when Vercel runs build twice.
+source = source.replace(/\{activePage === 'Home' && \(\s*<>\s*<Hero setActivePage=\{setActivePage\} \/>\s*<ProfessionalCounseling \/>\s*<\/?>\s*\)\}/g, '')
+source = source.replace(/\{activePage === 'Home' && \(\s*<>\s*<Hero setActivePage=\{setActivePage\} \/>\s*<ProfessionalCounseling \/>\s*<\/?>\s*\)\s*\}/g, '')
+source = source.replace(/\n\s*<ProfessionalCounseling \/>\n/g, '\n')
 
 if (source.includes(homeMarker)) {
   source = source.replace(homeMarker, homeFragment)
   console.log('Professional counseling section added to Home')
-} else if (!source.includes('<ProfessionalCounseling />')) {
-  throw new Error('Home render marker not found in src/App.tsx')
-} else {
+} else if (source.includes("activePage === 'Home'")) {
+  // The first build may already have transformed the Home expression into a
+  // fragment with formatting that differs from the canonical marker. Rather
+  // than failing a repeated build, ensure the component is present and leave
+  // the existing valid Home integration untouched.
+  if (!source.includes('<ProfessionalCounseling />')) {
+    throw new Error('Home render marker not found in src/App.tsx')
+  }
   console.log('Professional counseling Home integration already present')
+} else {
+  throw new Error('Home render marker not found in src/App.tsx')
 }
 
 // Add the requested ministry events once. They are displayed on the Events page.
