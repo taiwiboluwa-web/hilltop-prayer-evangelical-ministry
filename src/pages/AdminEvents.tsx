@@ -1,0 +1,118 @@
+import { useEffect, useState } from 'react'
+import { supabase } from '../supabase'
+
+interface AdminEvent {
+  id: string
+  title: string
+  description: string
+  date_label: string | null
+  time_label: string | null
+  venue: string | null
+  image_url: string | null
+  is_published: boolean
+  sort_order: number
+}
+
+export function AdminEvents({ onClose }: { onClose: () => void }) {
+  const [events, setEvents] = useState<AdminEvent[]>([])
+  const [selected, setSelected] = useState<string | null>(null)
+  const [title, setTitle] = useState('')
+  const [description, setDescription] = useState('')
+  const [dateLabel, setDateLabel] = useState('')
+  const [timeLabel, setTimeLabel] = useState('')
+  const [venue, setVenue] = useState('')
+  const [imageUrl, setImageUrl] = useState('')
+  const [published, setPublished] = useState(true)
+  const [saving, setSaving] = useState(false)
+
+  const load = async () => {
+    const { data, error } = await supabase.from('ministry_events').select('*').order('sort_order', { ascending: true }).order('created_at', { ascending: true })
+    if (error) { alert(error.message); return }
+    setEvents(data || [])
+  }
+
+  useEffect(() => { load() }, [])
+
+  const reset = () => {
+    setSelected(null); setTitle(''); setDescription(''); setDateLabel(''); setTimeLabel(''); setVenue(''); setImageUrl(''); setPublished(true)
+  }
+
+  const edit = (event: AdminEvent) => {
+    setSelected(event.id); setTitle(event.title); setDescription(event.description || ''); setDateLabel(event.date_label || ''); setTimeLabel(event.time_label || ''); setVenue(event.venue || ''); setImageUrl(event.image_url || ''); setPublished(event.is_published)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const save = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!title.trim()) { alert('Enter an event title.'); return }
+    setSaving(true)
+    const payload = { title: title.trim(), description: description.trim(), date_label: dateLabel.trim() || null, time_label: timeLabel.trim() || null, venue: venue.trim() || null, image_url: imageUrl.trim() || null, is_published: published, sort_order: selected ? (events.find(x => x.id === selected)?.sort_order ?? events.length + 1) : events.length + 1, updated_at: new Date().toISOString() }
+    const result = selected ? await supabase.from('ministry_events').update(payload).eq('id', selected) : await supabase.from('ministry_events').insert(payload)
+    setSaving(false)
+    if (result.error) { alert(result.error.message); return }
+    reset(); await load(); alert(selected ? 'Event updated.' : 'Event added.')
+  }
+
+  const remove = async (id: string) => {
+    const event = events.find(x => x.id === id)
+    if (!event || !confirm(`Remove “${event.title}” from the calendar?`)) return
+    const { error } = await supabase.from('ministry_events').delete().eq('id', id)
+    if (error) { alert(error.message); return }
+    if (selected === id) reset()
+    await load()
+  }
+
+  const input = 'w-full h-11 px-3 bg-[#111118] border border-white/10 rounded-xl text-[#f2ede4] text-sm outline-none focus:border-[#c9a84c]/60'
+  const area = 'w-full min-h-32 p-3 bg-[#111118] border border-white/10 rounded-xl text-[#f2ede4] text-sm outline-none focus:border-[#c9a84c]/60 resize-y'
+  const label = 'block text-[9px] font-bold tracking-[.16em] uppercase text-neutral-500 mb-2'
+
+  return (
+    <div className="min-h-screen bg-[#08080e] text-[#f2ede4] p-6 md:p-10">
+      <div className="max-w-6xl mx-auto">
+        <div className="flex items-center justify-between gap-4 mb-8">
+          <div>
+            <div className="text-[#e4c76b] text-[10px] tracking-[.2em] uppercase mb-2">Calendar</div>
+            <h1 className="text-3xl md:text-4xl font-serif">Upcoming Events</h1>
+            <p className="text-neutral-500 text-sm mt-2">Add, edit, publish, unpublish, or remove the events shown publicly on Hilltop.</p>
+          </div>
+          <button onClick={onClose} className="px-4 py-2 rounded-xl border border-white/10 text-sm text-neutral-300 hover:bg-white/5">← Dashboard</button>
+        </div>
+
+        <div className="grid lg:grid-cols-[380px_1fr] gap-6 items-start">
+          <form onSubmit={save} className="bg-[#0f0f18] border border-white/10 rounded-2xl p-5 space-y-4 lg:sticky lg:top-6">
+            <div className="flex items-center justify-between"><h2 className="font-serif text-xl">{selected ? 'Edit Event' : 'Add Event'}</h2>{selected && <button type="button" onClick={reset} className="text-xs text-neutral-500 hover:text-white">Cancel</button>}</div>
+            <label><span className={label}>Event title</span><input className={input} value={title} onChange={e => setTitle(e.target.value)} placeholder="Annual Prayer Conference" /></label>
+            <label><span className={label}>Description</span><textarea className={area} value={description} onChange={e => setDescription(e.target.value)} placeholder="Describe the event..." /></label>
+            <div className="grid grid-cols-2 gap-3">
+              <label><span className={label}>Date / label</span><input className={input} value={dateLabel} onChange={e => setDateLabel(e.target.value)} placeholder="EVERY JULY" /></label>
+              <label><span className={label}>Time</span><input className={input} value={timeLabel} onChange={e => setTimeLabel(e.target.value)} placeholder="Every July" /></label>
+            </div>
+            <label><span className={label}>Venue</span><input className={input} value={venue} onChange={e => setVenue(e.target.value)} placeholder="Hilltop Auditorium" /></label>
+            <label><span className={label}>Image URL</span><input className={input} value={imageUrl} onChange={e => setImageUrl(e.target.value)} placeholder="https://..." /></label>
+            <label className="flex items-center gap-3 p-3 rounded-xl bg-white/[.03] border border-white/5"><input type="checkbox" checked={published} onChange={e => setPublished(e.target.checked)} /><span className="text-sm">Visible on public website</span></label>
+            <button disabled={saving} className="w-full h-11 rounded-xl bg-[#d5aa49] text-[#09090b] text-xs font-bold tracking-[.12em] uppercase disabled:opacity-50">{saving ? 'Saving…' : selected ? 'Save Changes' : 'Add Event'}</button>
+          </form>
+
+          <div className="space-y-3">
+            {events.map(event => (
+              <div key={event.id} className="bg-[#0f0f18] border border-white/10 rounded-2xl p-4 flex flex-col md:flex-row gap-4 md:items-center">
+                {event.image_url ? <img src={event.image_url} alt="" className="w-full md:w-28 h-24 object-cover rounded-xl" /> : <div className="w-full md:w-28 h-24 rounded-xl bg-[#15151f] flex items-center justify-center text-[#c9a84c]">CALENDAR</div>}
+                <div className="flex-1 min-w-0">
+                  <div className="flex flex-wrap gap-2 items-center mb-1"><span className="text-[#e4c76b] text-[10px] tracking-[.12em] uppercase">{event.date_label || 'UPCOMING'}</span><span className={`text-[9px] px-2 py-1 rounded-full ${event.is_published ? 'bg-emerald-500/10 text-emerald-300' : 'bg-white/5 text-neutral-500'}`}>{event.is_published ? 'LIVE' : 'HIDDEN'}</span></div>
+                  <h3 className="font-serif text-xl truncate">{event.title}</h3>
+                  <p className="text-sm text-neutral-500 mt-1 line-clamp-2">{event.description}</p>
+                  <p className="text-xs text-neutral-600 mt-2">{[event.time_label, event.venue].filter(Boolean).join(' · ')}</p>
+                </div>
+                <div className="flex md:flex-col gap-2 shrink-0">
+                  <button onClick={() => edit(event)} className="px-4 py-2 rounded-xl border border-[#c9a84c]/30 text-[#e4c76b] text-xs hover:bg-[#c9a84c]/10">Edit</button>
+                  <button onClick={() => remove(event.id)} className="px-4 py-2 rounded-xl border border-red-500/20 text-red-300 text-xs hover:bg-red-500/10">Remove</button>
+                </div>
+              </div>
+            ))}
+            {!events.length && <div className="border border-dashed border-white/10 rounded-2xl p-12 text-center text-neutral-500">No events yet. Add your first event.</div>}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
