@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "node scripts/stabilize-about-build.mjs && node scripts/upgrade-minister-admin.mjs && node scripts/fix-admin-and-minister-sync.mjs && node scripts/fix-minister-gallery.mjs && node scripts/add-minister-photo-editor.mjs && node scripts/add-public-minister-photo-positioning.mjs && node scripts/fix-mobile-minister-bio.mjs && node scripts/ensure-minister-photo-editor.mjs && node scripts/ensure-live-minister-photo-preview.mjs && node scripts/ensure-visible-minister-photo-preview.mjs && node scripts/update-about-copy.mjs && node scripts/update-bank-details.mjs && node scripts/add-professional-counseling-home.mjs && node scripts/add-events-cms.mjs && node scripts/ensure-admin-complete.mjs && node scripts/fix-minister-admin-syntax.mjs && tsc && vite build",
+    "build": "node scripts/stabilize-about-build.mjs && node scripts/upgrade-minister-admin.mjs && node scripts/fix-admin-and-minister-sync.mjs && node scripts/fix-minister-gallery.mjs && node scripts/add-minister-photo-editor.mjs && node scripts/add-public-minister-photo-positioning.mjs && node scripts/fix-mobile-minister-bio.mjs && node scripts/add-facebook-link.mjs && node scripts/ensure-minister-photo-editor.mjs && node scripts/ensure-live-minister-photo-preview.mjs && node scripts/ensure-visible-minister-photo-preview.mjs && node scripts/update-about-copy.mjs && node scripts/update-bank-details.mjs && node scripts/add-professional-counseling-home.mjs && node scripts/add-events-cms.mjs && node scripts/ensure-admin-complete.mjs && node scripts/fix-minister-admin-syntax.mjs && tsc && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
