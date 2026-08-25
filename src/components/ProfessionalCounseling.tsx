@@ -1,4 +1,7 @@
+import { useState } from 'react'
 import type { CSSProperties } from 'react'
+
+const WHATSAPP_NUMBER = '2348134346180'
 
 const services = [
   ['Pre-Marital & Marital Counseling', 'Guidance for couples preparing for marriage and support for married couples seeking healthier, stronger relationships.'],
@@ -14,14 +17,19 @@ const services = [
 ]
 
 const serviceCard: CSSProperties = {
-  background: 'rgba(255,255,255,0.035)',
-  border: '1px solid rgba(201,168,76,0.16)',
-  borderRadius: 18,
-  padding: '20px 18px',
-  transition: 'transform .25s ease, border-color .25s ease, background .25s ease',
+  minHeight: 170,
+  perspective: 1000,
+  cursor: 'pointer',
 }
 
 export function ProfessionalCounseling() {
+  const [flipped, setFlipped] = useState<number | null>(null)
+
+  const openWhatsApp = (title: string) => {
+    const message = `Hello Pastor, I would like to request ${title}. Please let me know how I can proceed.`
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, '_blank', 'noopener,noreferrer')
+  }
+
   return (
     <section id="professional-counseling" style={{ position: 'relative', overflow: 'hidden', background: 'linear-gradient(180deg,#08080e 0%,#0f0f18 48%,#08080e 100%)', padding: '110px 24px' }}>
       <div style={{ position: 'absolute', width: 520, height: 520, borderRadius: '50%', background: 'radial-gradient(circle,rgba(201,168,76,.14),transparent 68%)', top: -180, right: -140, pointerEvents: 'none' }} />
@@ -43,15 +51,45 @@ export function ProfessionalCounseling() {
 
           <div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,minmax(0,1fr))', gap: 14 }}>
-              {services.map(([title, description], index) => (
-                <article key={title} style={serviceCard} onMouseEnter={e => { e.currentTarget.style.transform='translateY(-4px)'; e.currentTarget.style.borderColor='rgba(201,168,76,.38)'; e.currentTarget.style.background='rgba(201,168,76,.06)' }} onMouseLeave={e => { e.currentTarget.style.transform='translateY(0)'; e.currentTarget.style.borderColor='rgba(201,168,76,.16)'; e.currentTarget.style.background='rgba(255,255,255,.035)' }}>
-                  <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:10 }}>
-                    <span style={{ width:28, height:28, borderRadius:'50%', display:'inline-flex', alignItems:'center', justifyContent:'center', background:'var(--gold-dim)', border:'1px solid var(--border-hi)', color:'var(--gold-light)', fontSize:'.7rem', fontWeight:700 }}>{String(index+1).padStart(2,'0')}</span>
-                    <h3 style={{ color:'var(--ivory)', fontSize:'1rem', lineHeight:1.3, fontWeight:600 }}>{title}</h3>
-                  </div>
-                  <p style={{ color:'var(--muted)', lineHeight:1.65, fontSize:'.82rem', paddingLeft:38 }}>{description}</p>
-                </article>
-              ))}
+              {services.map(([title, description], index) => {
+                const isFlipped = flipped === index
+                return (
+                  <article
+                    key={title}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`${title}. Click to connect with the pastor.`}
+                    onClick={() => setFlipped(isFlipped ? null : index)}
+                    onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setFlipped(isFlipped ? null : index) } }}
+                    style={serviceCard}
+                  >
+                    <div style={{ position: 'relative', width: '100%', height: '100%', minHeight: 170, transformStyle: 'preserve-3d', transition: 'transform .55s cubic-bezier(.2,.7,.2,1)', transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)' }}>
+                      <div style={{ position: 'absolute', inset: 0, backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden', background: 'rgba(255,255,255,0.035)', border: '1px solid rgba(201,168,76,0.16)', borderRadius: 18, padding: '20px 18px', boxSizing: 'border-box' }}>
+                        <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:10 }}>
+                          <span style={{ width:28, height:28, flexShrink:0, borderRadius:'50%', display:'inline-flex', alignItems:'center', justifyContent:'center', background:'var(--gold-dim)', border:'1px solid var(--border-hi)', color:'var(--gold-light)', fontSize:'.7rem', fontWeight:700 }}>{String(index+1).padStart(2, '0')}</span>
+                          <h3 style={{ color:'var(--ivory)', fontSize:'1rem', lineHeight:1.3, fontWeight:600 }}>{title}</h3>
+                        </div>
+                        <p style={{ color:'var(--muted)', lineHeight:1.65, fontSize:'.82rem', paddingLeft:38 }}>{description}</p>
+                        <div style={{ marginTop: 12, paddingLeft: 38, color: 'var(--gold-light)', fontSize: '.72rem', fontWeight: 600 }}>Tap to connect with the Pastor →</div>
+                      </div>
+
+                      <div style={{ position:'absolute', inset:0, backfaceVisibility:'hidden', WebkitBackfaceVisibility:'hidden', transform:'rotateY(180deg)', background:'linear-gradient(145deg,rgba(201,168,76,.16),rgba(255,255,255,.045))', border:'1px solid rgba(201,168,76,.45)', borderRadius:18, padding:24, boxSizing:'border-box', display:'flex', flexDirection:'column', justifyContent:'center', alignItems:'center', textAlign:'center' }}>
+                        <div className="label" style={{ marginBottom:8 }}>Connect with the Pastor</div>
+                        <h3 style={{ color:'var(--ivory)', fontSize:'1.05rem', marginBottom:8 }}>{title}</h3>
+                        <p style={{ color:'var(--muted)', fontSize:'.78rem', lineHeight:1.5, marginBottom:16 }}>Your WhatsApp message will automatically identify the counseling you selected.</p>
+                        <button
+                          type="button"
+                          onClick={e => { e.stopPropagation(); openWhatsApp(title) }}
+                          style={{ border: 'none', borderRadius: 999, padding: '11px 18px', background: '#25D366', color: '#07110a', fontWeight: 700, cursor: 'pointer', fontSize: '.82rem' }}
+                        >
+                          Connect on WhatsApp
+                        </button>
+                        <div style={{ marginTop:10, color:'var(--muted)', fontSize:'.68rem' }}>Tap the card to close</div>
+                      </div>
+                    </div>
+                  </article>
+                )
+              })}
             </div>
           </div>
         </div>
