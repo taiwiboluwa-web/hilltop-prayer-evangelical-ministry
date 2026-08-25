@@ -31,5 +31,21 @@ if (!admin.includes("<AdminEvents onClose")) {
   const anchor = "  const input='w-full h-11 px-3 bg-[#111118]"
   admin = admin.replace(anchor, conditional + '\n' + anchor)
 }
+
+// AdminPortal's dashboard count map must contain every possible Tab value.
+// The event manager itself loads the authoritative event list from Supabase.
+const oldCounts = "const counts=useMemo(()=>({ministers:ministers.length,gallery:gallery.length,videos:sermons.length,live:liveActive?1:0,audio:audio.length}),[ministers,gallery,sermons,liveActive,audio]);"
+const newCounts = "const counts=useMemo(()=>({ministers:ministers.length,gallery:gallery.length,videos:sermons.length,live:liveActive?1:0,audio:audio.length,events:0}),[ministers,gallery,sermons,liveActive,audio]);"
+if (admin.includes(oldCounts)) {
+  admin = admin.replace(oldCounts, newCounts)
+} else if (admin.includes("events:0")) {
+  // Already stabilized.
+} else {
+  // Keep the build idempotent if the count expression has been reformatted.
+  admin = admin.replace(/const counts=useMemo\(\(\)=>\(\{([^}]*)\}\),\[([^\]]*)\]\);/, (match, body, deps) => {
+    return body.includes('events:') ? match : `const counts=useMemo(()=>({${body},events:0}),[${deps}]);`
+  })
+}
+
 await writeFile(adminPath, admin, 'utf8')
 console.log('Supabase events calendar integration applied')
