@@ -1,5 +1,7 @@
 {
   "framework": "vite",
+  "installCommand": "pnpm install --no-frozen-lockfile",
+  "buildCommand": "pnpm build",
   "headers": [
     {
       "source": "/index.html",
