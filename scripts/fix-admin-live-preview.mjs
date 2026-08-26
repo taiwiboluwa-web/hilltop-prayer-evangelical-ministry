@@ -35,9 +35,9 @@ if (!s.includes('GALLERY_LIVE_PREVIEW_V4')) s = s.replace('export function Admin
 fs.writeFileSync(file, s)
 console.log('Gallery admin preview patch normalized: one galleryFit declaration, Fit/Fill controls only')
 
-// The minister editor was being patched with ministerFit references without
-// reliably creating the React state first. Repair that at the source during
-// the build, before TypeScript runs. This is deliberately idempotent.
+// Normalize the Minister admin source before TypeScript. Several historical
+// build scripts can touch this file, so remove duplicate state declarations
+// and then create exactly one canonical set. This is intentionally idempotent.
 const ministerFile = path.resolve('src/pages/AdminPortal.tsx')
 let minister = fs.readFileSync(ministerFile, 'utf8')
 
@@ -46,35 +46,34 @@ minister = minister.replace(
   "interface Minister { id:number|string; name:string; role:string; desc?:string; desc_text?:string; image_url?:string; img?:string; image_url_2?:string; image_url_3?:string; image_fit?:'cover'|'contain'; display_order:number }"
 )
 
-if (!minister.includes("const [ministerFit,setMinisterFit]")) {
-  const stateMarker = "const [mImage,setMImage]=useState('');"
-  if (minister.includes(stateMarker)) {
-    minister = minister.replace(
-      stateMarker,
-      stateMarker + "\n  const [mImage2,setMImage2]=useState(''),[mImage3,setMImage3]=useState('');\n  const [ministerFit,setMinisterFit]=useState<'cover'|'contain'>('cover');"
-    )
-  } else {
-    const fetchMarker = "  const fetchMinisters=async()=>"
-    minister = minister.replace(
-      fetchMarker,
-      "  const [mImage2,setMImage2]=useState(''),[mImage3,setMImage3]=useState('');\n  const [ministerFit,setMinisterFit]=useState<'cover'|'contain'>('cover');\n\n" + fetchMarker
-    )
-  }
+// Remove ALL legacy three-photo state declarations, regardless of whether
+// previous patches placed them beside mImage or on their own line.
+minister = minister.replace(/\n\s*const \[mImage2,setMImage2\]=useState\(''\),\[mImage3,setMImage3\]=useState\(''\);?/g, '')
+minister = minister.replace(/\n\s*const \[ministerFit,setMinisterFit\]=useState<'cover'\|'contain'>\('cover'\);?/g, '')
+minister = minister.replace(/,\[mImage2,setMImage2\]=useState\(''\),\[mImage3,setMImage3\]=useState\(''\)/g, '')
+
+// Add exactly one canonical state block immediately after the primary image state.
+const stateMarker = "const [mName,setMName]=useState(''),[mRole,setMRole]=useState(''),[mDesc,setMDesc]=useState(''),[mImage,setMImage]=useState('');"
+const canonicalState = stateMarker + "\n  const [mImage2,setMImage2]=useState(''),[mImage3,setMImage3]=useState('');\n  const [ministerFit,setMinisterFit]=useState<'cover'|'contain'>('cover');"
+if (minister.includes(stateMarker) && !minister.includes("const [mImage2,setMImage2]=useState(''),[mImage3,setMImage3]=useState('');")) {
+  minister = minister.replace(stateMarker, canonicalState)
 }
 
+// Ensure all minister-loading paths restore the saved Fit/Fill setting.
 minister = minister.replace(
-  "setMImage(m.image_url||m.img||'')",
+  /setMImage\(m\.image_url\|\|m\.img\|\|''\)(?:;setMImage2\(m\.image_url_2\|\|''\);setMImage3\(m\.image_url_3\|\|''\);setMinisterFit\(m\.image_fit==='contain'\?'contain':'cover'\))?/g,
   "setMImage(m.image_url||m.img||'');setMImage2(m.image_url_2||'');setMImage3(m.image_url_3||'');setMinisterFit(m.image_fit==='contain'?'contain':'cover')"
 )
 minister = minister.replace(
-  "setMImage(m?.image_url||m?.img||'')",
+  /setMImage\(m\?\.image_url\|\|m\?\.img\|\|''\)(?:;setMImage2\(m\?\.image_url_2\|\|''\);setMImage3\(m\?\.image_url_3\|\|''\);setMinisterFit\(m\?\.image_fit==='contain'\?'contain':'cover'\))?/g,
   "setMImage(m?.image_url||m?.img||'');setMImage2(m?.image_url_2||'');setMImage3(m?.image_url_3||'');setMinisterFit(m?.image_fit==='contain'?'contain':'cover')"
 )
 
+// Ensure the save payload contains the canonical Fit/Fill value.
 minister = minister.replace(
-  "image_url:mImage,img:mImage,display_order:selectedMinister",
+  /image_url:mImage,img:mImage(?:,image_url_2:mImage2,image_url_3:mImage3,image_fit:ministerFit)?,display_order:selectedMinister/,
   "image_url:mImage,img:mImage,image_url_2:mImage2,image_url_3:mImage3,image_fit:ministerFit,display_order:selectedMinister"
 )
 
 fs.writeFileSync(ministerFile, minister)
-console.log('Minister editor state repaired: Fit/Fill state is guaranteed before TypeScript')
+console.log('Minister editor source normalized: exactly one Fit/Fill state block, no duplicate declarations')
