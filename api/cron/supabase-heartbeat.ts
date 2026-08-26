@@ -11,15 +11,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const key = process.env.VITE_SUPABASE_ANON_KEY
   if (!url || !key) return res.status(500).json({ ok: false, error: 'Supabase environment variables are missing' })
 
-  const response = await fetch(`${url}/rest/v1/ministers?select=id&limit=1`, {
-    headers: { apikey: key, Authorization: `Bearer ${key}` },
-    cache: 'no-store',
-  })
+  try {
+    const response = await fetch(`${url}/rest/v1/ministers?select=id&limit=1`, {
+      headers: { apikey: key, Authorization: `Bearer ${key}` },
+      cache: 'no-store',
+    })
 
-  if (!response.ok) {
-    const detail = await response.text()
-    return res.status(502).json({ ok: false, error: `Supabase request failed: ${response.status}`, detail })
+    if (!response.ok) {
+      const detail = await response.text()
+      return res.status(502).json({ ok: false, error: `Supabase request failed: ${response.status}`, detail })
+    }
+
+    return res.status(200).json({ ok: true, service: 'supabase-heartbeat', timestamp: new Date().toISOString() })
+  } catch (error) {
+    return res.status(502).json({ ok: false, error: error instanceof Error ? error.message : 'Supabase request failed' })
   }
-
-  return res.status(200).json({ ok: true, service: 'supabase-heartbeat', timestamp: new Date().toISOString() })
 }
