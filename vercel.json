@@ -28,6 +28,12 @@
     { "source": "/admin", "destination": "/index.html" },
     { "source": "/admin/", "destination": "/index.html" },
     { "source": "/admin/:path*", "destination": "/index.html" },
+    { "source": "/Adminworkspace", "destination": "/index.html" },
+    { "source": "/Adminworkspace/", "destination": "/index.html" },
+    { "source": "/Adminlogin", "destination": "/index.html" },
+    { "source": "/Adminlogin/", "destination": "/index.html" },
+    { "source": "/Admindashboard", "destination": "/index.html" },
+    { "source": "/Admindashboard/", "destination": "/index.html" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
