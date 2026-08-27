@@ -12,6 +12,7 @@ import { AdminPortal } from './pages/AdminPortal'
 import { EmojiIconReplacer } from './components/EmojiIconReplacer'
 import { GalleryMomentsEnhancer } from './components/GalleryMomentsEnhancer'
 import { SeasonalTheme } from './components/SeasonalTheme'
+import { ChristmasStoryLayer } from './components/ChristmasStoryLayer'
 
 const PUBLIC_ROUTES: Record<string, string> = {
   '/': 'Home', '/Home': 'Home', '/About': 'About', '/Sermons': 'Sermons', '/Events': 'Events',
@@ -39,6 +40,7 @@ function Site() {
     <Analytics />
     <AdminSecurity />
     <SeasonalTheme admin={isAdminRoute} />
+    <ChristmasStoryLayer admin={isAdminRoute} />
     {!isAdminRoute && <EmojiIconReplacer />}
     {isAdminRoute ? <><AdminPortal onBack={goHome} /><GalleryMomentsEnhancer /></> : <><App />{locationHost && createPortal(<LocationDirections />, locationHost)}{publicPage === 'Events' && <GalleryMomentsEnhancer publicEvents />}</>}
   </>
