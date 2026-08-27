@@ -1,0 +1,76 @@
+import React, { useEffect, useMemo, useState } from 'react'
+import { supabase } from '../lib/supabase'
+
+type CountdownSettings = {
+  id: number
+  enabled: boolean
+  saturday_service_enabled: boolean
+  saturday_service_target: string
+  christmas_enabled: boolean
+  christmas_target_month: number
+  christmas_target_day: number
+  new_year_enabled: boolean
+  new_year_target_month: number
+  new_year_target_day: number
+  christmas_label: string
+  new_year_label: string
+}
+
+const fallback: CountdownSettings = {
+  id: 1, enabled: true, saturday_service_enabled: true,
+  saturday_service_target: '2026-08-29T17:00:00+01:00',
+  christmas_enabled: true, christmas_target_month: 12, christmas_target_day: 25,
+  new_year_enabled: true, new_year_target_month: 1, new_year_target_day: 1,
+  christmas_label: 'Christmas', new_year_label: 'New Year',
+}
+
+function targetDate(month:number, day:number) {
+  const now = new Date();
+  let year = now.getFullYear();
+  let target = new Date(year, month - 1, day, 0, 0, 0);
+  if (target.getTime() <= now.getTime()) target = new Date(year + 1, month - 1, day, 0, 0, 0);
+  return target;
+}
+
+function parts(ms:number) {
+  const safe = Math.max(0, ms);
+  const total = Math.floor(safe / 1000);
+  return { days: Math.floor(total / 86400), hours: Math.floor((total % 86400) / 3600), minutes: Math.floor((total % 3600) / 60), seconds: total % 60 };
+}
+
+function CountdownCard({label,target}:{label:string;target:Date}) {
+  const [now,setNow] = useState(Date.now());
+  useEffect(() => { const id=window.setInterval(()=>setNow(Date.now()),1000); return()=>window.clearInterval(id) },[]);
+  const p=parts(target.getTime()-now);
+  return <div className="site-countdown-card"><div className="site-countdown-label">{label}</div><div className="site-countdown-values"><span><b>{String(p.days).padStart(2,'0')}</b><small>Days</small></span><span><b>{String(p.hours).padStart(2,'0')}</b><small>Hours</small></span><span><b>{String(p.minutes).padStart(2,'0')}</b><small>Min</small></span><span><b>{String(p.seconds).padStart(2,'0')}</b><small>Sec</small></span></div></div>
+}
+
+export function SiteCountdowns({admin=false}:{admin?:boolean}) {
+  const [settings,setSettings]=useState<CountdownSettings>(fallback);
+  const [open,setOpen]=useState(false);
+  const [draft,setDraft]=useState<CountdownSettings>(fallback);
+  const [saving,setSaving]=useState(false);
+  const load=async()=>{const {data}=await supabase.from('countdown_settings').select('*').eq('id',1).maybeSingle();if(data){setSettings(data as CountdownSettings);setDraft(data as CountdownSettings)}};
+  useEffect(()=>{load()},[]);
+  const seasonal=useMemo(()=>{const now=new Date();const dec=now.getMonth()===11;const jan=now.getMonth()===0 && now.getDate()<=7;return {christmas:dec&&settings.christmas_enabled,newYear:jan&&settings.new_year_enabled}},[settings]);
+  const save=async()=>{setSaving(true);const {data,error}=await supabase.from('countdown_settings').update(draft).eq('id',1).select('*').single();setSaving(false);if(error){window.alert(error.message);return}if(data){setSettings(data as CountdownSettings);setDraft(data as CountdownSettings);setOpen(false)}};
+  const serviceTarget=new Date(settings.saturday_service_target);
+  return <>
+    {!admin && settings.enabled && <div className="site-countdowns" aria-label="Hilltop countdowns">
+      {seasonal.christmas && <CountdownCard label={`Countdown to ${settings.christmas_label}`} target={targetDate(12,settings.christmas_target_day)}/>} 
+      {seasonal.newYear && <CountdownCard label={`Countdown to ${settings.new_year_label}`} target={targetDate(1,settings.new_year_target_day)}/>} 
+      {!seasonal.christmas && !seasonal.newYear && settings.saturday_service_enabled && <CountdownCard label="Countdown to Saturday Service" target={serviceTarget}/>} 
+    </div>}
+    {admin && <>
+      <button className="admin-btn" onClick={()=>setOpen(true)}>Countdown Timers</button>
+      {open && <div className="countdown-admin-overlay"><div className="countdown-admin-panel"><button className="countdown-close" onClick={()=>setOpen(false)}>×</button><div className="admin-kicker">Website Controls</div><h2>Countdown Timers</h2><p>Control every public countdown from this dashboard. Seasonal countdowns activate automatically on their dates.</p>
+        <label className="countdown-switch"><input type="checkbox" checked={draft.enabled} onChange={e=>setDraft({...draft,enabled:e.target.checked})}/><span/>Show countdown timers on the website</label>
+        <section><h3>Christmas</h3><label className="countdown-switch"><input type="checkbox" checked={draft.christmas_enabled} onChange={e=>setDraft({...draft,christmas_enabled:e.target.checked})}/><span/>Enable Christmas countdown</label><label>Target day<input type="number" min="1" max="31" value={draft.christmas_target_day} onChange={e=>setDraft({...draft,christmas_target_day:Number(e.target.value)})}/></label></section>
+        <section><h3>New Year</h3><label className="countdown-switch"><input type="checkbox" checked={draft.new_year_enabled} onChange={e=>setDraft({...draft,new_year_enabled:e.target.checked})}/><span/>Enable New Year countdown</label><label>Target day<input type="number" min="1" max="31" value={draft.new_year_target_day} onChange={e=>setDraft({...draft,new_year_target_day:Number(e.target.value)})}/></label></section>
+        <section><h3>Saturday Service</h3><label className="countdown-switch"><input type="checkbox" checked={draft.saturday_service_enabled} onChange={e=>setDraft({...draft,saturday_service_enabled:e.target.checked})}/><span>Enable service countdown</span></label><label>Target date/time<input type="datetime-local" value={draft.saturday_service_target.slice(0,16)} onChange={e=>setDraft({...draft,saturday_service_target:e.target.value})}/></label></section>
+        <div className="countdown-actions"><button className="admin-btn" onClick={()=>setOpen(false)}>Cancel</button><button className="admin-btn gold" onClick={save} disabled={saving}>{saving?'Saving…':'Save & Publish'}</button></div>
+      </div></div>}
+    </>}
+    <style>{`.site-countdowns{position:fixed;right:18px;bottom:18px;z-index:9980;display:flex;gap:10px;flex-wrap:wrap;max-width:min(650px,calc(100vw - 36px));justify-content:flex-end;pointer-events:none}.site-countdown-card{pointer-events:auto;background:rgba(255,255,255,.96);border:1px solid rgba(24,93,53,.16);border-radius:16px;padding:12px 14px;box-shadow:0 12px 35px rgba(0,0,0,.13);color:#173c28;min-width:235px}.site-countdown-label{font:700 9px Inter,system-ui,sans-serif;letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px}.site-countdown-values{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.site-countdown-values span{text-align:center;background:#f5faf6;border-radius:9px;padding:6px 3px}.site-countdown-values b{display:block;font:700 18px Georgia,serif}.site-countdown-values small{font:8px Inter,sans-serif;color:#6c7e73}.countdown-admin-overlay{position:fixed;inset:0;z-index:10050;background:rgba(0,0,0,.58);display:grid;place-items:center;padding:20px}.countdown-admin-panel{position:relative;width:min(560px,100%);max-height:90vh;overflow:auto;background:#0d0e0b;color:#eee9de;border:1px solid rgba(217,173,76,.28);padding:26px;box-shadow:0 30px 90px rgba(0,0,0,.5)}.countdown-admin-panel h2{font:500 28px Georgia,serif;margin:3px 0 8px}.countdown-admin-panel p{color:#85877c;font:11px Inter,sans-serif;line-height:1.6;margin:0 0 20px}.countdown-admin-panel section{border-top:1px solid rgba(255,255,255,.07);padding:18px 0}.countdown-admin-panel h3{font:500 16px Georgia,serif;margin:0 0 12px}.countdown-admin-panel label:not(.countdown-switch){display:block;color:#85877c;font:9px Inter,sans-serif;letter-spacing:.08em;text-transform:uppercase;margin-top:12px}.countdown-admin-panel input[type=number],.countdown-admin-panel input[type=datetime-local]{display:block;width:100%;height:40px;margin-top:7px;background:#11120f;border:1px solid rgba(255,255,255,.1);color:#eee;padding:0 10px}.countdown-switch{display:flex;align-items:center;gap:10px;color:#d8d3c7;font:11px Inter,sans-serif;margin:9px 0}.countdown-switch input{position:absolute;opacity:0}.countdown-switch span{width:38px;height:21px;border-radius:20px;background:#34352e;position:relative}.countdown-switch span:after{content:'';position:absolute;width:17px;height:17px;border-radius:50%;left:2px;top:2px;background:#aaa;transition:.15s}.countdown-switch input:checked+span{background:#3d8d60}.countdown-switch input:checked+span:after{transform:translateX(17px);background:white}.countdown-close{position:absolute;right:12px;top:10px;background:none;border:0;color:#888;font-size:24px}.countdown-actions{display:flex;justify-content:flex-end;gap:8px;padding-top:18px}`}</style>
+  </>
+}
