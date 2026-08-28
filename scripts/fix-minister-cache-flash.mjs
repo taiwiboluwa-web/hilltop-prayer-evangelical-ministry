@@ -19,7 +19,7 @@ source = source.replace(
 // stable cache key. Date.now() is used as a safe fallback for older rows.
 if (!source.includes('HILLTOP_MINISTER_IMAGE_CACHE_BUSTER_V3')) {
   const marker = 'interface MinisterItem { id: number|string; name: string; role: string; desc: string; img: string }'
-  const helper = `${marker}\nfunction bustMinisterImageUrl(src:string, version?:string|number){if(!src)return src;const separator=src.includes('?')?'&':'?';return \`${src}\${separator}hmv=\${encodeURIComponent(String(version||Date.now()))}\`}`
+  const helper = `${marker}\nfunction bustMinisterImageUrl(src:string, version?:string|number){if(!src)return src;const separator=src.includes('?')?'&':'?';return src+separator+'hmv='+encodeURIComponent(String(version||Date.now()))}`
   if (source.includes(marker)) source = source.replace(marker, helper)
   else throw new Error('MinisterItem interface marker not found in src/App.tsx')
   source = source.replace(/img:m\.image_url\|\|m\.img\|\|IMGS\.pastor/g, 'img:bustMinisterImageUrl(m.image_url||m.img||IMGS.pastor,(m as any).updated_at)')
