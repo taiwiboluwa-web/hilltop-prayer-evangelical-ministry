@@ -26,16 +26,13 @@ let minister = fs.readFileSync(ministerFile, 'utf8')
 
 minister = minister.replace(/interface Minister \{[^}]*\}/, "interface Minister { id:string|number; name:string; role:string; desc?:string; desc_text?:string; image_url?:string; img?:string; image_url_2?:string; image_url_3?:string; image_fit?:'cover'|'contain'; display_order:number }")
 
-// Remove every historical state tuple globally. The pipe in the TypeScript
-// union is escaped so the JavaScript RegExp matches the complete declaration.
-const historicalStateTuples = [
-  /\[mImage2,setMImage2\]=useState\(''\)/g,
-  /\[mImage3,setMImage3\]=useState\(''\)/g,
-  /\[ministerFit,setMinisterFit\]=useState<'cover'\|'contain'>\('cover'\)/g,
-]
-for (const pattern of historicalStateTuples) minister = minister.replace(pattern, '')
-
-minister = minister.replace(/const\s*;\s*/g, '')
+// Historical patches used several whitespace/combined-state shapes. Remove
+// the three target state tuples globally with whitespace-tolerant expressions,
+// then reconstruct the complete minister state region from stable anchors.
+minister = minister.replace(/,?\s*\[mImage2\s*,\s*setMImage2\]\s*=\s*useState\s*\(\s*''\s*\)/g, '')
+minister = minister.replace(/,?\s*\[mImage3\s*,\s*setMImage3\]\s*=\s*useState\s*\(\s*''\s*\)/g, '')
+minister = minister.replace(/,?\s*\[ministerFit\s*,\s*setMinisterFit\]\s*=\s*useState\s*<\s*'cover'\s*\|\s*'contain'\s*>\s*\(\s*'cover'\s*\)/g, '')
+minister = minister.replace(/\bconst\s*;\s*/g, '')
 minister = minister.replace(/,\s*;/g, ';')
 minister = minister.replace(/const\s*,/g, 'const ')
 
@@ -55,10 +52,25 @@ minister = minister.replace(/setMImage\(m\.image_url\|\|m\.img\|\|''\)(?:;setMIm
 minister = minister.replace(/setMImage\(m\?\.image_url\|\|m\?\.img\|\|''\)(?:;setMImage2\(m\?\.image_url_2\|\|''\);setMImage3\(m\?\.image_url_3\|\|''\);setMinisterFit\(m\?\.image_fit==='contain'\?'contain':'cover'\))?/g, "setMImage(m?.image_url||m?.img||'');setMImage2(m?.image_url_2||'');setMImage3(m?.image_url_3||'');setMinisterFit(m?.image_fit==='contain'?'contain':'cover')")
 minister = minister.replace(/image_url:mImage,img:mImage(?:,image_url_2:mImage2,image_url_3:mImage3,image_fit:ministerFit)?,display_order:selectedMinister/, "image_url:mImage,img:mImage,image_url_2:mImage2,image_url_3:mImage3,image_fit:ministerFit,display_order:selectedMinister")
 
+// Final defensive pass: if any historical declaration survived outside the
+// normal state range, strip it and re-install exactly one canonical block.
+minister = minister.replace(/,?\s*\[mImage2\s*,\s*setMImage2\]\s*=\s*useState\s*\(\s*''\s*\)/g, '')
+minister = minister.replace(/,?\s*\[mImage3\s*,\s*setMImage3\]\s*=\s*useState\s*\(\s*''\s*\)/g, '')
+minister = minister.replace(/,?\s*\[ministerFit\s*,\s*setMinisterFit\]\s*=\s*useState\s*<\s*'cover'\s*\|\s*'contain'\s*>\s*\(\s*'cover'\s*\)/g, '')
+minister = minister.replace(/\bconst\s*;\s*/g, '')
+minister = minister.replace(/,\s*;/g, ';')
+minister = minister.replace(/const\s*,/g, 'const ')
+
+const finalAdminStart = minister.indexOf('export function AdminPortal({ onBack }: AdminPortalProps)')
+const finalMinistersStart = minister.indexOf('  const [ministers,setMinisters', finalAdminStart)
+const finalGalleryStateStart = minister.indexOf('  const [gallery,setGallery', finalMinistersStart)
+if (finalAdminStart < 0 || finalMinistersStart < 0 || finalGalleryStateStart < 0) throw new Error('Minister state anchors missing during final normalization')
+minister = minister.slice(0, finalMinistersStart) + canonicalMinisterState + minister.slice(finalGalleryStateStart)
+
 const counts = {
   m2: (minister.match(/const \[mImage2,setMImage2\]=useState\(''\);/g) || []).length,
   m3: (minister.match(/const \[mImage3,setMImage3\]=useState\(''\);/g) || []).length,
-  fit: (minister.match(/const \[ministerFit,setMinisterFit\]=useState<'cover'|'contain'>\('cover'\);/g) || []).length
+  fit: (minister.match(/const \[ministerFit,setMinisterFit\]=useState<'cover'\|'contain'>\('cover'\);/g) || []).length
 }
 if (counts.m2 !== 1 || counts.m3 !== 1 || counts.fit !== 1) throw new Error(`Minister editor state normalization failed: expected one Fit/Fill state block (mImage2=${counts.m2}, mImage3=${counts.m3}, ministerFit=${counts.fit})`)
 
