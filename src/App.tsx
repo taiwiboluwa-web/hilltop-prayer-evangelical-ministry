@@ -1,50 +1,50 @@
-import { useState, useEffect, useRef } from 'react'
+import React, { useState } from 'react'
 import { AdminPortal } from './pages/AdminPortal'
-import { supabase } from './lib/supabase'
-import { Navbar, Logo } from './components/Navbar'
 
-const DONATION_ACCOUNT = {
-  currency: 'USD (US Dollar)',
-  accountName: 'HILLTOP PRAYER & EVANGELICAL MINISTRY',
-  bank: 'ZENITH BANK',
-  accountNumber: '5074529651',
+const ACCOUNTS = {
+  naira: { currency: '₦ Naira Account', accountName: 'HILLTOP PRAYER & EVANGELICAL MINISTRY', bank: 'ZENITH BANK', accountNumber: '1229905996' },
+  usd: { currency: '$ USD / DOLLAR ACCOUNT', accountName: 'HILLTOP PRAYER & EVANGELICAL MINISTRY', bank: 'ZENITH BANK', accountNumber: '5074529651' },
 }
 
-const IMGS = {
-  hero: 'https://images.unsplash.com/photo-1510590124886-dc2653b48bf0?w=1920&h=1080&fit=crop&auto=format',
-  worship: 'https://images.unsplash.com/photo-1478147427282-58a87a120781?w=1600&h=900&fit=crop&auto=format',
-  night: 'https://images.unsplash.com/photo-1579975096649-e773152b04cb?w=1200&h=700&fit=crop&auto=format',
-  prayer: 'https://images.unsplash.com/photo-1438232992991-995b7058bbb3?w=1200&h=700&fit=crop&auto=format',
-  raising: 'https://images.unsplash.com/photo-1530688957198-8570b1819eeb?w=1200&h=700&fit=crop&auto=format',
-  community: 'https://images.unsplash.com/photo-1634936564306-8a905be6429a?w=1200&h=700&fit=crop&auto=format',
-  mission: 'https://images.unsplash.com/photo-1673280401347-309363111070?w=1200&h=700&fit=crop&auto=format',
-  diverse: 'https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?w=1200&h=700&fit=crop&auto=format',
-  pastor: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=800&fit=crop&auto=format',
-  minister2: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=800&h=800&fit=crop&auto=format',
-  minister3: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=800&h=800&fit=crop&auto=format',
+function Give() {
+  const [amount, setAmount] = useState(5000)
+  return <main style={{ minHeight: '100vh', background: '#08080e', color: '#f5f0e6', padding: '110px 24px 70px', fontFamily: 'Arial, sans-serif' }}>
+    <div style={{ maxWidth: 900, margin: '0 auto' }}>
+      <div style={{ textAlign: 'center', marginBottom: 45 }}>
+        <p style={{ color: '#d9ad4c', letterSpacing: '.18em', textTransform: 'uppercase', fontSize: 12 }}>Give</p>
+        <h1 style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(2.4rem,6vw,4.8rem)', margin: '12px 0' }}>Honor God With Your Substance</h1>
+        <p style={{ color: '#c9c2b5', lineHeight: 1.7 }}>Bring ye all the tithes into the storehouse, and prove me now herewith, saith the Lord. (Malachi 3:10)</p>
+      </div>
+
+      <section style={{ background: '#111117', border: '1px solid rgba(217,173,76,.25)', padding: 28, borderRadius: 18, marginBottom: 25 }}>
+        <h2 style={{ fontFamily: 'Georgia, serif' }}>Give Online</h2>
+        <p style={{ color: '#aaa5a0' }}>Select Amount</p>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>{[1000,2000,5000,10000,25000,50000].map(value => <button key={value} onClick={() => setAmount(value)} style={{ padding: '10px 15px', borderRadius: 8, border: '1px solid #555', background: value === amount ? '#d9ad4c' : 'transparent', color: value === amount ? '#111' : '#fff', cursor: 'pointer' }}>₦{value.toLocaleString()}</button>)}</div>
+        <button style={{ marginTop: 18, padding: '13px 20px', border: 0, borderRadius: 8, background: '#d9ad4c', color: '#111', fontWeight: 700 }}>Give ₦{amount.toLocaleString()} Now</button>
+      </section>
+
+      <section style={{ background: '#f5f0e6', color: '#171510', padding: 28, borderRadius: 18 }}>
+        <h2 style={{ fontFamily: 'Georgia, serif', marginTop: 0 }}>ONLINE BANK TRANSFER</h2>
+        <AccountCard account={ACCOUNTS.naira} />
+        <AccountCard account={ACCOUNTS.usd} usd />
+      </section>
+    </div>
+  </main>
 }
 
-const SCHEDULE = [{ day: '2nd and 3rd Saturdays', name: 'Prayer Meeting', time: '5:30 PM - 8:00 PM' }]
-const SERMONS = [
-  { title: 'The Power of Persistent Prayer', speaker: 'Pastor Emmanuel Adeyemi', series: 'Pray Without Ceasing', scripture: 'Luke 18:1-8', date: 'Aug 11, 2026', dur: '52 min', tag: 'Prayer', img: IMGS.prayer },
-  { title: 'Walking by Faith, Not by Sight', speaker: 'Pastor Emmanuel Adeyemi', series: 'Faith Foundations', scripture: '2 Corinthians 5:7', date: 'Aug 4, 2026', dur: '48 min', tag: 'Faith', img: IMGS.raising },
-  { title: 'Go Into All the World', speaker: 'Evang. Grace Okafor', series: 'The Great Commission', scripture: 'Mark 16:15', date: 'Jul 28, 2026', dur: '44 min', tag: 'Evangelism', img: IMGS.mission },
-  { title: 'Healing Is the Children Bread', speaker: 'Pastor Emmanuel Adeyemi', series: 'Supernatural Life', scripture: 'Matthew 15:26', date: 'Jul 21, 2026', dur: '50 min', tag: 'Healing', img: IMGS.worship },
-  { title: 'Deliverance from Every Chain', speaker: 'Bro. Samuel Eze', series: 'Freedom in Christ', scripture: 'Isaiah 61:1', date: 'Jul 14, 2026', dur: '46 min', tag: 'Deliverance', img: IMGS.night },
-  { title: 'The Family That Prays Together', speaker: 'Pastor Emmanuel Adeyemi', series: 'Blessed Home', scripture: 'Joshua 24:15', date: 'Jul 7, 2026', dur: '54 min', tag: 'Faith', img: IMGS.diverse },
-]
-const SERMON_TAGS = ['All','Faith','Prayer','Healing','Deliverance','Evangelism']
-const EVENTS = [
-  { date: '24 AUG', title: '21 Days of Prayer & Fasting', desc: 'Focused intercession, fasting, and seeking God together as a family.', time: '6:00 AM Daily', venue: 'Hilltop Auditorium, Ipaja', img: IMGS.prayer },
-  { date: '07 SEP', title: 'Hilltop Youth Summit 2026', desc: 'A powerful gathering of young people encountering God and being sent forth.', time: '10:00 AM - 6:00 PM', venue: 'Hilltop Auditorium, Ipaja', img: IMGS.raising },
-  { date: '19 SEP', title: 'Community Outreach Drive', desc: 'Taking the love of Christ into the streets and markets of Ipaja.', time: '8:00 AM - 2:00 PM', venue: 'Ipaja Community, Lagos', img: IMGS.mission },
-]
-
-function App(){
-  const [admin,setAdmin]=useState(false)
-  useEffect(()=>{if(window.location.pathname.toLowerCase()==='/admin')setAdmin(true)},[])
-  if(admin)return <AdminPortal onBack={()=>{setAdmin(false);window.history.pushState({},'', '/')}} />
-  return <><Navbar/><main><section style={{minHeight:'100vh',background:'#08080e',display:'grid',placeItems:'center',padding:'120px 24px',textAlign:'center'}}><div><p style={{color:'var(--gold)',letterSpacing:'.2em',textTransform:'uppercase',fontSize:10}}>Ipaja, Lagos, Nigeria</p><h1 style={{fontFamily:'Georgia,serif',fontSize:'clamp(2.8rem,7vw,6rem)',color:'#f5f0e6',maxWidth:900}}>Hilltop Prayer & Evangelical Ministry</h1><p style={{color:'#c9c2b5',fontSize:18}}>Pray, Believe, Serve, Go</p><div style={{marginTop:40,padding:'24px',border:'1px solid rgba(217,173,76,.35)',borderRadius:12,maxWidth:520,marginInline:'auto',textAlign:'left'}}><strong style={{display:'block',color:'var(--gold)',fontSize:14,letterSpacing:'.12em',textTransform:'uppercase',marginBottom:16}}>USD / Dollar Account</strong><p style={{margin:'8px 0',color:'#f5f0e6'}}><b>Account Name:</b> {DONATION_ACCOUNT.accountName}</p><p style={{margin:'8px 0',color:'#f5f0e6'}}><b>Bank:</b> {DONATION_ACCOUNT.bank}</p><p style={{margin:'8px 0',color:'#f5f0e6'}}><b>Account No.:</b> {DONATION_ACCOUNT.accountNumber}</p></div></div></section></main></>
+function AccountCard({ account, usd = false }: { account: typeof ACCOUNTS.naira, usd?: boolean }) {
+  return <div style={{ marginTop: 20, padding: 22, borderRadius: 14, background: usd ? '#fffaf0' : '#fff', border: usd ? '2px solid #d9ad4c' : '1px solid #ddd' }}>
+    <div style={{ display: 'inline-block', padding: '7px 11px', borderRadius: 20, background: usd ? '#d9ad4c' : '#eee', color: '#111', fontSize: 12, fontWeight: 800, letterSpacing: '.08em', marginBottom: 15 }}>{account.currency}</div>
+    <p><b>Account Name</b><br />{account.accountName}</p>
+    <p><b>Bank</b><br />{account.bank}</p>
+    <p><b>Account No.</b><br /><strong style={{ fontSize: 20 }}>{account.accountNumber}</strong></p>
+  </div>
 }
 
-export default App
+export default function App() {
+  const [admin, setAdmin] = useState(window.location.pathname.toLowerCase() === '/admin')
+  const path = window.location.pathname.toLowerCase()
+  if (admin) return <AdminPortal onBack={() => { window.history.pushState({}, '', '/'); setAdmin(false) }} />
+  if (path === '/give') return <Give />
+  return <div style={{ minHeight: '100vh', background: '#08080e', color: '#f5f0e6', display: 'grid', placeItems: 'center', textAlign: 'center', padding: 30 }}><div><h1 style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(2.5rem,7vw,5rem)' }}>Hilltop Prayer & Evangelical Ministry</h1><p>Pray, Believe, Serve, Go</p><a href="/Give" style={{ color: '#d9ad4c' }}>Give</a></div></div>
+}
