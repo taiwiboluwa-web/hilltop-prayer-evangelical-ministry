@@ -1,0 +1,108 @@
+import React, { useEffect, useMemo, useState } from 'react'
+import { supabase } from '../supabase'
+
+type GalleryItem = { id:string|number; title:string; image_url:string; created_at?:string; group_id?:string|null; display_order?:number|null }
+type GalleryGroup = { key:string; title:string; items:GalleryItem[]; created_at?:string }
+
+const makeId = () => typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`
+
+export function GalleryMomentsManager(){
+  const [items,setItems]=useState<GalleryItem[]>([])
+  const [title,setTitle]=useState('')
+  const [files,setFiles]=useState<File[]>([])
+  const [previews,setPreviews]=useState<string[]>([])
+  const [busy,setBusy]=useState(false)
+  const [message,setMessage]=useState('')
+
+  const load=async()=>{
+    const {data,error}=await supabase.from('gallery_moments').select('*').order('created_at',{ascending:false})
+    if(error){setMessage(error.message);return}
+    setItems((data||[]) as GalleryItem[])
+  }
+  useEffect(()=>{load()},[])
+  useEffect(()=>()=>previews.forEach(URL.revokeObjectURL),[previews])
+
+  const groups=useMemo<GalleryGroup[]>(()=>{
+    const map=new Map<string,GalleryGroup>()
+    for(const item of items){
+      const key=item.group_id||`single-${item.id}`
+      if(!map.has(key))map.set(key,{key,title:item.title||'Gallery Moment',items:[],created_at:item.created_at})
+      const group=map.get(key)!
+      group.items.push(item)
+      if(!group.created_at||((item.created_at||'')>(group.created_at||'')))group.created_at=item.created_at
+    }
+    return Array.from(map.values()).map(g=>({...g,items:[...g.items].sort((a,b)=>(a.display_order??0)-(b.display_order??0))}))
+  },[items])
+
+  const selectFiles=(next:FileList|null)=>{
+    const chosen=Array.from(next||[]).filter(file=>file.type.startsWith('image/'))
+    setFiles(chosen)
+    setPreviews(chosen.map(file=>URL.createObjectURL(file)))
+    setMessage(chosen.length?`${chosen.length} picture${chosen.length===1?'':'s'} selected.`:'')
+  }
+
+  const removeSelected=(index:number)=>{
+    URL.revokeObjectURL(previews[index])
+    setFiles(current=>current.filter((_,i)=>i!==index))
+    setPreviews(current=>current.filter((_,i)=>i!==index))
+  }
+
+  const addGroup=async(e:React.FormEvent)=>{
+    e.preventDefault()
+    if(!title.trim()){setMessage('Enter a title for this gallery group.');return}
+    if(!files.length){setMessage('Select one or more pictures.');return}
+    setBusy(true);setMessage('Uploading gallery group…')
+    const groupId=makeId()
+    try{
+      const rows:Record<string,unknown>[]=[]
+      for(let i=0;i<files.length;i++){
+        const file=files[i]
+        const safe=file.name.replace(/[^a-zA-Z0-9._-]/g,'_')
+        const path=`moments/${groupId}/${String(i+1).padStart(3,'0')}_${safe}`
+        const {error}=await supabase.storage.from('gallery').upload(path,file,{cacheControl:'31536000',upsert:false,contentType:file.type})
+        if(error)throw error
+        const url=supabase.storage.from('gallery').getPublicUrl(path).data.publicUrl
+        rows.push({title:title.trim(),image_url:url,media_type:'image',mime_type:file.type,image_fit:'cover',group_id:groupId,display_order:i})
+      }
+      const {error}=await supabase.from('gallery_moments').insert(rows)
+      if(error)throw error
+      setTitle('');setFiles([]);previews.forEach(URL.revokeObjectURL);setPreviews([])
+      setMessage(`Gallery group published with ${rows.length} picture${rows.length===1?'':'s'}.`)
+      await load()
+    }catch(error:any){setMessage(error?.message||'Gallery upload failed.')}finally{setBusy(false)}
+  }
+
+  const removeGroup=async(group:GalleryGroup)=>{
+    if(!confirm(`Delete the entire “${group.title}” gallery group (${group.items.length} pictures)?`))return
+    setBusy(true)
+    try{
+      const paths=group.items.map(item=>{try{return new URL(item.image_url).pathname.split('/storage/v1/object/public/gallery/')[1]}catch{return null}}).filter(Boolean) as string[]
+      if(paths.length)await supabase.storage.from('gallery').remove(paths)
+      const ids=group.items.map(item=>item.id)
+      const {error}=await supabase.from('gallery_moments').delete().in('id',ids)
+      if(error)throw error
+      await load()
+    }catch(error:any){setMessage(error?.message||'Could not delete gallery group.')}finally{setBusy(false)}
+  }
+
+  return <div className="admin-grid">
+    <section className="admin-panel">
+      <div className="admin-panel-head"><div><h2>New gallery group</h2><span>Upload multiple pictures as one moment</span></div></div>
+      <div className="admin-panel-body">
+        <form onSubmit={addGroup}>
+          <div className="admin-field"><label>Group title</label><input className="admin-input" value={title} onChange={e=>setTitle(e.target.value)} placeholder="Sunday Thanksgiving Service"/></div>
+          <div className="admin-field"><label>Select multiple pictures</label><input className="admin-input" type="file" accept="image/*" multiple onChange={e=>selectFiles(e.target.files)}/><div className="admin-helper" style={{marginTop:7}}>Hold Ctrl/Shift to select several pictures, or select a whole batch at once.</div></div>
+          {previews.length>0&&<div style={{display:'grid',gridTemplateColumns:'repeat(3,minmax(0,1fr))',gap:8,marginBottom:15}}>{previews.map((src,i)=><div key={src} style={{position:'relative',aspectRatio:'1',overflow:'hidden',background:'#11120f',border:'1px solid rgba(255,255,255,.08)'}}><img src={src} alt={`Selected ${i+1}`} style={{width:'100%',height:'100%',objectFit:'cover'}}/><button type="button" onClick={()=>removeSelected(i)} style={{position:'absolute',top:5,right:5,width:24,height:24,border:0,borderRadius:'50%',background:'rgba(0,0,0,.8)',color:'#fff'}}>×</button><span style={{position:'absolute',bottom:5,left:5,padding:'3px 6px',background:'rgba(0,0,0,.7)',color:'#fff',fontSize:8}}>{i+1}</span></div>)}</div>}
+          <div className="admin-form-actions"><button className="admin-btn gold" type="submit" disabled={busy}>{busy?'Uploading…':'Publish gallery group'}</button></div>
+          {message&&<div className="admin-helper" style={{marginTop:12,color:message.toLowerCase().includes('failed')||message.toLowerCase().includes('could not')?'#d78585':'#c9a84c'}}>{message}</div>}
+        </form>
+      </div>
+    </section>
+    <section className="admin-panel">
+      <div className="admin-panel-head"><div><h2>Published gallery groups</h2><span>{groups.length} group{groups.length===1?'':'s'}</span></div></div>
+      <div className="admin-panel-body">
+        {groups.length?<div className="admin-list">{groups.map(group=><div key={group.key} className="admin-list-item" style={{alignItems:'flex-start'}}><div style={{display:'grid',gridTemplateColumns:'repeat(2,50px)',gap:4,flexShrink:0}}>{group.items.slice(0,4).map(item=><img key={String(item.id)} src={item.image_url} alt="" style={{width:50,height:50,objectFit:'cover'}}/>)}</div><div className="admin-list-main"><b>{group.title}</b><span>{group.items.length} picture{group.items.length===1?'':'s'} · {group.created_at?new Date(group.created_at).toLocaleDateString('en-NG'):''}</span></div><button className="admin-mini del" disabled={busy} onClick={()=>removeGroup(group)}>Delete group</button></div>)}</div>:<div className="admin-empty">No gallery moments yet.</div>}
+      </div>
+    </section>
+  </div>
+}
