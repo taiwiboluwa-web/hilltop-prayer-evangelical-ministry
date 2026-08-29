@@ -32,20 +32,12 @@ const EVENTS = [
   { date: '07 SEP', title: 'Hilltop Youth Summit 2026', desc: 'A powerful gathering of young people encountering God and being sent forth.', time: '10:00 AM - 6:00 PM', venue: 'Hilltop Auditorium, Ipaja', img: IMGS.raising },
   { date: '19 SEP', title: 'Community Outreach Drive', desc: 'Taking the love of Christ into the streets and markets of Ipaja.', time: '8:00 AM - 2:00 PM', venue: 'Ipaja Community, Lagos', img: IMGS.mission },
 ]
-const DEFAULT_MINISTERS = [
-  { id: 1, name: 'Pst. Emmanuel Oloya', role: 'Resident Pastor', desc: `About Me\nI am passionate about serving my community through leadership, creativity, and compassion. With a heart for people and a commitment to faith, I strive to make a lasting impact in every role I take on. Whether leading worship, organizing events, or guiding youth, I bring energy and purpose to every task I take on.`, img: IMGS.pastor },
-  { id: 2, name: 'Mrs. Emmanuel Oloya', role: "Children's Pastor", desc: 'Nurturing young hearts in faith and love for Jesus Christ.', img: IMGS.minister2 },
-  { id: 3, name: 'Secretary', role: 'Church Administrator', desc: 'Coordinating ministry workflows, communications, and organizational operations.', img: IMGS.minister3 },
-  { id: 4, name: 'Open Slot', role: 'Associate Minister', desc: 'Dedicated to worship leadership and ministry coordination.', img: IMGS.worship },
-  { id: 5, name: 'Open Slot', role: 'Outreach Minister', desc: 'Spearheading evangelism initiatives and community integration.', img: IMGS.community },
-]
 
 function App(){
-  const [activePage,setActivePage]=useState('Home')
   const [admin,setAdmin]=useState(false)
-  useEffect(()=>{const path=window.location.pathname.toLowerCase();if(path==='/admin')setAdmin(true)},[])
+  useEffect(()=>{if(window.location.pathname.toLowerCase()==='/admin')setAdmin(true)},[])
   if(admin)return <AdminPortal onBack={()=>{setAdmin(false);window.history.pushState({},'', '/')}} />
-  return <><Navbar activePage={activePage} setActivePage={setActivePage}/><main><section style={{minHeight:'100vh',background:'#08080e',display:'grid',placeItems:'center',padding:'120px 24px',textAlign:'center'}}><div><p style={{color:'var(--gold)',letterSpacing:'.2em',textTransform:'uppercase',fontSize:10}}>Ipaja, Lagos, Nigeria</p><h1 style={{fontFamily:'Georgia,serif',fontSize:'clamp(2.8rem,7vw,6rem)',color:'#f5f0e6',maxWidth:900}}>Hilltop Prayer & Evangelical Ministry</h1><p style={{color:'#c9c2b5',fontSize:18}}>Pray, Believe, Serve, Go</p></div></section></main></>
+  return <><Navbar/><main><section style={{minHeight:'100vh',background:'#08080e',display:'grid',placeItems:'center',padding:'120px 24px',textAlign:'center'}}><div><p style={{color:'var(--gold)',letterSpacing:'.2em',textTransform:'uppercase',fontSize:10}}>Ipaja, Lagos, Nigeria</p><h1 style={{fontFamily:'Georgia,serif',fontSize:'clamp(2.8rem,7vw,6rem)',color:'#f5f0e6',maxWidth:900}}>Hilltop Prayer & Evangelical Ministry</h1><p style={{color:'#c9c2b5',fontSize:18}}>Pray, Believe, Serve, Go</p></div></section></main></>
 }
 
 export default App
