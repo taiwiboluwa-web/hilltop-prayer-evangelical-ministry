@@ -1,19 +1,237 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { supabase } from '../supabase'
 
-type GalleryItem = { id:string|number; title:string; image_url:string; created_at?:string; group_id?:string|null; display_order?:number|null }
-type GalleryGroup = { key:string; title:string; items:GalleryItem[]; created_at?:string }
+type GalleryItem = {
+  id: string | number
+  title: string
+  image_url: string
+  created_at?: string
+  group_id?: string | null
+  display_order?: number | null
+}
+
+type GalleryGroup = { key: string; title: string; items: GalleryItem[]; created_at?: string }
+
+type EditorState = {
+  rotation: number
+  flipH: boolean
+  brightness: number
+  contrast: number
+  saturation: number
+  crop: 'original' | 'square' | 'portrait' | 'landscape'
+}
+
+type PendingImage = {
+  id: string
+  file: File
+  preview: string
+  editor: EditorState
+}
+
 const MAX_PICTURES = 15
 const makeId = () => typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`
+const defaultEditor = (): EditorState => ({ rotation: 0, flipH: false, brightness: 100, contrast: 100, saturation: 100, crop: 'original' })
 
-export function GalleryMomentsManager(){
-  const [items,setItems]=useState<GalleryItem[]>([]); const [title,setTitle]=useState(''); const [files,setFiles]=useState<File[]>([]); const [previews,setPreviews]=useState<string[]>([]); const [busy,setBusy]=useState(false); const [message,setMessage]=useState('')
-  const load=async()=>{ const {data,error}=await supabase.from('gallery_moments').select('*').order('created_at',{ascending:false}); if(error){setMessage(error.message);return}; setItems((data||[]) as GalleryItem[]) }
-  useEffect(()=>{load()},[]); useEffect(()=>()=>previews.forEach(URL.revokeObjectURL),[previews])
-  const groups=useMemo<GalleryGroup[]>(()=>{const map=new Map<string,GalleryGroup>(); for(const item of items){const key=item.group_id||`single-${item.id}`; if(!map.has(key))map.set(key,{key,title:item.title||'Gallery Moment',items:[],created_at:item.created_at}); const g=map.get(key)!; g.items.push(item); if(!g.created_at||((item.created_at||'')>(g.created_at||'')))g.created_at=item.created_at} return Array.from(map.values()).map(g=>({...g,items:[...g.items].sort((a,b)=>(a.display_order??0)-(b.display_order??0))}))},[items])
-  const selectFiles=(next:FileList|null)=>{const chosen=Array.from(next||[]).filter(f=>f.type.startsWith('image/')); if(chosen.length>MAX_PICTURES){setMessage(`You can upload a maximum of ${MAX_PICTURES} pictures per gallery group.`); return} setFiles(chosen); setPreviews(chosen.map(f=>URL.createObjectURL(f))); setMessage(chosen.length?`${chosen.length} picture${chosen.length===1?'':'s'} selected.`:'')}
-  const removeSelected=(i:number)=>{URL.revokeObjectURL(previews[i]);setFiles(c=>c.filter((_,n)=>n!==i));setPreviews(c=>c.filter((_,n)=>n!==i))}
-  const addGroup=async(e:React.FormEvent)=>{e.preventDefault();if(!title.trim()){setMessage('Enter a title or catalog for this gallery group.');return}if(!files.length){setMessage('Select one or more pictures.');return}if(files.length>MAX_PICTURES){setMessage(`Maximum ${MAX_PICTURES} pictures per group.`);return}setBusy(true);setMessage('Uploading gallery group…');const groupId=makeId();try{const rows:Record<string,unknown>[]=[];for(let i=0;i<files.length;i++){const file=files[i];const safe=file.name.replace(/[^a-zA-Z0-9._-]/g,'_');const path=`moments/${groupId}/${String(i+1).padStart(3,'0')}_${safe}`;const {error}=await supabase.storage.from('gallery').upload(path,file,{cacheControl:'31536000',upsert:false,contentType:file.type});if(error)throw error;const url=supabase.storage.from('gallery').getPublicUrl(path).data.publicUrl;rows.push({title:title.trim(),image_url:url,media_type:'image',mime_type:file.type,image_fit:'cover',group_id:groupId,display_order:i})}const {error}=await supabase.from('gallery_moments').insert(rows);if(error)throw error;setTitle('');setFiles([]);previews.forEach(URL.revokeObjectURL);setPreviews([]);setMessage(`Gallery group published with ${rows.length} picture${rows.length===1?'':'s'}.`);await load()}catch(error:any){setMessage(error?.message||'Gallery upload failed.')}finally{setBusy(false)}}
-  const removeGroup=async(group:GalleryGroup)=>{if(!confirm(`Delete the entire “${group.title}” gallery group (${group.items.length} pictures)?`))return;setBusy(true);try{const paths=group.items.map(item=>{try{return new URL(item.image_url).pathname.split('/storage/v1/object/public/gallery/')[1]}catch{return null}}).filter(Boolean) as string[];if(paths.length)await supabase.storage.from('gallery').remove(paths);const {error}=await supabase.from('gallery_moments').delete().in('id',group.items.map(i=>i.id));if(error)throw error;await load()}catch(error:any){setMessage(error?.message||'Could not delete gallery group.')}finally{setBusy(false)}}
-  return <div className="admin-grid"><section className="admin-panel"><div className="admin-panel-head"><div><h2>New gallery group</h2><span>Upload up to {MAX_PICTURES} pictures as one catalog / moment</span></div></div><div className="admin-panel-body"><form onSubmit={addGroup}><div className="admin-field"><label>Catalog / Group title</label><input className="admin-input" value={title} onChange={e=>setTitle(e.target.value)} placeholder="Sunday Thanksgiving Service"/></div><div className="admin-field"><label>Select up to {MAX_PICTURES} pictures</label><input className="admin-input" type="file" accept="image/*" multiple onChange={e=>selectFiles(e.target.files)}/><div className="admin-helper" style={{marginTop:7}}>Choose up to {MAX_PICTURES} pictures in one selection. {files.length}/{MAX_PICTURES} selected.</div></div>{previews.length>0&&<div style={{display:'grid',gridTemplateColumns:'repeat(3,minmax(0,1fr))',gap:8,marginBottom:15}}>{previews.map((src,i)=><div key={src} style={{position:'relative',aspectRatio:'1',overflow:'hidden',background:'#11120f',border:'1px solid rgba(255,255,255,.08)'}}><img src={src} alt={`Selected ${i+1}`} style={{width:'100%',height:'100%',objectFit:'cover'}}/><button type="button" onClick={()=>removeSelected(i)} style={{position:'absolute',top:5,right:5,width:24,height:24,border:0,borderRadius:'50%',background:'rgba(0,0,0,.8)',color:'#fff'}}>×</button><span style={{position:'absolute',bottom:5,left:5,padding:'3px 6px',background:'rgba(0,0,0,.7)',color:'#fff',fontSize:8}}>{i+1}</span></div>)}</div>}<div className="admin-form-actions"><button className="admin-btn gold" type="submit" disabled={busy||files.length>MAX_PICTURES}>{busy?'Uploading…':'Publish gallery group'}</button></div>{message&&<div className="admin-helper" style={{marginTop:12}}>{message}</div>}</form></div></section><section className="admin-panel"><div className="admin-panel-head"><div><h2>Published gallery groups</h2><span>{groups.length} group{groups.length===1?'':'s'}</span></div></div><div className="admin-panel-body">{groups.length?<div className="admin-list">{groups.map(group=><div key={group.key} className="admin-list-item" style={{alignItems:'flex-start'}}><div style={{display:'grid',gridTemplateColumns:'repeat(2,50px)',gap:4,flexShrink:0}}>{group.items.slice(0,4).map(item=><img key={String(item.id)} src={item.image_url} alt="" style={{width:50,height:50,objectFit:'cover'}}/>)}</div><div className="admin-list-main"><b>{group.title}</b><span>{group.items.length} picture{group.items.length===1?'':'s'} · {group.created_at?new Date(group.created_at).toLocaleDateString('en-NG'):''}</span></div><button className="admin-mini del" disabled={busy} onClick={()=>removeGroup(group)}>Delete group</button></div>)}</div>:<div className="admin-empty">No gallery moments yet.</div>}</div></section></div>
+function editorFilter(editor: EditorState) {
+  return `brightness(${editor.brightness}%) contrast(${editor.contrast}%) saturate(${editor.saturation}%)`
+}
+
+function editorTransform(editor: EditorState) {
+  return `rotate(${editor.rotation}deg) scaleX(${editor.flipH ? -1 : 1})`
+}
+
+async function imageToBlob(src: string, editor: EditorState, mime = 'image/jpeg'): Promise<Blob> {
+  const response = await fetch(src, { mode: 'cors', cache: 'no-store' })
+  if (!response.ok) throw new Error(`Could not read image (${response.status}).`)
+  const blob = await response.blob()
+  const bitmap = await createImageBitmap(blob)
+  const sourceW = bitmap.width
+  const sourceH = bitmap.height
+  const ratio = editor.crop === 'square' ? 1 : editor.crop === 'portrait' ? 4 / 5 : editor.crop === 'landscape' ? 16 / 9 : sourceW / sourceH
+  let cropW = sourceW
+  let cropH = sourceH
+  if (editor.crop !== 'original') {
+    if (sourceW / sourceH > ratio) cropW = Math.round(sourceH * ratio)
+    else cropH = Math.round(sourceW / ratio)
+  }
+  const maxSide = 2200
+  const scale = Math.min(1, maxSide / Math.max(cropW, cropH))
+  const outW = Math.max(1, Math.round(cropW * scale))
+  const outH = Math.max(1, Math.round(cropH * scale))
+  const rotated = Math.abs(editor.rotation % 180) === 90
+  const canvas = document.createElement('canvas')
+  canvas.width = rotated ? outH : outW
+  canvas.height = rotated ? outW : outH
+  const ctx = canvas.getContext('2d')
+  if (!ctx) throw new Error('Your browser could not create an image editor canvas.')
+  ctx.save()
+  ctx.translate(canvas.width / 2, canvas.height / 2)
+  ctx.rotate(editor.rotation * Math.PI / 180)
+  ctx.scale(editor.flipH ? -1 : 1, 1)
+  ctx.filter = editorFilter(editor)
+  const drawW = rotated ? outH : outW
+  const drawH = rotated ? outW : outH
+  ctx.drawImage(bitmap, (sourceW - cropW) / 2, (sourceH - cropH) / 2, cropW, cropH, -drawW / 2, -drawH / 2, drawW, drawH)
+  ctx.restore()
+  if (typeof bitmap.close === 'function') bitmap.close()
+  return await new Promise<Blob>((resolve, reject) => canvas.toBlob(result => result ? resolve(result) : reject(new Error('Could not create the edited image.')), mime, 0.92))
+}
+
+function EditorControls({ editor, setEditor }: { editor: EditorState; setEditor: React.Dispatch<React.SetStateAction<EditorState>> }) {
+  const update = (patch: Partial<EditorState>) => setEditor(current => ({ ...current, ...patch }))
+  return <div className="gallery-editor-controls">
+    <div className="gallery-editor-row">
+      <button type="button" className="admin-mini" onClick={() => update({ rotation: (editor.rotation + 90) % 360 })}>↻ Rotate</button>
+      <button type="button" className="admin-mini" onClick={() => update({ flipH: !editor.flipH })}>⇋ Flip</button>
+      <button type="button" className="admin-mini" onClick={() => setEditor(defaultEditor())}>Reset</button>
+    </div>
+    <label>Crop / ratio
+      <select className="admin-select" value={editor.crop} onChange={e => update({ crop: e.target.value as EditorState['crop'] })}>
+        <option value="original">Original</option><option value="square">Square 1:1</option><option value="portrait">Portrait 4:5</option><option value="landscape">Landscape 16:9</option>
+      </select>
+    </label>
+    <label>Brightness <input type="range" min="60" max="140" value={editor.brightness} onChange={e => update({ brightness: Number(e.target.value) })} /><span>{editor.brightness}%</span></label>
+    <label>Contrast <input type="range" min="60" max="140" value={editor.contrast} onChange={e => update({ contrast: Number(e.target.value) })} /><span>{editor.contrast}%</span></label>
+    <label>Saturation <input type="range" min="0" max="160" value={editor.saturation} onChange={e => update({ saturation: Number(e.target.value) })} /><span>{editor.saturation}%</span></label>
+  </div>
+}
+
+function EditorPreview({ src, editor }: { src: string; editor: EditorState }) {
+  return <div className="gallery-editor-preview"><img src={src} alt="Editing preview" style={{ filter: editorFilter(editor), transform: editorTransform(editor) }} /><div className="gallery-editor-badge">{editor.crop === 'original' ? 'ORIGINAL' : editor.crop.toUpperCase()}</div></div>
+}
+
+export function GalleryMomentsManager() {
+  const [items, setItems] = useState<GalleryItem[]>([])
+  const [title, setTitle] = useState('')
+  const [pending, setPending] = useState<PendingImage[]>([])
+  const [busy, setBusy] = useState(false)
+  const [message, setMessage] = useState('')
+  const [editingPending, setEditingPending] = useState<string | null>(null)
+  const [editingItem, setEditingItem] = useState<GalleryItem | null>(null)
+  const [itemEditor, setItemEditor] = useState<EditorState>(defaultEditor)
+  const [editingItemBusy, setEditingItemBusy] = useState(false)
+
+  const load = async () => {
+    const { data, error } = await supabase.from('gallery_moments').select('*').order('created_at', { ascending: false })
+    if (error) { setMessage(error.message); return }
+    setItems((data || []) as GalleryItem[])
+  }
+
+  useEffect(() => { load() }, [])
+
+  const groups = useMemo<GalleryGroup[]>(() => {
+    const map = new Map<string, GalleryGroup>()
+    for (const item of items) {
+      const key = item.group_id || `single-${item.id}`
+      if (!map.has(key)) map.set(key, { key, title: item.title || 'Gallery Moment', items: [], created_at: item.created_at })
+      const group = map.get(key)!
+      group.items.push(item)
+      if (!group.created_at || ((item.created_at || '') > (group.created_at || ''))) group.created_at = item.created_at
+    }
+    return Array.from(map.values()).map(group => ({ ...group, items: [...group.items].sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0)) }))
+  }, [items])
+
+  const selectFiles = (next: FileList | null) => {
+    const chosen = Array.from(next || []).filter(file => file.type.startsWith('image/'))
+    if (chosen.length > MAX_PICTURES) { setMessage(`You can upload a maximum of ${MAX_PICTURES} pictures per gallery group.`); return }
+    pending.forEach(item => URL.revokeObjectURL(item.preview))
+    setPending(chosen.map(file => ({ id: makeId(), file, preview: URL.createObjectURL(file), editor: defaultEditor() })))
+    setMessage(chosen.length ? `${chosen.length} picture${chosen.length === 1 ? '' : 's'} selected. Click EDIT on any picture before publishing.` : '')
+  }
+
+  const removePending = (id: string) => setPending(current => {
+    const item = current.find(entry => entry.id === id)
+    if (item) URL.revokeObjectURL(item.preview)
+    return current.filter(entry => entry.id !== id)
+  })
+
+  const addGroup = async (event: React.FormEvent) => {
+    event.preventDefault()
+    if (!title.trim()) { setMessage('Enter a title or catalog for this gallery group.'); return }
+    if (!pending.length) { setMessage('Select one or more pictures.'); return }
+    if (pending.length > MAX_PICTURES) { setMessage(`Maximum ${MAX_PICTURES} pictures per group.`); return }
+    setBusy(true); setMessage('Preparing edited gallery pictures…')
+    const groupId = makeId()
+    try {
+      const rows: Record<string, unknown>[] = []
+      for (let index = 0; index < pending.length; index++) {
+        const selected = pending[index]
+        const editedBlob = await imageToBlob(selected.preview, selected.editor)
+        const safe = selected.file.name.replace(/[^a-zA-Z0-9._-]/g, '_').replace(/\.[^.]+$/, '')
+        const path = `moments/${groupId}/${String(index + 1).padStart(3, '0')}_${safe}.jpg`
+        const { error: uploadError } = await supabase.storage.from('gallery').upload(path, editedBlob, { cacheControl: '31536000', upsert: false, contentType: 'image/jpeg' })
+        if (uploadError) throw uploadError
+        const url = supabase.storage.from('gallery').getPublicUrl(path).data.publicUrl
+        rows.push({ title: title.trim(), image_url: url, media_type: 'image', mime_type: 'image/jpeg', image_fit: 'cover', group_id: groupId, display_order: index })
+      }
+      const { error } = await supabase.from('gallery_moments').insert(rows)
+      if (error) throw error
+      pending.forEach(item => URL.revokeObjectURL(item.preview))
+      setTitle(''); setPending([]); setMessage(`Gallery group published with ${rows.length} picture${rows.length === 1 ? '' : 's'}.`); await load()
+    } catch (error: any) {
+      setMessage(error?.message || 'Gallery upload failed.')
+    } finally { setBusy(false) }
+  }
+
+  const openItemEditor = (item: GalleryItem) => { setEditingItem(item); setItemEditor(defaultEditor()); setMessage('') }
+
+  const saveItemEdit = async () => {
+    if (!editingItem) return
+    setEditingItemBusy(true); setMessage('Saving edited picture…')
+    try {
+      const blob = await imageToBlob(editingItem.image_url, itemEditor)
+      const path = `moments/edited/${String(editingItem.id)}-${Date.now()}.jpg`
+      const { error: uploadError } = await supabase.storage.from('gallery').upload(path, blob, { cacheControl: '31536000', upsert: false, contentType: 'image/jpeg' })
+      if (uploadError) throw uploadError
+      const newUrl = supabase.storage.from('gallery').getPublicUrl(path).data.publicUrl
+      const { error: updateError } = await supabase.from('gallery_moments').update({ image_url: newUrl }).eq('id', editingItem.id)
+      if (updateError) throw updateError
+      setItems(current => current.map(item => item.id === editingItem.id ? { ...item, image_url: newUrl } : item))
+      setEditingItem(null); setMessage('Picture updated successfully.')
+    } catch (error: any) {
+      setMessage(error?.message || 'Could not save the edited picture. If the image is from an older external source, replace it with a new file and try again.')
+    } finally { setEditingItemBusy(false) }
+  }
+
+  const removeGroup = async (group: GalleryGroup) => {
+    if (!confirm(`Delete the entire “${group.title}” gallery group (${group.items.length} pictures)?`)) return
+    setBusy(true)
+    try {
+      const paths = group.items.map(item => {
+        try { return new URL(item.image_url).pathname.split('/storage/v1/object/public/gallery/')[1] } catch { return null }
+      }).filter(Boolean) as string[]
+      if (paths.length) await supabase.storage.from('gallery').remove(paths)
+      const { error } = await supabase.from('gallery_moments').delete().in('id', group.items.map(item => item.id))
+      if (error) throw error
+      await load(); setMessage('Gallery group deleted.')
+    } catch (error: any) { setMessage(error?.message || 'Could not delete gallery group.') }
+    finally { setBusy(false) }
+  }
+
+  return <>
+    <style>{`\n.gallery-upload-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:15px}.gallery-upload-card{position:relative;background:#11120f;border:1px solid rgba(255,255,255,.08);overflow:hidden}.gallery-upload-card img{width:100%;aspect-ratio:1;display:block;object-fit:cover}.gallery-upload-actions{display:flex;gap:5px;padding:7px}.gallery-upload-actions button{flex:1}.gallery-number{position:absolute;top:6px;left:6px;padding:3px 6px;background:rgba(0,0,0,.75);color:#fff;font-size:8px}.gallery-editor-backdrop{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.78);display:grid;place-items:center;padding:24px}.gallery-editor-modal{width:min(940px,96vw);max-height:92vh;overflow:auto;background:#0d0e0b;border:1px solid rgba(217,173,76,.3);box-shadow:0 24px 80px rgba(0,0,0,.55)}.gallery-editor-head{padding:16px 18px;border-bottom:1px solid rgba(255,255,255,.07);display:flex;justify-content:space-between;align-items:center}.gallery-editor-head h3{margin:0;font:500 18px Georgia,serif}.gallery-editor-body{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(260px,.65fr);gap:18px;padding:18px}.gallery-editor-preview{position:relative;min-height:420px;background:#050605;display:grid;place-items:center;overflow:hidden;border:1px solid rgba(255,255,255,.08)}.gallery-editor-preview img{max-width:100%;max-height:65vh;object-fit:contain;transition:.18s}.gallery-editor-badge{position:absolute;left:10px;bottom:10px;background:rgba(0,0,0,.72);padding:5px 7px;color:#d9ad4c;font-size:8px;letter-spacing:.12em}.gallery-editor-controls{display:grid;gap:14px;align-content:start}.gallery-editor-controls label{display:grid;gap:6px;color:#898a7f;font-size:9px;letter-spacing:.1em;text-transform:uppercase}.gallery-editor-controls label>span{text-align:right;color:#d9ad4c}.gallery-editor-controls input[type=range]{width:100%}.gallery-editor-row{display:flex;gap:7px;flex-wrap:wrap}.gallery-editor-footer{display:flex;justify-content:flex-end;gap:8px;padding:15px 18px;border-top:1px solid rgba(255,255,255,.07)}@media(max-width:800px){.gallery-upload-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.gallery-editor-body{grid-template-columns:1fr}.gallery-editor-preview{min-height:280px}}\n`}</style>
+    <div className="admin-grid">
+      <section className="admin-panel">
+        <div className="admin-panel-head"><div><h2>New gallery group</h2><span>Upload up to {MAX_PICTURES} pictures as one catalog / moment</span></div></div>
+        <div className="admin-panel-body">
+          <form onSubmit={addGroup}>
+            <div className="admin-field"><label>Catalog / Group title</label><input className="admin-input" value={title} onChange={event => setTitle(event.target.value)} placeholder="Sunday Thanksgiving Service" /></div>
+            <div className="admin-field"><label>Select up to {MAX_PICTURES} pictures</label><input className="admin-input" type="file" accept="image/*" multiple onChange={event => selectFiles(event.target.files)} /><div className="admin-helper" style={{ marginTop: 7 }}>Choose up to {MAX_PICTURES} pictures. {pending.length}/{MAX_PICTURES} selected. Each picture can be edited before publishing.</div></div>
+            {pending.length > 0 && <div className="gallery-upload-grid">{pending.map((item, index) => <div className="gallery-upload-card" key={item.id}><img src={item.preview} alt={`Selected ${index + 1}`} style={{ filter: editorFilter(item.editor), transform: editorTransform(item.editor) }} /><span className="gallery-number">{index + 1}</span><div className="gallery-upload-actions"><button type="button" className="admin-mini" onClick={() => setEditingPending(item.id)}>EDIT</button><button type="button" className="admin-mini del" onClick={() => removePending(item.id)}>REMOVE</button></div></div>)}</div>}
+            <div className="admin-form-actions"><button className="admin-btn gold" type="submit" disabled={busy || pending.length > MAX_PICTURES}>{busy ? 'Publishing…' : 'Publish gallery group'}</button></div>
+            {message && <div className="admin-helper" style={{ marginTop: 12 }}>{message}</div>}
+          </form>
+        </div>
+      </section>
+
+      <section className="admin-panel">
+        <div className="admin-panel-head"><div><h2>Published gallery groups</h2><span>{groups.length} group{groups.length === 1 ? '' : 's'}</span></div></div>
+        <div className="admin-panel-body">{groups.length ? <div className="admin-list">{groups.map(group => <div key={group.key} className="admin-list-item" style={{ alignItems: 'flex-start' }}><div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,50px)', gap: 4, flexShrink: 0 }}>{group.items.slice(0, 4).map(item => <img key={String(item.id)} src={item.image_url} alt="" style={{ width: 50, height: 50, objectFit: 'cover' }} />)}</div><div className="admin-list-main"><b>{group.title}</b><span>{group.items.length} picture{group.items.length === 1 ? '' : 's'} · {group.created_at ? new Date(group.created_at).toLocaleDateString('en-NG') : ''}</span><div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginTop: 8 }}>{group.items.map((item, index) => <button key={String(item.id)} type="button" className="admin-mini" disabled={busy} onClick={() => openItemEditor(item)}>Edit picture {index + 1}</button>)}</div></div><button className="admin-mini del" disabled={busy} onClick={() => removeGroup(group)}>Delete group</button></div>)}</div> : <div className="admin-empty">No gallery moments yet.</div>}</div>
+      </section>
+    </div>
+
+    {editingPending && (() => { const item = pending.find(entry => entry.id === editingPending); if (!item) return null; const [editor, setEditor] = [item.editor, (next: React.SetStateAction<EditorState>) => setPending(current => current.map(entry => entry.id === item.id ? { ...entry, editor: typeof next === 'function' ? next(entry.editor) : next } : entry))]; return <div className="gallery-editor-backdrop" onMouseDown={event => { if (event.target === event.currentTarget) setEditingPending(null) }}><div className="gallery-editor-modal"><div className="gallery-editor-head"><h3>Edit picture {pending.findIndex(entry => entry.id === item.id) + 1}</h3><button type="button" className="admin-mini" onClick={() => setEditingPending(null)}>CLOSE</button></div><div className="gallery-editor-body"><EditorPreview src={item.preview} editor={editor} /><EditorControls editor={editor} setEditor={setEditor} /></div><div className="gallery-editor-footer"><button type="button" className="admin-btn gold" onClick={() => setEditingPending(null)}>APPLY EDIT</button></div></div></div> })()}
+
+    {editingItem && <div className="gallery-editor-backdrop" onMouseDown={event => { if (event.target === event.currentTarget && !editingItemBusy) setEditingItem(null) }}><div className="gallery-editor-modal"><div className="gallery-editor-head"><div><h3>Edit uploaded picture</h3><div className="admin-helper" style={{ marginTop: 4 }}>{editingItem.title}</div></div><button type="button" className="admin-mini" disabled={editingItemBusy} onClick={() => setEditingItem(null)}>CLOSE</button></div><div className="gallery-editor-body"><EditorPreview src={editingItem.image_url} editor={itemEditor} /><EditorControls editor={itemEditor} setEditor={setItemEditor} /></div><div className="gallery-editor-footer"><button type="button" className="admin-btn" disabled={editingItemBusy} onClick={() => setEditingItem(null)}>CANCEL</button><button type="button" className="admin-btn gold" disabled={editingItemBusy} onClick={saveItemEdit}>{editingItemBusy ? 'SAVING…' : 'SAVE EDITED PICTURE'}</button></div></div></div>}
+  </>
 }
