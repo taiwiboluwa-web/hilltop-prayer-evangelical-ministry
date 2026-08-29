@@ -21,27 +21,20 @@ if (!gallery.includes('GALLERY_LIVE_PREVIEW_V4')) gallery = gallery.replace('exp
 fs.writeFileSync(galleryFile, gallery)
 console.log('Gallery admin preview patch normalized: one galleryFit declaration, Fit/Fill controls only')
 
-// AdminPortal has accumulated several historical build patches. The minister
-// photo state may therefore appear as a standalone declaration or embedded in
-// a combined React useState declaration. Remove every historical occurrence by
-// its unique tuple, clean the resulting declaration syntax, then install one
-// canonical state block in the stable ministers section. This is intentionally
-// global so a duplicate that sits outside the normal state range cannot survive.
 const ministerFile = path.resolve('src/pages/AdminPortal.tsx')
 let minister = fs.readFileSync(ministerFile, 'utf8')
 
 minister = minister.replace(/interface Minister \{[^}]*\}/, "interface Minister { id:string|number; name:string; role:string; desc?:string; desc_text?:string; image_url?:string; img?:string; image_url_2?:string; image_url_3?:string; image_fit?:'cover'|'contain'; display_order:number }")
 
+// Remove every historical state tuple globally. The pipe in the TypeScript
+// union is escaped so the JavaScript RegExp matches the complete declaration.
 const historicalStateTuples = [
   /\[mImage2,setMImage2\]=useState\(''\)/g,
   /\[mImage3,setMImage3\]=useState\(''\)/g,
-  /\[ministerFit,setMinisterFit\]=useState<'cover'|'contain'>\('cover'\)/g,
+  /\[ministerFit,setMinisterFit\]=useState<'cover'\|'contain'>\('cover'\)/g,
 ]
 for (const pattern of historicalStateTuples) minister = minister.replace(pattern, '')
 
-// Clean up commas/empty const declarations left behind when an old combined
-// state declaration was stripped. These only target the syntactic residue made
-// by the three historical tuples above.
 minister = minister.replace(/const\s*;\s*/g, '')
 minister = minister.replace(/,\s*;/g, ';')
 minister = minister.replace(/const\s*,/g, 'const ')
