@@ -9,22 +9,21 @@ if(!s.includes('GALLERY_LIVE_PREVIEW_V4'))s=s.replace('export function AdminCont
 fs.writeFileSync(file,s)
 console.log('Gallery admin preview patch normalized: one galleryFit declaration, Fit/Fill controls only')
 
-// Keep the legacy minister editor references type-safe without destructively
-// rewriting AdminPortal. Add the state only when its consumers exist and the
-// declarations are genuinely missing.
+// Final deterministic guard for minister Fit/Fill state. Earlier build steps
+// may change the declaration formatting, so only insert the missing state.
 const ministerFile = path.resolve('src/pages/AdminPortal.tsx')
 let minister = fs.readFileSync(ministerFile, 'utf8')
+const hasFit = /const\s*\[ministerFit\s*,\s*setMinisterFit\]\s*=\s*useState/.test(minister)
 const needsFit = minister.includes('ministerFit') || minister.includes('setMinisterFit')
-const hasFit = minister.includes("const [ministerFit,setMinisterFit]=useState<'cover'|'contain'>('cover');")
 if (needsFit && !hasFit) {
-  const anchor = "const [ministers,setMinisters]=useState<Minister[]>([]),[selectedMinister,setSelectedMinister]=useState(1),[mName,setMName]=useState(''),[mRole,setMRole]=useState(''),[mDesc,setMDesc]=useState(''),[mImage,setMImage]=useState('');"
-  if (minister.includes(anchor)) {
-    minister = minister.replace(anchor, anchor + "\n  const [ministerFit,setMinisterFit]=useState<'cover'|'contain'>('cover');")
-    fs.writeFileSync(ministerFile, minister)
-    console.log('Minister editor fit state restored safely')
-  } else {
-    console.log('Minister editor fit state anchor not found; leaving AdminPortal unchanged')
-  }
+  const anchor = 'const [ministers,setMinisters]=useState<Minister[]>([])'
+  const start = minister.indexOf(anchor)
+  if (start < 0) throw new Error('Minister state anchor not found')
+  const end = minister.indexOf(';', start)
+  if (end < 0) throw new Error('Minister state declaration terminator not found')
+  minister = minister.slice(0, end + 1) + "\n  const [ministerFit,setMinisterFit]=useState<'cover'|'contain'>('cover');" + minister.slice(end + 1)
+  fs.writeFileSync(ministerFile, minister)
+  console.log('Minister editor fit state restored safely')
 } else {
   console.log('Minister editor fit state already present; no change required')
 }
