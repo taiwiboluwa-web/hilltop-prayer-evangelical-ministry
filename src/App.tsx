@@ -3,6 +3,13 @@ import { AdminPortal } from './pages/AdminPortal'
 import { supabase } from './lib/supabase'
 import { Navbar, Logo } from './components/Navbar'
 
+const DONATION_ACCOUNT = {
+  currency: 'USD (US Dollar)',
+  accountName: 'HILLTOP PRAYER & EVANGELICAL MINISTRY',
+  bank: 'ZENITH BANK',
+  accountNumber: '5074529651',
+}
+
 const IMGS = {
   hero: 'https://images.unsplash.com/photo-1510590124886-dc2653b48bf0?w=1920&h=1080&fit=crop&auto=format',
   worship: 'https://images.unsplash.com/photo-1478147427282-58a87a120781?w=1600&h=900&fit=crop&auto=format',
@@ -37,7 +44,7 @@ function App(){
   const [admin,setAdmin]=useState(false)
   useEffect(()=>{if(window.location.pathname.toLowerCase()==='/admin')setAdmin(true)},[])
   if(admin)return <AdminPortal onBack={()=>{setAdmin(false);window.history.pushState({},'', '/')}} />
-  return <><Navbar/><main><section style={{minHeight:'100vh',background:'#08080e',display:'grid',placeItems:'center',padding:'120px 24px',textAlign:'center'}}><div><p style={{color:'var(--gold)',letterSpacing:'.2em',textTransform:'uppercase',fontSize:10}}>Ipaja, Lagos, Nigeria</p><h1 style={{fontFamily:'Georgia,serif',fontSize:'clamp(2.8rem,7vw,6rem)',color:'#f5f0e6',maxWidth:900}}>Hilltop Prayer & Evangelical Ministry</h1><p style={{color:'#c9c2b5',fontSize:18}}>Pray, Believe, Serve, Go</p></div></section></main></>
+  return <><Navbar/><main><section style={{minHeight:'100vh',background:'#08080e',display:'grid',placeItems:'center',padding:'120px 24px',textAlign:'center'}}><div><p style={{color:'var(--gold)',letterSpacing:'.2em',textTransform:'uppercase',fontSize:10}}>Ipaja, Lagos, Nigeria</p><h1 style={{fontFamily:'Georgia,serif',fontSize:'clamp(2.8rem,7vw,6rem)',color:'#f5f0e6',maxWidth:900}}>Hilltop Prayer & Evangelical Ministry</h1><p style={{color:'#c9c2b5',fontSize:18}}>Pray, Believe, Serve, Go</p><div style={{marginTop:40,padding:'24px',border:'1px solid rgba(217,173,76,.35)',borderRadius:12,maxWidth:520,marginInline:'auto',textAlign:'left'}}><strong style={{display:'block',color:'var(--gold)',fontSize:14,letterSpacing:'.12em',textTransform:'uppercase',marginBottom:16}}>USD / Dollar Account</strong><p style={{margin:'8px 0',color:'#f5f0e6'}}><b>Account Name:</b> {DONATION_ACCOUNT.accountName}</p><p style={{margin:'8px 0',color:'#f5f0e6'}}><b>Bank:</b> {DONATION_ACCOUNT.bank}</p><p style={{margin:'8px 0',color:'#f5f0e6'}}><b>Account No.:</b> {DONATION_ACCOUNT.accountNumber}</p></div></div></section></main></>
 }
 
 export default App
