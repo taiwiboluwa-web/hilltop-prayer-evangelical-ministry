@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { AdminPortal } from './pages/AdminPortal'
 
 const ACCOUNTS = {
-  naira: { currency: '₦ Naira Account', accountName: 'HILLTOP PRAYER & EVANGELICAL MINISTRY', bank: 'ZENITH BANK', accountNumber: '1229905996' },
+  naira: { currency: '₦ NAIRA ACCOUNT', accountName: 'HILLTOP PRAYER & EVANGELICAL MINISTRY', bank: 'ZENITH BANK', accountNumber: '1229905996' },
   usd: { currency: '$ USD / DOLLAR ACCOUNT', accountName: 'HILLTOP PRAYER & EVANGELICAL MINISTRY', bank: 'ZENITH BANK', accountNumber: '5074529651' },
 }
 
