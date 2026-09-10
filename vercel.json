@@ -24,8 +24,8 @@
   ],
   "crons": [
     {
-      "path": "/api/cron/supabase-heartbeat",
-      "schedule": "0 12 * * *"
+      "path": "/api/keep-alive",
+      "schedule": "0 10 * * *"
     }
   ],
   "rewrites": [
