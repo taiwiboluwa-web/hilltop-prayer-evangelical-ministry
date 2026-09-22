@@ -32,8 +32,8 @@ const countdown = `function getNextServiceDate(now: Date = new Date()): Date {
   if (now < third) return third
   return getNthSaturday(year, month + 1, 2)
 }
-`
-source = source.replace(/function getNextServiceDate\([\s\S]*?\n\}\n\nfunction getConfiguredServiceDate(settings: any, now: Date = new Date()): Date {
+
+function getConfiguredServiceDate(settings: any, now: Date = new Date()): Date {
   if (settings && settings.saturday_service_automatic === false && settings.saturday_service_override_target) {
     const override = new Date(settings.saturday_service_override_target)
     if (!Number.isNaN(override.getTime()) && override.getTime() > now.getTime()) return override
@@ -41,7 +41,8 @@ source = source.replace(/function getNextServiceDate\([\s\S]*?\n\}\n\nfunction g
   return getNextServiceDate(now)
 }
 
-function useCountdown/, `${countdown}\nfunction useCountdown`)
+`
+source = source.replace(/function getNextServiceDate\([\s\S]*?\n\}\n\nfunction useCountdown/, `${countdown}\nfunction useCountdown`)
 
 await writeFile(path, source, 'utf8')
 console.log('Saturday Service display and countdown permanently synchronized to 5:00 PM')
