@@ -8,13 +8,24 @@ const oldCopy = `Hilltop Prayer & Evangelical Ministry is a vibrant spiritual ho
 const newCopy = `Hilltop Prayer & Evangelical Ministry is a vibrant spiritual home based in Ipaja, Lagos. We are dedicated to raising believers who anchor their lives in prayer, stand firm in faith, and impact their communities with Christ's love.`
 if (source.includes(oldCopy)) source = source.replace(oldCopy, newCopy)
 
-// About section: Saturday Service — Saturday, 12 September 2026 at 5:00 PM.
+// Keep the service time synchronized with the recurring 2nd/3rd Saturday schedule.
 source = source.replace(/time:\s*'5:30 PM - 8:00 PM'/g, "time: '5:00 PM - 7:00 PM'")
 source = source.replace(/time:\s*'5:00 PM - 7:00 PM'/g, "time: '5:00 PM - 7:00 PM'")
 
-// Replace the old recurring prayer-meeting countdown with the requested
-// Saturday Service countdown. This targets 12 September 2026 at 5:00 PM.
-source = source.replace(/function getNextServiceDate\(now:Date=new Date\(\)\):Date\{[^}]*\{[^}]*\}[^}]*\}/, `function getNextServiceDate(now:Date=new Date()):Date{const target=new Date(2026,8,12,17,0,0);return target}`)
+source = source.replace(/function getNextServiceDate\(now:Date=new Date\(\)\):Date\{[^}]*\{[^}]*\}[^}]*\}/, `function getNextServiceDate(now: Date = new Date()): Date {
+  const getNthSaturday = (year: number, month: number, nth: number): Date => {
+    const first = new Date(year, month, 1, 17, 0, 0, 0)
+    const offset = (6 - first.getDay() + 7) % 7
+    return new Date(year, month, 1 + offset + (nth - 1) * 7, 17, 0, 0, 0)
+  }
+  const year = now.getFullYear()
+  const month = now.getMonth()
+  const second = getNthSaturday(year, month, 2)
+  const third = getNthSaturday(year, month, 3)
+  if (now < second) return second
+  if (now < third) return third
+  return getNthSaturday(year, month + 1, 2)
+}`)
 
 // Keep a recognizable event label/date/address available to the About section
 // when older copies of the card are present.
