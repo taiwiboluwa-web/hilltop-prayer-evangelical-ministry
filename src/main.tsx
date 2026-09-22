@@ -93,8 +93,7 @@ function Site() {
     <AdminSecurity />
     <SeasonalTheme admin={isAdminRoute} />
     <ChristmasStoryLayer admin={isAdminRoute} />
-    {isAdminRoute && <SiteCountdowns admin />}
-    {!isAdminRoute && <SiteCountdowns />}
+    {isAdminRoute && <SiteCountdowns admin />} 
     {!isAdminRoute && <EmojiIconReplacer />}
     {isAdminRoute ? <><AdminPortal onBack={goHome} /><GalleryMomentsEnhancer /></> : <><App />{locationHost && createPortal(<LocationDirections />, locationHost)}{publicPage === 'Events' && <GalleryMomentsEnhancer publicEvents />}</>}
   </>
