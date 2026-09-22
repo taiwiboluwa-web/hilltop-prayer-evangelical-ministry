@@ -87,8 +87,6 @@ function CountdownCard({label,target}:{label:string;target:Date}) {
 
 export function SiteCountdowns() {
   const [settings,setSettings] = useState<CountdownSettings>(fallback)
-  const [now,setNow] = useState(() => new Date())
-
   useEffect(() => {
     const load = async () => {
       const {data} = await supabase.from('countdown_settings').select('*').eq('id',1).maybeSingle()
@@ -96,58 +94,31 @@ export function SiteCountdowns() {
     }
     load()
     const refresh = window.setInterval(load, 30000)
-    const tick = window.setInterval(() => setNow(new Date()),1000)
-    return () => { window.clearInterval(refresh); window.clearInterval(tick) }
+    return () => window.clearInterval(refresh)
   }, [])
 
-  const serviceTarget = useMemo(() => getNextServiceDate(settings, now), [settings, now])
-  const serviceLabel = serviceTarget.toLocaleDateString('en-NG',{weekday:'long',day:'numeric',month:'long',year:'numeric',timeZone:'Africa/Lagos'})
   const seasonal = useMemo(() => {
-    const local = new Date()
+    const now = new Date()
     return {
-      christmas: local.getMonth()===11 && settings.christmas_enabled,
-      newYear: local.getMonth()===0 && local.getDate()<=7 && settings.new_year_enabled
+      christmas: now.getMonth()===11 && settings.christmas_enabled,
+      newYear: now.getMonth()===0 && now.getDate()<=7 && settings.new_year_enabled
     }
   }, [settings])
 
   if (!settings.enabled) return null
 
-  return <>
-    {settings.saturday_service_enabled && <div className="site-service-countdown" aria-label="Next Hilltop Saturday Service">
-      <div className="site-service-countdown-kicker">Gather With Us</div>
-      <h2>Next Live Service</h2>
-      <div className="site-service-countdown-card">
-        <div>
-          <span className="site-countdown-badge">{settings.saturday_service_title}</span>
-          <h3>{settings.saturday_service_title}</h3>
-          <strong>{serviceLabel}</strong>
-          <p>{settings.saturday_service_time_label} · {settings.saturday_service_venue}</p>
-        </div>
-        <CountdownCard label="Starts In" target={serviceTarget} />
-      </div>
-    </div>}
-    <div className="site-countdowns" aria-label="Hilltop seasonal countdowns">
-      {seasonal.christmas && <CountdownCard label={`Countdown to ${settings.christmas_label}`} target={targetDate(12,settings.christmas_target_day)}/>}
-      {seasonal.newYear && <CountdownCard label={`Countdown to ${settings.new_year_label}`} target={targetDate(1,settings.new_year_target_day)}/>}
-    </div>
+  return <div className="site-countdowns" aria-label="Hilltop seasonal countdowns">
+    {seasonal.christmas && <CountdownCard label={`Countdown to ${settings.christmas_label}`} target={targetDate(12,settings.christmas_target_day)}/>}
+    {seasonal.newYear && <CountdownCard label={`Countdown to ${settings.new_year_label}`} target={targetDate(1,settings.new_year_target_day)}/>}
     <style>{`
-      .site-service-countdown{max-width:980px;margin:0 auto;padding:48px 20px;text-align:center;color:var(--ivory,#f5f0e6)}
-      .site-service-countdown-kicker{font:700 11px Inter,system-ui,sans-serif;letter-spacing:.22em;text-transform:uppercase;color:#d9ad4c;margin-bottom:12px}
-      .site-service-countdown h2{font:500 clamp(2.2rem,6vw,3.5rem) Georgia,serif;margin:0 0 34px}
-      .site-service-countdown-card{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:center;text-align:left;padding:44px;border:1px solid rgba(217,173,76,.25);border-radius:26px;background:linear-gradient(135deg,#171611,#0d0e13);box-shadow:0 24px 70px rgba(0,0,0,.24)}
-      .site-service-countdown-card h3{font:500 clamp(2rem,5vw,3rem) Georgia,serif;margin:20px 0 12px}
-      .site-service-countdown-card strong{display:block;color:#d9ad4c;font:700 16px Inter,system-ui,sans-serif}
-      .site-service-countdown-card p{color:#8f8c84;font:14px Inter,system-ui,sans-serif;line-height:1.6;margin:12px 0 0}
-      .site-countdown-badge{display:inline-flex;padding:9px 14px;border:1px solid rgba(217,173,76,.25);border-radius:999px;color:#d9ad4c;background:rgba(217,173,76,.06);font:700 11px Inter,sans-serif;letter-spacing:.12em;text-transform:uppercase}
-      .site-countdown-card{min-width:0;padding:18px;background:rgba(255,255,255,.025);border:1px solid rgba(217,173,76,.16);border-radius:18px}
-      .site-countdown-label{font:700 10px Inter,system-ui,sans-serif;letter-spacing:.18em;text-transform:uppercase;color:#d9ad4c;margin-bottom:12px}
-      .site-countdown-values{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-      .site-countdown-values span{text-align:center;background:rgba(217,173,76,.07);border:1px solid rgba(217,173,76,.12);border-radius:12px;padding:10px 4px}
-      .site-countdown-values b{display:block;font:500 27px Georgia,serif;color:#f0ca70}
-      .site-countdown-values small{font:8px Inter,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#777970}
       .site-countdowns{position:fixed;right:18px;bottom:18px;z-index:9980;display:flex;gap:10px;flex-wrap:wrap;max-width:min(650px,calc(100vw - 36px));justify-content:flex-end;pointer-events:none}
       .site-countdowns>.site-countdown-card{pointer-events:auto;min-width:235px}
-      @media(max-width:700px){.site-service-countdown{padding:34px 14px}.site-service-countdown-card{grid-template-columns:1fr;padding:28px 20px;border-radius:20px}.site-service-countdown-card h3{font-size:2.2rem}.site-countdown-values b{font-size:23px}}
+      .site-countdown-card{background:rgba(255,255,255,.96);border:1px solid rgba(217,173,76,.16);border-radius:16px;padding:12px 14px;box-shadow:0 12px 35px rgba(0,0,0,.13);color:#173c28}
+      .site-countdown-label{font:700 9px Inter,system-ui,sans-serif;letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px}
+      .site-countdown-values{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+      .site-countdown-values span{text-align:center;background:#f5faf6;border-radius:9px;padding:6px 3px}
+      .site-countdown-values b{display:block;font:700 18px Georgia,serif}
+      .site-countdown-values small{font:8px Inter,sans-serif;color:#6c7e73}
     `}</style>
-  </>
+  </div>
 }
