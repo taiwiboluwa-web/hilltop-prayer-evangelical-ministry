@@ -171,15 +171,6 @@ export function SiteCountdowns({admin=false}:{admin?:boolean}) {
     .countdown-close{position:absolute;right:12px;top:10px;background:none;border:0;color:#888;font-size:24px}.countdown-actions{display:flex;justify-content:flex-end;gap:8px;padding-top:18px}.countdown-admin-status{padding:12px;border:1px solid rgba(217,173,76,.18);background:#11120f;color:#d9ad4c;font:700 9px Inter,sans-serif;letter-spacing:.08em;line-height:1.5}.countdown-admin-message{padding:11px;margin-top:12px;border:1px solid rgba(69,196,131,.2);background:rgba(69,196,131,.05);color:#82cba3;font:10px Inter,sans-serif;line-height:1.5}
   `}</style></>
 
-  if(!settings.enabled) return null
-  return <div className="site-countdowns" aria-label="Hilltop countdowns">
-    {settings.saturday_service_enabled&&<CountdownCard label={`${settings.saturday_service_title} · ${serviceTarget.toLocaleDateString('en-NG',{weekday:'short',day:'numeric',month:'short'})}`} target={serviceTarget}/>}
-    {seasonal.christmas&&<CountdownCard label={`Countdown to ${settings.christmas_label}`} target={new Date(new Date().getFullYear(),11,settings.christmas_target_day,0,0,0)}/>}
-    {seasonal.newYear&&<CountdownCard label={`Countdown to ${settings.new_year_label}`} target={new Date(new Date().getFullYear(),0,settings.new_year_target_day,0,0,0)}/>}
-    <style>{`
-      .site-countdowns{position:fixed;right:18px;bottom:18px;z-index:9980;display:flex;gap:10px;flex-wrap:wrap;max-width:min(650px,calc(100vw - 36px));justify-content:flex-end;pointer-events:none}
-      .site-countdowns>.site-countdown-card{pointer-events:auto;min-width:235px}
-      .site-countdown-card{background:rgba(255,255,255,.96);border:1px solid rgba(217,173,76,.16);border-radius:16px;padding:12px 14px;box-shadow:0 12px 35px rgba(0,0,0,.13);color:#173c28}.site-countdown-label{font:700 9px Inter,system-ui,sans-serif;letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px}.site-countdown-values{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.site-countdown-values span{text-align:center;background:#f5faf6;border-radius:9px;padding:6px 3px}.site-countdown-values b{display:block;font:700 18px Georgia,serif}.site-countdown-values small{font:8px Inter,sans-serif;color:#6c7e73}
-    `}</style>
-  </div>
+  return null
+
 }
