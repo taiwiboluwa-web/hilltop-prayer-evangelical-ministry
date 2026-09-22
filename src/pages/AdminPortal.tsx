@@ -1,13 +1,14 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { supabase } from '../supabase';
 import { GalleryMomentsManager } from '../components/GalleryMomentsManager';
+import { SiteCountdowns } from '../components/SiteCountdowns';
 
 interface AdminPortalProps { onBack: () => void }
 interface Minister { id:number|string; name:string; role:string; desc?:string; desc_text?:string; image_url?:string; img?:string; display_order:number }
 interface GalleryItem { id:string|number; title:string; image_url:string; created_at?:string; group_id?:string|null; display_order?:number|null }
 interface Sermon { id:string; title:string; speaker:string; scripture:string; category:string; video_url:string; thumbnail_url:string; is_featured:boolean; created_at:string }
 interface AudioSermon { id:string; title:string; speaker:string; episode:string; duration:string; audio_url:string; created_at?:string }
-type Tab = 'overview'|'ministers'|'gallery'|'videos'|'live'|'audio';
+type Tab = 'overview'|'ministers'|'gallery'|'videos'|'live'|'audio'|'countdown';
 
 const nav: {id:Tab; label:string; short:string}[] = [
   { id:'overview', label:'Overview', short:'OV' },
@@ -16,6 +17,7 @@ const nav: {id:Tab; label:string; short:string}[] = [
   { id:'videos', label:'Video Sermons', short:'VI' },
   { id:'live', label:'Live Broadcast', short:'LI' },
   { id:'audio', label:'Audio Messages', short:'AU' },
+  { id:'countdown', label:'Countdown Control', short:'CO' },
 ];
 
 const svg = (d:string) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={d}/></svg>;
@@ -26,6 +28,7 @@ const icons: Record<string, React.ReactNode> = {
   videos: svg('m15 10 4.55-2.28A1 1 0 0 1 21 8.62v6.76a1 1 0 0 1-1.45.9L15 14M5 18h8a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2Z'),
   live: svg('M8.5 16.5a5 5 0 0 1 0-9m7 0a5 5 0 0 1 0 9M5 19.5a9 9 0 0 1 0-15m14 0a9 9 0 0 1 0 15M12 12h.01'),
   audio: svg('M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3Zm-7 9a7 7 0 0 0 14 0M12 19v3m-4 0h8'),
+  countdown: svg('M12 7v5l3 2M12 3a9 9 0 1 0 9 9 9 9 0 0 0-9-9Z'),
 };
 
 const styles = `
@@ -97,9 +100,11 @@ export function AdminPortal({ onBack }: AdminPortalProps) {
 
   const renderLive=()=> <><div className="admin-heading-row"><div className="admin-heading"><h1>Live Broadcast</h1><p>Control the live stream status shown on the public website.</p></div></div><div className="admin-grid"><section className="admin-panel"><SectionTitle title="Broadcast settings" sub="One live broadcast at a time"/><div className="admin-panel-body"><form onSubmit={saveLive}><div className="admin-field"><label>Broadcast title</label><input className="admin-input" value={liveTitle} onChange={e=>setLiveTitle(e.target.value)} placeholder="Sunday Service — Live"/></div><div className="admin-field"><label>Stream URL</label><input className="admin-input" value={liveUrl} onChange={e=>setLiveUrl(e.target.value)} placeholder="https://youtube.com/live/…"/></div><label className="admin-switch"><input type="checkbox" checked={liveActive} onChange={e=>setLiveActive(e.target.checked)}/><i/> Broadcast is live</label><div className="admin-form-actions"><button type="button" className="admin-btn danger" onClick={removeLive}>Take offline</button><button className="admin-btn gold" type="submit">Save broadcast</button></div></form></div></section><section className="admin-live-card"><div className="admin-live-status"><i className="admin-pulse"/> {liveActive?'LIVE':'OFFLINE'}</div><h3>{liveTitle||'No title set'}</h3><p>{liveUrl||'Add your YouTube, Facebook or stream destination URL.'}</p>{liveActive&&<button className="admin-btn gold" onClick={()=>window.open(liveUrl,'_blank','noopener,noreferrer')}>Open stream ↗</button>}</section></div></>;
 
+  const renderCountdown=()=> <><div className="admin-heading-row"><div className="admin-heading"><h1>Countdown Control</h1><p>Control the public countdown without touching the code. Choose automatic recurring services or set a specific event date and time.</p></div></div><div className="admin-grid"><section className="admin-panel"><SectionTitle title="Public countdown" sub="Live website control"/><div className="admin-panel-body"><SiteCountdowns admin /></div></section><section className="admin-live-card"><div className="admin-live-status"><i className="admin-pulse"/> Connected to Neon</div><h3>Changes publish directly</h3><p>The countdown reads its settings from the Neon-backed API. Automatic mode calculates the next second or third Saturday; manual mode lets you set the exact next event date and time.</p></section></div></>;
+
   const renderAudio=()=> <><div className="admin-heading-row"><div className="admin-heading"><h1>Audio Messages</h1><p>Publish audio sermons and messages for listeners.</p></div></div><div className="admin-grid"><section className="admin-panel"><SectionTitle title="Add audio message" sub="New audio content"/><div className="admin-panel-body"><form onSubmit={addAudio}><div className="admin-form-grid"><div><div className="admin-field"><label>Title</label><input className="admin-input" value={aTitle} onChange={e=>setATitle(e.target.value)} placeholder="Morning Prayer"/></div><div className="admin-field"><label>Speaker</label><input className="admin-input" value={aSpeaker} onChange={e=>setASpeaker(e.target.value)} placeholder="Pastor Emmanuel Adeyemi"/></div></div><div><div className="admin-field"><label>Episode</label><input className="admin-input" value={aEpisode} onChange={e=>setAEpisode(e.target.value)} placeholder="Ep. 1"/></div><div className="admin-field"><label>Duration</label><input className="admin-input" value={aDuration} onChange={e=>setADuration(e.target.value)} placeholder="32 min"/></div></div></div><div className="admin-field"><label>Audio URL</label><input className="admin-input" value={aUrl} onChange={e=>setAUrl(e.target.value)} placeholder="https://…"/></div><div className="admin-form-actions"><button className="admin-btn gold" type="submit">Publish audio</button></div></form></div></section><section className="admin-panel"><SectionTitle title="Published audio" sub={`${counts.audio} messages`}/><div className="admin-panel-body">{audio.length?<div className="admin-list">{audio.map(a=><div className="admin-list-item" key={a.id}><div className="admin-avatar">♪</div><div className="admin-list-main"><b>{a.title}</b><span>{a.speaker||'No speaker'} · {a.episode||''} {a.duration?`· ${a.duration}`:''}</span></div><button className="admin-mini del" onClick={()=>removeAudio(a.id)}>Delete</button></div>)}</div>:<div className="admin-empty">No audio messages yet.</div>}</div></section></div></>;
 
-  const render=()=>tab==='overview'?renderOverview():tab==='ministers'?renderMinisters():tab==='gallery'?renderGallery():tab==='videos'?renderVideos():tab==='live'?renderLive():renderAudio();
+  const render=()=>tab==='overview'?renderOverview():tab==='ministers'?renderMinisters():tab==='gallery'?renderGallery():tab==='videos'?renderVideos():tab==='live'?renderLive():tab==='countdown'?renderCountdown():renderAudio();
 
   return <><style>{styles}</style><div className="admin-shell"><aside className="admin-sidebar"><div className="admin-brand"><div className="admin-mark">H</div><div><strong>Hilltop Ministries</strong><span>Admin workspace</span></div></div><nav className="admin-nav"><div className="admin-nav-label">Workspace</div>{nav.map(item=><button key={item.id} className={tab===item.id?'active':''} onClick={()=>setTab(item.id)}><span className="admin-nav-icon">{icons[item.id]}</span>{item.label}</button>)}</nav><div className="admin-sidebar-bottom"><button className="admin-btn" style={{width:'100%'}} onClick={onBack}>View website ↗</button><button className="admin-btn danger" style={{width:'100%',marginTop:8}} onClick={logout}>Sign out</button></div></aside><main className="admin-main"><header className="admin-topbar"><div><div className="admin-kicker">Admin dashboard</div><div className="admin-top-title">{active.label}</div></div><div className="admin-top-actions"><button className="admin-btn" onClick={()=>window.open('https://hilltopministries.org/','_blank','noopener,noreferrer')}>Visit site ↗</button><button className="admin-btn gold" onClick={deploy} disabled={deploying}>{deploying?'Deploying…':'+ Deploy changes'}</button><div className="admin-user"><div className="admin-avatar">TB</div><div><small>Administrator</small><b>Taiwo</b></div></div></div></header><div className="admin-content">{render()}</div></main></div></>;
 }
