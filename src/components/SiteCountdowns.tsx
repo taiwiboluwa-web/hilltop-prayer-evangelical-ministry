@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'\nimport { supabase } from '../supabase'
 
 type CountdownSettings = {
   id: number
@@ -99,7 +99,7 @@ export function SiteCountdowns({admin=false}:{admin?:boolean}) {
     setSaving(true);setMessage('')
     try {
       const payload={...draft, saturday_service_override_target:draft.saturday_service_automatic?null:(draft.saturday_service_override_target||null)}
-      const response=await fetch('/api/countdown-settings',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+      const { data: { session } } = await supabase.auth.getSession()\n      if (!session?.access_token) throw new Error('Your admin session has expired. Please sign in again.')\n      const response=await fetch('/api/countdown-settings',{method:'PUT',headers:{'Content-Type':'application/json',Authorization:`Bearer ${session.access_token}`},body:JSON.stringify(payload)})
       const data=await response.json()
       if(!response.ok) throw new Error(data.error||'Unable to publish countdown settings')
       setSettings(data);setDraft(data);setMessage('Published. The public countdown is now using these settings.')
