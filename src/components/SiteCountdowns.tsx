@@ -1,4 +1,5 @@
-import React, { useEffect, useMemo, useState } from 'react'\nimport { supabase } from '../supabase'
+import React, { useEffect, useMemo, useState } from 'react'
+import { supabase } from '../supabase'
 
 type CountdownSettings = {
   id: number
@@ -109,7 +110,8 @@ export function SiteCountdowns({admin=false}:{admin?:boolean}) {
     setSaving(true);setMessage('')
     try {
       const payload={...draft, saturday_service_override_target:draft.saturday_service_automatic?null:(draft.saturday_service_override_target||null)}
-      let { data: { session } } = await supabase.auth.getSession()\n      if (!session?.access_token) {
+      let { data: { session } } = await supabase.auth.getSession()
+      if (!session?.access_token) {
         const refreshed = await supabase.auth.refreshSession()
         session = refreshed.data.session
       }
