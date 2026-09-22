@@ -10,6 +10,8 @@ source = source.replace(/const SCHEDULE\s*=\s*\[[\s\S]*?\]\s*\n/, `${schedule}\n
 // Remove every remaining old 5:30 PM display value.
 source = source.replace(/5:30 PM\s*-\s*8:00 PM/g, '5:00 PM - 7:00 PM')
 source = source.replace(/5:30 PM/g, '5:00 PM')
+source = source.replace(/const \[target\] = useState\(\(\) => getNextServiceDate\(\)\)/, `const [now, setNow] = useState(() => new Date())\n  useEffect(() => { const id = setInterval(() => setNow(new Date()), 1000); return () => clearInterval(id) }, [])\n  const target = getNextServiceDate(now)`) 
+source = source.replace(/\{SCHEDULE\.map\(s => \(/, `{[{ day: formattedDate, name: 'Saturday Service', time: '5:00 PM - 7:00 PM' }].map(s => (`)
 
 // Replace the entire countdown calculation, regardless of its previous formatting.
 const countdown = `function getNextServiceDate(now: Date = new Date()): Date {
