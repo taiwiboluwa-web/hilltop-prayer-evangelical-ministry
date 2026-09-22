@@ -75,6 +75,16 @@ export function SiteCountdowns({admin=false}:{admin?:boolean}) {
   const [settings,setSettings]=useState<CountdownSettings>(fallback)
   const [draft,setDraft]=useState<CountdownSettings>(fallback)
   const [open,setOpen]=useState(false),[saving,setSaving]=useState(false),[message,setMessage]=useState('')
+  const [authenticated,setAuthenticated]=useState(false)
+
+  useEffect(()=>{
+    let mounted=true
+    supabase.auth.getSession().then(({data})=>{ if(mounted) setAuthenticated(Boolean(data.session)) })
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session)=>{
+      if(mounted) setAuthenticated(Boolean(session))
+    })
+    return ()=>{ mounted=false; listener.subscription.unsubscribe() }
+  },[])
 
   const load=async()=>{
     try {
@@ -99,7 +109,12 @@ export function SiteCountdowns({admin=false}:{admin?:boolean}) {
     setSaving(true);setMessage('')
     try {
       const payload={...draft, saturday_service_override_target:draft.saturday_service_automatic?null:(draft.saturday_service_override_target||null)}
-      const { data: { session } } = await supabase.auth.getSession()\n      if (!session?.access_token) throw new Error('Your admin session has expired. Please sign in again.')\n      const response=await fetch('/api/countdown-settings',{method:'PUT',headers:{'Content-Type':'application/json',Authorization:`Bearer ${session.access_token}`},body:JSON.stringify(payload)})
+      let { data: { session } } = await supabase.auth.getSession()\n      if (!session?.access_token) {
+        const refreshed = await supabase.auth.refreshSession()
+        session = refreshed.data.session
+      }
+      if (!session?.access_token) throw new Error('Your admin session has expired. Please sign in again.')
+      const response=await fetch('/api/countdown-settings',{method:'PUT',headers:{'Content-Type':'application/json',Authorization:`Bearer ${session.access_token}`},body:JSON.stringify(payload)})
       const data=await response.json()
       if(!response.ok) throw new Error(data.error||'Unable to publish countdown settings')
       setSettings(data);setDraft(data);setMessage('Published. The public countdown is now using these settings.')
@@ -109,7 +124,7 @@ export function SiteCountdowns({admin=false}:{admin?:boolean}) {
 
   const clearOverride=()=>setDraft({...draft,saturday_service_automatic:true,saturday_service_override_target:null})
 
-  if(admin) return <>{open&&<div className="countdown-admin-overlay">
+  if(admin) return <>{authenticated&&open&&<div className="countdown-admin-overlay">
     <div className="countdown-admin-panel">
       <button className="countdown-close" onClick={()=>setOpen(false)}>×</button>
       <div className="admin-kicker">Website Controls</div>
@@ -140,7 +155,7 @@ export function SiteCountdowns({admin=false}:{admin?:boolean}) {
       <div className="countdown-actions"><button className="admin-btn" onClick={()=>setOpen(false)}>Close</button><button className="admin-btn gold" onClick={save} disabled={saving}>{saving?'Publishing…':'Save & Publish'}</button></div>
     </div>
   </div>}
-  <button className="admin-countdown-launcher" onClick={()=>{setMessage('');setOpen(true)}}>Service Countdown</button>
+  {authenticated&&<button className="admin-countdown-launcher" onClick={()=>{setMessage('');setOpen(true)}}>Service Countdown</button>}
   <style>{`
     .admin-countdown-launcher{position:fixed;right:22px;top:104px;z-index:10001;height:40px;padding:0 15px;border:1px solid rgba(217,173,76,.4);background:#12130f;color:#f0cd73;font:700 10px Inter,sans-serif;letter-spacing:.1em;text-transform:uppercase;box-shadow:0 8px 30px rgba(0,0,0,.3)}
     .countdown-admin-overlay{position:fixed;inset:0;z-index:10050;background:rgba(0,0,0,.58);display:grid;place-items:center;padding:20px}
