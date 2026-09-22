@@ -123,6 +123,16 @@ source = source.replace(
 )
 
 source = source.replace(
+  /<div className="glass-hi" style=\{\{ borderRadius: 'var\\(--r-xl\\)', padding: '48px', marginBottom: 24, position: 'relative', overflow: 'hidden' \}\}>/, 
+  `<div className="glass-hi" style={{ borderRadius: 'var(--r-xl)', padding: '48px', marginBottom: 24, position: 'relative', overflow: 'hidden', display: serviceEnabled ? 'block' : 'none' }}>`
+)
+
+source = source.replace(
+  /<div style=\{\{ display: 'grid', gridTemplateColumns: 'repeat\(auto-fit, minmax\(280px, 1fr\)\)', gap: 16 \}\}>\s*\{SCHEDULE\.map\(s => \(/,
+  `<div style={{ display: serviceEnabled ? 'grid' : 'none', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16 }}>{SCHEDULE.map(s => (`
+)
+
+source = source.replace(
   /<div className="label" style=\{\{ marginBottom: 16, textAlign: 'center' \}\}>Gather With Us<\\/div>/,
   `{serviceEnabled && <div className="label" style={{ marginBottom: 16, textAlign: 'center' }}>Gather With Us</div>}`
 )
