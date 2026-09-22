@@ -1,5 +1,4 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { neon } from '@neondatabase/serverless'
 
 const defaults = {
   id: 1, enabled: true, saturday_service_enabled: true, saturday_service_automatic: true,
@@ -11,45 +10,38 @@ const defaults = {
   christmas_label: 'Christmas', new_year_label: 'New Year'
 }
 
-function sqlClient() {
-  const url = process.env.DATABASE_URL || process.env.POSTGRES_URL
-  if (!url) throw new Error('Neon DATABASE_URL is not configured')
-  return neon(url)
+function supabaseConfig(req: VercelRequest) {
+  const url = (process.env.VITE_SUPABASE_URL || '').replace(/\/$/, '')
+  const key = process.env.VITE_SUPABASE_ANON_KEY || ''
+  const authorization = req.headers.authorization || `Bearer ${key}`
+  if (!url || !key) throw new Error('Supabase environment variables are not configured')
+  return { url, key, authorization }
 }
 
-async function ensureTable() {
-  const sql=sqlClient()
-  await sql`CREATE TABLE IF NOT EXISTS countdown_settings (
-    id integer PRIMARY KEY,
-    enabled boolean NOT NULL DEFAULT true,
-    saturday_service_enabled boolean NOT NULL DEFAULT true,
-    saturday_service_automatic boolean NOT NULL DEFAULT true,
-    saturday_service_override_target timestamptz NULL,
-    saturday_service_title text NOT NULL DEFAULT 'Saturday Service',
-    saturday_service_time_label text NOT NULL DEFAULT '5:00 PM - 7:00 PM',
-    saturday_service_venue text NOT NULL DEFAULT '3 Kola Ojedeji Street, Ipaja, Lagos',
-    christmas_enabled boolean NOT NULL DEFAULT true,
-    christmas_target_month integer NOT NULL DEFAULT 12,
-    christmas_target_day integer NOT NULL DEFAULT 25,
-    new_year_enabled boolean NOT NULL DEFAULT true,
-    new_year_target_month integer NOT NULL DEFAULT 1,
-    new_year_target_day integer NOT NULL DEFAULT 1,
-    christmas_label text NOT NULL DEFAULT 'Christmas',
-    new_year_label text NOT NULL DEFAULT 'New Year',
-    updated_at timestamptz NOT NULL DEFAULT now()
-  )`
-  await sql`INSERT INTO countdown_settings (id) VALUES (1) ON CONFLICT (id) DO NOTHING`
-  return sql
+async function supabaseRequest(req: VercelRequest, path: string, init: RequestInit = {}) {
+  const { url, key, authorization } = supabaseConfig(req)
+  const headers = new Headers(init.headers)
+  headers.set('apikey', key)
+  headers.set('Authorization', authorization)
+  headers.set('Content-Type', 'application/json')
+  headers.set('Accept', 'application/json')
+  return fetch(`${url}/rest/v1/${path}`, { ...init, headers, cache: 'no-store' })
 }
 
 export default async function handler(req:VercelRequest,res:VercelResponse){
   if(req.method!=='GET'&&req.method!=='PUT') return res.status(405).json({error:'Method not allowed'})
-  try{
-    const sql=await ensureTable()
-    if(req.method==='GET'){
-      const rows=await sql`SELECT * FROM countdown_settings WHERE id=1 LIMIT 1`
-      return res.status(200).setHeader('Cache-Control','no-store').json(rows[0]||defaults)
+
+  try {
+    if(req.method==='GET') {
+      const response = await supabaseRequest(req, 'countdown_settings?id=eq.1&select=*')
+      const data = await response.json()
+      if(!response.ok) throw new Error(data?.message || data?.hint || 'Unable to load countdown settings')
+      return res.status(200).setHeader('Cache-Control','no-store').json(data[0] || defaults)
     }
+
+    const auth = req.headers.authorization
+    if(!auth) return res.status(401).json({error:'Authentication required'})
+
     const body=req.body||{}
     const allowed={
       enabled:body.enabled!==false,
@@ -68,17 +60,24 @@ export default async function handler(req:VercelRequest,res:VercelResponse){
       christmas_label:String(body.christmas_label||'Christmas').slice(0,80),
       new_year_label:String(body.new_year_label||'New Year').slice(0,80)
     }
-    if(allowed.saturday_service_override_target && Number.isNaN(Date.parse(allowed.saturday_service_override_target))) return res.status(400).json({error:'Invalid manual override date'})
-    const rows=await sql`UPDATE countdown_settings SET
-      enabled=${allowed.enabled}, saturday_service_enabled=${allowed.saturday_service_enabled},
-      saturday_service_automatic=${allowed.saturday_service_automatic},
-      saturday_service_override_target=${allowed.saturday_service_override_target},
-      saturday_service_title=${allowed.saturday_service_title}, saturday_service_time_label=${allowed.saturday_service_time_label},
-      saturday_service_venue=${allowed.saturday_service_venue}, christmas_enabled=${allowed.christmas_enabled},
-      christmas_target_month=${allowed.christmas_target_month}, christmas_target_day=${allowed.christmas_target_day},
-      new_year_enabled=${allowed.new_year_enabled}, new_year_target_month=${allowed.new_year_target_month},
-      new_year_target_day=${allowed.new_year_target_day}, christmas_label=${allowed.christmas_label},
-      new_year_label=${allowed.new_year_label}, updated_at=now() WHERE id=1 RETURNING *`
-    return res.status(200).setHeader('Cache-Control','no-store').json(rows[0]||defaults)
-  }catch(error:any){ return res.status(500).json({error:error?.message||'Countdown service unavailable'}) }
+
+    if(allowed.saturday_service_override_target && Number.isNaN(Date.parse(allowed.saturday_service_override_target))) {
+      return res.status(400).json({error:'Invalid manual override date'})
+    }
+
+    const response = await supabaseRequest(req, 'countdown_settings?id=eq.1', {
+      method:'PATCH',
+      headers:{ Prefer:'return=representation' },
+      body:JSON.stringify(allowed)
+    })
+    const data = await response.json()
+    if(!response.ok) {
+      const message = data?.message || data?.hint || data?.details || 'Unable to save countdown settings'
+      return res.status(response.status === 401 || response.status === 403 ? response.status : 500).json({error:message})
+    }
+
+    return res.status(200).setHeader('Cache-Control','no-store').json(data[0]||defaults)
+  } catch(error:any) {
+    return res.status(500).json({error:error?.message||'Countdown service unavailable'})
+  }
 }
