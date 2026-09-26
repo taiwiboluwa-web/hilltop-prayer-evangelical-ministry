@@ -23,7 +23,7 @@ const sermonBlock = /const SERMONS = \[[\s\S]*?\]\n\nconst SERMON_TAGS/
 if (!sermonBlock.test(source)) {
   throw new Error('Canonical sermon data block not found; refusing to build with stale demo sermons')
 }
-source = source.replace(sermonBlock, 'const SERMONS = []\n\nconst SERMON_TAGS')
+source = source.replace(sermonBlock, 'const SERMONS: any[] = []\n\nconst SERMON_TAGS')
 
 await fs.writeFile('src/App.tsx', source, 'utf8')
 console.log('Canonical App.tsx restored with service-time normalization and an empty public sermon list')
