@@ -7,9 +7,14 @@ if (source.includes('HILLTOP_FACEBOOK_LINK_V1')) process.exit(0)
 
 const facebookUrl = 'https://www.facebook.com/share/1BpqDUNJut/'
 const instagramUrl = 'https://www.instagram.com/hilltopprayerministry/'
+const tiktokUrl = 'https://www.tiktok.com/@hilltopprayerministry'
 
 // Connect the existing Instagram icon to the official Hilltop ministry profile.
 source = source.replace(/(\{\s*name:\s*'Instagram',\s*href:\s*)'#'/i, `$1'${instagramUrl}'`)
+
+// Connect the existing TikTok icon to the official Hilltop ministry profile.
+source = source.replace(/(\{\s*name:\s*'TikTok',\s*href:\s*)'#'/i, `$1'${tiktokUrl}'`)
+source = source.replace(/(<a\b[^>]*(?:aria-label|title)=(['"])TikTok\2[^>]*href=)(['"])(?:#|javascript:void\(0\)|)(\3)/i, `$1"${tiktokUrl}"$4`)
 
 // Prefer the existing Facebook/social placeholder in the footer. If it uses a
 // placeholder href, make the first footer placeholder point to the supplied page.
@@ -31,6 +36,21 @@ source = source.replace(
 // Add a reliable click delegation for an existing Facebook icon if the icon is
 // rendered without a usable href but has an accessible Facebook label.
 const marker = `\n  useEffect(() => {\n    const onFacebookClick = (event: MouseEvent) => {\n      const target = event.target as Element | null\n      const link = target?.closest?.('[aria-label*="facebook" i], [title*="facebook" i], [data-social="facebook"]') as HTMLAnchorElement | null\n      if (!link) return\n      if (!link.href || link.getAttribute('href') === '#' || link.getAttribute('href') === 'javascript:void(0)') {\n        event.preventDefault()\n        window.location.assign('${facebookUrl}')\n      }\n    }\n    document.addEventListener('click', onFacebookClick)\n    return () => document.removeEventListener('click', onFacebookClick)\n  }, [])\n`
+
+
+  useEffect(() => {
+    const onTikTokClick = (event: MouseEvent) => {
+      const target = event.target as Element | null
+      const link = target?.closest?.('[aria-label*="tiktok" i], [title*="tiktok" i], [data-social="tiktok"]') as HTMLAnchorElement | null
+      if (!link) return
+      if (!link.href || link.getAttribute('href') === '#' || link.getAttribute('href') === 'javascript:void(0)') {
+        event.preventDefault()
+        window.location.assign('\${tiktokUrl}')
+      }
+    }
+    document.addEventListener('click', onTikTokClick)
+    return () => document.removeEventListener('click', onTikTokClick)
+  }, [])
 
 const appFunction = source.indexOf('function App(')
 if (appFunction >= 0 && !source.includes('HILLTOP_FACEBOOK_LINK_V1')) {
