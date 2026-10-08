@@ -6,6 +6,10 @@ let source = fs.readFileSync(file, 'utf8')
 if (source.includes('HILLTOP_FACEBOOK_LINK_V1')) process.exit(0)
 
 const facebookUrl = 'https://www.facebook.com/share/1BpqDUNJut/'
+const instagramUrl = 'https://www.instagram.com/hilltopprayerministry/'
+
+// Connect the existing Instagram icon to the official Hilltop ministry profile.
+source = source.replace(/(\{\s*name:\s*'Instagram',\s*href:\s*)'#'/i, `$1'${instagramUrl}'`)
 
 // Prefer the existing Facebook/social placeholder in the footer. If it uses a
 // placeholder href, make the first footer placeholder point to the supplied page.
