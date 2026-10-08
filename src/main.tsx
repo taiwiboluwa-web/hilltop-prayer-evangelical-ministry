@@ -17,7 +17,7 @@ import { SiteCountdowns } from './components/SiteCountdowns'
 
 const PUBLIC_ROUTES: Record<string, string> = {
   '/': 'Home', '/Home': 'Home', '/About': 'About', '/Sermons': 'Sermons', '/Events': 'Events',
-  '/Ministers': 'Ministers', '/Become%20a%20Member': 'Become a Member', '/Become%20a%20Member/': 'Become a Member', '/Give': 'Give',
+  '/Ministers': 'Ministers', '/BecomeMember': 'Become a Member', '/Give': 'Give',
 }
 
 function routeToPage(pathname: string) {
